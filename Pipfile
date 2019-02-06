@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+prompt-toolkit = "*"
+pygments = "*"
+
+[dev-packages]
+ipython = "*"
+pylint = "*"
+pylint-common = "*"
+
+[requires]
+python_version = "3.6"
