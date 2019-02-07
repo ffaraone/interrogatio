@@ -9,9 +9,9 @@ from prompt_toolkit.layout import HSplit, Layout
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog
 
-from .handlers import InterrogatioMode, get_handler
-from .themes import get_current_theme
-from .validators import Validator
+from ..handlers import InterrogatioMode, get_handler
+from ..themes import get_current_theme
+from ..validators import Validator
 
 __all__ = [
     'InvalidQuestionError',
@@ -140,19 +140,19 @@ def _show_dialog(questions, title, confirm, cancel):
 
 
 def interrogatio(questions, 
-                 mode=InterrogatioMode.CMDLINE,
+                 dialog=False,
                  title='Please fill the following form',
                  confirm='Ok',
                  cancel='Cancel'):
     answers = {}
     for q in questions:
         _validate_question(q)
-        if mode == InterrogatioMode.CMDLINE:
+        if not dialog:
             answers[q['name']] = get_handler(
                 q,
                 questions,
                 answers, 
                 mode=InterrogatioMode.CMDLINE).get_input()
-    if mode == InterrogatioMode.DIALOG:
+    if dialog:
         return _show_dialog(questions, title, confirm, cancel)
     return answers
