@@ -1,4 +1,4 @@
-from .base import registry
+from .base import registry, InterrogatioMode
 from ..validators import ValidationContext
 from .cmdline import ValueInterrogatio, PasswordInterrogatio, SelectOneInterrogatio
 

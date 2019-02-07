@@ -8,8 +8,11 @@ _interrogatio_default = Style([
     ('label', '#efa147'),
     ('radio', '#efa147'),
     ('radio-checked', 'ansiblue'),
-    ('radio-selected', 'ansigreen')
+    ('radio-selected', 'ansigreen'),
+    ('dialog.body text-area', 'bg:default #0000ff'),
+    ('dialog.body text-area last-line', 'underline')
 ])
+
 
 
 _default_theme = merge_styles([

@@ -17,29 +17,41 @@ from ..themes import get_current_theme
 from ..validators import ValidationContext, ValidationError
 from ..widgets import RadioList
 
-from .base import Interrogatio
+from .base import Interrogatio, InterrogatioMode
+
 
 class ValueInterrogatio(Interrogatio):
    
+    def __init__(self, *args, **kwargs):
+        super(ValueInterrogatio, self).__init__(*args, **kwargs)
+        self.widget = TextArea(
+            multiline=False,
+            **self.get_kwargs())
+
     def get_kwargs(self):
         kwargs = dict()
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
         return kwargs
 
-    def get_app(self):
+    def get_value(self):
+        return self.widget.text
+
+    def get_layout(self, mode):
         msg = '{}{}'.format(
             self._question['message'],
-            self._question.get('question_mark', ' ? ')
+            self._question.get('question_mark', ' ?')
         )
-        textarea = TextArea(multiline=False, **self.get_kwargs())
-        layout = Layout(
-            VSplit([
-                Label(msg, dont_extend_width=True),
-                textarea
-            ], padding=2, align=HorizontalAlign.LEFT)
-        )
+        align = HorizontalAlign.LEFT
+        if mode == InterrogatioMode.DIALOG:
+            align = HorizontalAlign.JUSTIFY
 
+        return VSplit([
+                Label(msg, dont_extend_width=True),
+                self.widget
+            ], padding=1, align=align)
+
+    def get_app(self):
         bindings = KeyBindings()
 
         @bindings.add(Keys.ControlC)
@@ -48,11 +60,11 @@ class ValueInterrogatio(Interrogatio):
 
         @bindings.add(Keys.Enter)
         def _enter(event):
-            get_app().exit(result=textarea.text)
+            get_app().exit(result=self.get_answer())
 
 
         return Application(
-            layout=layout,
+            layout=Layout(self.get_layout(InterrogatioMode.CMDLINE)),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_current_theme())
 
@@ -65,24 +77,32 @@ class PasswordInterrogatio(ValueInterrogatio):
 
 class SelectOneInterrogatio(Interrogatio):
 
+    def __init__(self, *args, **kwargs):
+        super(SelectOneInterrogatio, self).__init__(*args, **kwargs)
+        self.widget = RadioList(**self.get_kwargs())
+
+    def get_value(self):
+        return self.widget.current_value
+
     def get_kwargs(self):
         kwargs = dict(values=self._question['values'])
         if 'default' in self._question:
-            kwargs['text'] = self._question['default']
+            kwargs['default'] = self._question['default']
 
         return kwargs
 
-    def get_app(self):
+    def get_layout(self, mode):
         msg = '{}{}'.format(
             self._question['message'],
-            self._question.get('question_mark', ' ? ')
+            self._question.get('question_mark', ' ?')
         )
-        layout = Layout(
-            HSplit([
-                Label(msg),
-                RadioList(**self.get_kwargs())
-            ])
-        )
+        
+        return HSplit([
+            Label(msg),
+            self.widget
+        ])
+
+    def get_app(self):
 
         bindings = KeyBindings()
 
@@ -90,8 +110,13 @@ class SelectOneInterrogatio(Interrogatio):
         def _ctrl_c(event):
             get_app().exit(exception=KeyboardInterrupt)
 
+        def accept_handler(value):
+            get_app().exit(result=self.get_answer())
+        
+        self.widget.accept_handler = accept_handler
+
         return Application(
-            layout=layout,
+            layout=Layout(self.get_layout(InterrogatioMode.CMDLINE)),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_current_theme())
 

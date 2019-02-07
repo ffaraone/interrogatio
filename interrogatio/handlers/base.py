@@ -13,42 +13,60 @@ __all__ = [
     'Interrogatio'
 ]
 
+class InterrogatioMode:
+    CMDLINE = 'cmdline'
+    DIALOG = 'dialog'
+
 class Interrogatio(six.with_metaclass(abc.ABCMeta, object)):
 
-    def __init__(self, question, context):
+    def __init__(self, question, context, mode=InterrogatioMode.CMDLINE):
         self._question = question
         self._context = context
+        self._mode = mode
 
     @abc.abstractmethod
-    def get_kwargs(self):
+    def get_layout(self):
         pass
-
-    def apply_validators(self, answer):
-        validators = self._question.get('validators', [])
-        validation_results = []
-        for validator in validators:
-            try:
-                validator.validate(answer, self._context)
-                validation_results.append(True)
-            except ValidationError as ve:
-                print_formatted_text(
-                    FormattedText([
-                        ('class:interrogatio.error', ve.message)
-                    ]),
-                    style=get_current_theme()
-                )
-                validation_results.append(False)
-        
-        return all(validation_results)
 
     @abc.abstractmethod
     def get_app(self):
         pass
 
+    @abc.abstractmethod
+    def get_value(self):
+        pass
+
+    def get_answer(self):
+        return {self._question['name']: self.get_value()}
+
+    def get_variable_name(self):
+        return self._question['name']
+
+    @abc.abstractmethod
+    def get_kwargs(self):
+        pass
+
+    def apply_validators(self):
+        validators = self._question.get('validators', [])
+        error_messages = []
+        for validator in validators:
+            try:
+                validator.validate(self.get_value(), self._context)
+            except ValidationError as ve:
+                error_messages.append(ve.message)
+                if self._mode == InterrogatioMode.CMDLINE:
+                    print_formatted_text(
+                        FormattedText([
+                            ('class:interrogatio.error', ve.message)
+                        ]),
+                        style=get_current_theme()
+                    )
+        return error_messages
+
     def get_input(self):
         while True:
             answer = self.get_app().run()
-            if self.apply_validators(answer):
+            if not self.apply_validators():
                 return answer
 
 
