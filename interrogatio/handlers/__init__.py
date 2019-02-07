@@ -8,7 +8,7 @@ registry.register('password', PasswordInterrogatio)
 registry.register('selectone', SelectOneInterrogatio)
 
 
-def get_handler(question, questions, answers):
+def get_handler(question, questions, answers, mode):
     qtype = question['type']
     clazz = registry[qtype]
-    return clazz(question, ValidationContext(questions, answers))
+    return clazz(question, ValidationContext(questions, answers), mode=mode)

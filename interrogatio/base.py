@@ -84,7 +84,7 @@ def _show_dialog(questions, title, confirm, cancel):
     handlers = []
 
     for q in questions:
-        handler = get_handler(q, questions, None)
+        handler = get_handler(q, questions, None, mode=InterrogatioMode.DIALOG)
         handlers.append(handler)
 
     def ok_handler():
@@ -96,7 +96,7 @@ def _show_dialog(questions, title, confirm, cancel):
     dialog = Dialog(
         title=title,
         body=HSplit([
-            h.get_layout(InterrogatioMode.DIALOG) for h in handlers
+            h.get_layout() for h in handlers
         ], padding=1),      
         buttons=[
             Button(text=confirm, handler=ok_handler),
@@ -148,7 +148,11 @@ def interrogatio(questions,
     for q in questions:
         _validate_question(q)
         if mode == InterrogatioMode.CMDLINE:
-            answers[q['name']] = get_handler(q, questions, answers).get_input()
+            answers[q['name']] = get_handler(
+                q,
+                questions,
+                answers, 
+                mode=InterrogatioMode.CMDLINE).get_input()
     if mode == InterrogatioMode.DIALOG:
         return _show_dialog(questions, title, confirm, cancel)
     return answers

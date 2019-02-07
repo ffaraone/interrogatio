@@ -37,13 +37,13 @@ class ValueInterrogatio(Interrogatio):
     def get_value(self):
         return self.widget.text
 
-    def get_layout(self, mode):
+    def get_layout(self):
         msg = '{}{}'.format(
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
         align = HorizontalAlign.LEFT
-        if mode == InterrogatioMode.DIALOG:
+        if self._mode == InterrogatioMode.DIALOG:
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
@@ -64,7 +64,7 @@ class ValueInterrogatio(Interrogatio):
 
 
         return Application(
-            layout=Layout(self.get_layout(InterrogatioMode.CMDLINE)),
+            layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_current_theme())
 
@@ -91,7 +91,7 @@ class SelectOneInterrogatio(Interrogatio):
 
         return kwargs
 
-    def get_layout(self, mode):
+    def get_layout(self):
         msg = '{}{}'.format(
             self._question['message'],
             self._question.get('question_mark', ' ?')
@@ -116,7 +116,7 @@ class SelectOneInterrogatio(Interrogatio):
         self.widget.accept_handler = accept_handler
 
         return Application(
-            layout=Layout(self.get_layout(InterrogatioMode.CMDLINE)),
+            layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_current_theme())
 
