@@ -1,11 +1,11 @@
-from .base import registry, InterrogatioMode
+from .base import registry, Mode
 from ..validators import ValidationContext
-from .cmdline import ValueInterrogatio, PasswordInterrogatio, SelectOneInterrogatio
+from .cmdline import ValueHandler, PasswordHandler, SelectOneHandler
 
 
-registry.register('input', ValueInterrogatio)
-registry.register('password', PasswordInterrogatio)
-registry.register('selectone', SelectOneInterrogatio)
+registry.register('input', ValueHandler)
+registry.register('password', PasswordHandler)
+registry.register('selectone', SelectOneHandler)
 
 
 def get_handler(question, questions, answers, mode):

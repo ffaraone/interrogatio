@@ -10,16 +10,17 @@ from ..validators import ValidationError
 
 __all__ = [
     'registry',
-    'Interrogatio'
+    'Handler',
+    'Mode'
 ]
 
-class InterrogatioMode:
-    CMDLINE = 'cmdline'
+class Mode:
+    PROMPT = 'prompt'
     DIALOG = 'dialog'
 
-class Interrogatio(six.with_metaclass(abc.ABCMeta, object)):
+class Handler(six.with_metaclass(abc.ABCMeta, object)):
 
-    def __init__(self, question, context, mode=InterrogatioMode.CMDLINE):
+    def __init__(self, question, context, mode=Mode.PROMPT):
         self._question = question
         self._context = context
         self._mode = mode
@@ -54,7 +55,7 @@ class Interrogatio(six.with_metaclass(abc.ABCMeta, object)):
                 validator.validate(self.get_value(), self._context)
             except ValidationError as ve:
                 error_messages.append(ve.message)
-                if self._mode == InterrogatioMode.CMDLINE:
+                if self._mode == Mode.PROMPT:
                     print_formatted_text(
                         FormattedText([
                             ('class:interrogatio.error', ve.message)

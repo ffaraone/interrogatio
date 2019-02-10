@@ -17,13 +17,13 @@ from ..themes import get_theme_manager
 from ..validators import ValidationContext, ValidationError
 from ..widgets import RadioList
 
-from .base import Interrogatio, InterrogatioMode
+from .base import Handler, Mode
 
 
-class ValueInterrogatio(Interrogatio):
+class ValueHandler(Handler):
    
     def __init__(self, *args, **kwargs):
-        super(ValueInterrogatio, self).__init__(*args, **kwargs)
+        super(ValueHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(
             multiline=False,
             **self.get_kwargs())
@@ -43,7 +43,7 @@ class ValueInterrogatio(Interrogatio):
             self._question.get('question_mark', ' ?')
         )
         align = HorizontalAlign.LEFT
-        if self._mode == InterrogatioMode.DIALOG:
+        if self._mode == Mode.DIALOG:
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
@@ -69,16 +69,16 @@ class ValueInterrogatio(Interrogatio):
             style=get_theme_manager().get_current_style())
 
 
-class PasswordInterrogatio(ValueInterrogatio):
+class PasswordHandler(ValueHandler):
 
     def get_kwargs(self):
         return dict(**super().get_kwargs(), password=True)
 
 
-class SelectOneInterrogatio(Interrogatio):
+class SelectOneHandler(Handler):
 
     def __init__(self, *args, **kwargs):
-        super(SelectOneInterrogatio, self).__init__(*args, **kwargs)
+        super(SelectOneHandler, self).__init__(*args, **kwargs)
         self.widget = RadioList(**self.get_kwargs())
 
     def get_value(self):
