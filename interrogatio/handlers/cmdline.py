@@ -26,7 +26,9 @@ class ValueHandler(Handler):
         super(ValueHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(
             multiline=False,
+            style='class:input.answer',
             **self.get_kwargs())
+
 
     def get_kwargs(self):
         kwargs = dict()
@@ -47,7 +49,7 @@ class ValueHandler(Handler):
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
-                Label(msg, dont_extend_width=True),
+                Label(msg, dont_extend_width=True, style='class:input.question'),
                 self.widget
             ], padding=1, align=align)
 
@@ -71,8 +73,54 @@ class ValueHandler(Handler):
 
 class PasswordHandler(ValueHandler):
 
+    def __init__(self, *args, **kwargs):
+        super(PasswordHandler, self).__init__(*args, **kwargs)
+        self.widget = TextArea(
+            multiline=False,
+            style='class:password.answer',
+            **self.get_kwargs())
+
     def get_kwargs(self):
-        return dict(**super().get_kwargs(), password=True)
+        kwargs = dict(password=True)
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
+
+    def get_value(self):
+        return self.widget.text
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        align = HorizontalAlign.LEFT
+        if self._mode == Mode.DIALOG:
+            align = HorizontalAlign.JUSTIFY
+
+        return VSplit([
+                Label(msg, dont_extend_width=True, style='class:password.question'),
+                self.widget
+            ], padding=1, align=align)
+
+    def get_app(self):
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=self.get_answer())
+
+
+        return Application(
+            layout=Layout(self.get_layout()),
+            key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+            style=get_theme_manager().get_current_style())
+
+
 
 
 class SelectOneHandler(Handler):

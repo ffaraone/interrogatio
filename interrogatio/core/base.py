@@ -9,7 +9,7 @@ from prompt_toolkit.layout import HSplit, Layout
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog
 
-from ..handlers import InterrogatioMode, get_handler
+from ..handlers import Mode, get_handler
 from ..themes import get_theme_manager
 from ..validators import Validator
 
@@ -84,7 +84,7 @@ def _show_dialog(questions, title, confirm, cancel):
     handlers = []
 
     for q in questions:
-        handler = get_handler(q, questions, None, mode=InterrogatioMode.DIALOG)
+        handler = get_handler(q, questions, None, mode=Mode.DIALOG)
         handlers.append(handler)
 
     def ok_handler():
@@ -148,11 +148,11 @@ def interrogatio(questions,
     for q in questions:
         _validate_question(q)
         if not dialog:
-            answers[q['name']] = get_handler(
+            answers.update(get_handler(
                 q,
                 questions,
                 answers, 
-                mode=InterrogatioMode.CMDLINE).get_input()
+                mode=Mode.PROMPT).get_input())
     if dialog:
         return _show_dialog(questions, title, confirm, cancel)
     return answers
