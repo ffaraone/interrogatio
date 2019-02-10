@@ -12,6 +12,7 @@ six = "*"
 ipython = "*"
 pylint = "*"
 pylint-common = "*"
+mkdocs = "*"
 
 [requires]
 python_version = "3.6"
