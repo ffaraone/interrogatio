@@ -23,6 +23,8 @@ from .base import Handler
 
 class ValueHandler(Handler):
    
+    ALIAS = 'input'
+
     def __init__(self, *args, **kwargs):
         super(ValueHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(
@@ -76,6 +78,8 @@ class ValueHandler(Handler):
 
 
 class PasswordHandler(ValueHandler):
+
+    ALIAS = 'password'
 
     def __init__(self, *args, **kwargs):
         super(PasswordHandler, self).__init__(*args, **kwargs)
@@ -131,6 +135,8 @@ class PasswordHandler(ValueHandler):
 
 
 class SelectOneHandler(Handler):
+
+    ALIAS = 'selectone'
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)

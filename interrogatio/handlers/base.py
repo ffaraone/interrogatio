@@ -70,8 +70,14 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
 
 
 class Registry(dict):
-    def register(self, name, clazz):
-        self[name] = clazz
+    def register(self, clazz):
+        self[clazz.ALIAS] = clazz
+    
+    def is_registered(self, alias):
+        return alias in self
+    
+    def get_registered(self):
+        return list(self.keys())
 
 
 registry = Registry()
