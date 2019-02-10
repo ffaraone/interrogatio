@@ -5,22 +5,19 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.shortcuts import print_formatted_text
 
 from ..themes import get_theme_manager
+from ..enums import Mode
 from ..validators import ValidationError
 
 
 __all__ = [
     'registry',
-    'Handler',
-    'Mode'
+    'Handler'
 ]
 
-class Mode:
-    PROMPT = 'prompt'
-    DIALOG = 'dialog'
 
 class Handler(six.with_metaclass(abc.ABCMeta, object)):
 
-    def __init__(self, question, context, mode=Mode.PROMPT):
+    def __init__(self, question, context, mode):
         self._question = question
         self._context = context
         self._mode = mode

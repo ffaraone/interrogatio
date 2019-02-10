@@ -16,8 +16,9 @@ from prompt_toolkit.widgets import Label, TextArea
 from ..themes import get_theme_manager
 from ..validators import ValidationContext, ValidationError
 from ..widgets import RadioList
+from ..enums import Mode
 
-from .base import Handler, Mode
+from .base import Handler
 
 
 class ValueHandler(Handler):
@@ -26,7 +27,7 @@ class ValueHandler(Handler):
         super(ValueHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(
             multiline=False,
-            style='class:input.answer',
+            style='class:{}.input.answer'.format(self._mode),
             **self.get_kwargs())
 
 
@@ -49,7 +50,10 @@ class ValueHandler(Handler):
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
-                Label(msg, dont_extend_width=True, style='class:input.question'),
+                Label(
+                    msg,
+                    dont_extend_width=True,
+                    style='class:{}.input.question'.format(self._mode)),
                 self.widget
             ], padding=1, align=align)
 
@@ -77,7 +81,7 @@ class PasswordHandler(ValueHandler):
         super(PasswordHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(
             multiline=False,
-            style='class:password.answer',
+            style='class:{}.password.answer'.format(self._mode),
             **self.get_kwargs())
 
     def get_kwargs(self):
@@ -99,7 +103,10 @@ class PasswordHandler(ValueHandler):
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
-                Label(msg, dont_extend_width=True, style='class:password.question'),
+                Label(
+                    msg,
+                    dont_extend_width=True,
+                    style='class:{}.password.question'.format(self._mode)),
                 self.widget
             ], padding=1, align=align)
 
@@ -146,7 +153,7 @@ class SelectOneHandler(Handler):
         )
         
         return HSplit([
-            Label(msg),
+            Label(msg, style='class:{}.selectone.question'.format(self._mode)),
             self.widget
         ])
 

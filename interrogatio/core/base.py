@@ -9,7 +9,8 @@ from prompt_toolkit.layout import HSplit, Layout
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog
 
-from ..handlers import Mode, get_handler
+from ..enums import Mode
+from ..handlers import get_handler
 from ..themes import get_theme_manager
 from ..validators import Validator
 
