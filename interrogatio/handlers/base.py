@@ -4,7 +4,7 @@ import six
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.shortcuts import print_formatted_text
 
-from ..themes import get_current_theme
+from ..themes import get_theme_manager
 from ..validators import ValidationError
 
 
@@ -59,7 +59,7 @@ class Interrogatio(six.with_metaclass(abc.ABCMeta, object)):
                         FormattedText([
                             ('class:interrogatio.error', ve.message)
                         ]),
-                        style=get_current_theme()
+                        style=get_theme_manager().get_current_style()
                     )
         return error_messages
 

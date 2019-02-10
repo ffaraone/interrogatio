@@ -13,7 +13,7 @@ from prompt_toolkit.shortcuts import print_formatted_text
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
-from ..themes import get_current_theme
+from ..themes import get_theme_manager
 from ..validators import ValidationContext, ValidationError
 from ..widgets import RadioList
 
@@ -66,7 +66,7 @@ class ValueInterrogatio(Interrogatio):
         return Application(
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-            style=get_current_theme())
+            style=get_theme_manager().get_current_style())
 
 
 class PasswordInterrogatio(ValueInterrogatio):
@@ -118,6 +118,6 @@ class SelectOneInterrogatio(Interrogatio):
         return Application(
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-            style=get_current_theme())
+            style=get_theme_manager().get_current_style())
 
 

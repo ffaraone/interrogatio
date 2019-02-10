@@ -10,7 +10,7 @@ from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog
 
 from ..handlers import InterrogatioMode, get_handler
-from ..themes import get_current_theme
+from ..themes import get_theme_manager
 from ..validators import Validator
 
 __all__ = [
@@ -116,7 +116,7 @@ def _show_dialog(questions, title, confirm, cancel):
             bindings,
         ]),
         mouse_support=True,
-        style=get_current_theme(),
+        style=get_theme_manager().get_current_style(),
         full_screen=True)
 
     
