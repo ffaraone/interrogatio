@@ -15,6 +15,7 @@ class Rule:
 class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
 
     def __init__(self, mode, **kwargs):
+        assert mode in [Mode.PROMPT,  Mode.DIALOG]
         self._mode = mode
         for arg in kwargs.values():
             assert isinstance(arg, Rule)
@@ -22,6 +23,9 @@ class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def to_style(self):
         pass
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
 
     def __hash__(self):
         return hash('{}.{}'.format(self._mode, self.__class__))
