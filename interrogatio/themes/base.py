@@ -1,13 +1,13 @@
 import abc
+
 import six
+from prompt_toolkit.styles import (ANSI_COLOR_NAMES, Style, default_ui_style,
+                                   merge_styles)
+from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
 from ..enums import Mode
-
-from .styles import ComponentStyle, InputStyle, PasswordStyle, SelectOneStyle
-
-from prompt_toolkit.styles import (ANSI_COLOR_NAMES,
-                                   Style, default_ui_style, merge_styles)
-from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from .styles import (ComponentStyle, ErrorStyle, InputStyle, PasswordStyle,
+                     SelectOneStyle, TooManyWidgetsStyle)
 
 __all__ = [
     'Theme',
@@ -87,6 +87,10 @@ class DefaultTheme(Theme):
         self.set_component_style(InputStyle(Mode.DIALOG))
         self.set_component_style(PasswordStyle(Mode.PROMPT))
         self.set_component_style(PasswordStyle(Mode.DIALOG))
+        self.set_component_style(ErrorStyle(Mode.PROMPT))
+        self.set_component_style(ErrorStyle(Mode.DIALOG))
+        self.set_component_style(TooManyWidgetsStyle(Mode.DIALOG))
+
         # self.set_component_style(PromptSelectOneStyle())
 
 class ThemeManager(object):

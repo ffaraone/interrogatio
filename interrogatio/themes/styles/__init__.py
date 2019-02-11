@@ -8,6 +8,93 @@ class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
     def to_style(self):
         pass
 
+class ErrorStyle(ComponentStyle):
+    def __init__(self, mode, fg='ansired', bg='', attr=''):
+        self._mode = mode
+        self._fg = fg
+        self._bg = bg
+        self._attr = attr
+
+    def to_style(self):
+        rules = []
+        
+        rules.append(
+            (
+                '{}.error'.format(self._mode), 
+                '{} {} {}'.format(
+                    self._bg or 'default',
+                    self._fg or '',
+                    self._attr or ''
+                ).strip()
+            )
+        )
+
+        return rules    
+
+
+class TooManyWidgetsStyle(ComponentStyle):
+    def __init__(self, 
+        mode,
+        label_fg='ansired',
+        label_bg='',
+        label_attr='',
+        btn_fg='',
+        btn_bg='',
+        btn_attr='',
+        focused_btn_fg='white',
+        focused_btn_bg='ansired',
+        focused_btn_attr=''):
+        self._mode = mode
+        self._label_fg = label_fg
+        self._label_bg = label_bg
+        self._label_attr = label_attr
+        self._btn_fg = btn_fg
+        self._btn_bg = btn_bg
+        self._btn_attr = btn_attr
+
+        self._focused_btn_fg = focused_btn_fg
+        self._focused_btn_bg = focused_btn_bg
+        self._focused_btn_attr = focused_btn_attr
+
+
+    def to_style(self):
+        rules = []
+        
+        rules.append(
+            (
+                '{}.too-many-widgets label'.format(self._mode), 
+                '{} {} {}'.format(
+                    self._label_bg or 'default',
+                    self._label_fg or '',
+                    self._label_attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.too-many-widgets button'.format(self._mode), 
+                '{} {} {}'.format(
+                    self._btn_bg or 'default',
+                    self._btn_fg or '',
+                    self._btn_attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.too-many-widgets button.focused'.format(self._mode), 
+                '{} {} {}'.format(
+                    self._focused_btn_bg or 'default',
+                    self._focused_btn_fg or '',
+                    self._focused_btn_attr or ''
+                ).strip()
+            )
+        )
+
+        return rules
+
 
 class InputStyle(ComponentStyle):
 

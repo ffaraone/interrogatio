@@ -1,14 +1,3 @@
-from prompt_toolkit.application import Application
-from prompt_toolkit.application.current import get_app
-from prompt_toolkit.key_binding.bindings.focus import (focus_next,
-                                                       focus_previous)
-from prompt_toolkit.key_binding.defaults import load_key_bindings
-from prompt_toolkit.key_binding.key_bindings import (KeyBindings,
-                                                     merge_key_bindings)
-from prompt_toolkit.layout import HSplit, Layout
-from prompt_toolkit.shortcuts import message_dialog
-from prompt_toolkit.widgets import Button, Dialog
-
 from ..enums import Mode
 from ..handlers import get_handler
 from ..themes import get_theme_manager

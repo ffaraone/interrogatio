@@ -10,7 +10,7 @@ from ..validators import ValidationError
 
 
 __all__ = [
-    'registry',
+    'get_registry',
     'Handler'
 ]
 
@@ -55,7 +55,7 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
                 if self._mode == Mode.PROMPT:
                     print_formatted_text(
                         FormattedText([
-                            ('class:interrogatio.error', ve.message)
+                            ('class:prompt.error', ve.message)
                         ]),
                         style=get_theme_manager().get_current_style()
                     )
@@ -81,3 +81,6 @@ class Registry(dict):
 
 
 registry = Registry()
+
+def get_registry():
+    return registry

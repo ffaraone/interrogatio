@@ -1,5 +1,5 @@
 
-from ..handlers import registry
+from ..handlers import get_registry
 from ..validators import Validator
 
 class InvalidQuestionError(Exception):
@@ -18,7 +18,7 @@ def validate_question(q):
         raise InvalidQuestionError('You must specify a question type')
 
     q_type = q['type']
-    if q_type not in registry.get_registered():
+    if q_type not in get_registry().get_registered():
         raise InvalidQuestionError('Unsupported question type: {}'.format(
             q_type))
 
