@@ -7,7 +7,7 @@ from prompt_toolkit.styles.named_colors import NAMED_COLORS
 
 from ..enums import Mode
 from .styles import (ComponentStyle, ErrorStyle, InputStyle, PasswordStyle,
-                     SelectOneStyle, TooManyWidgetsStyle)
+                     Rule, SelectOneStyle)
 
 __all__ = [
     'Theme',
@@ -83,15 +83,20 @@ class Theme(object):
 class DefaultTheme(Theme):
     def __init__(self):
         super(DefaultTheme, self).__init__()
-        self.set_component_style(InputStyle(Mode.PROMPT))
-        self.set_component_style(InputStyle(Mode.DIALOG))
-        self.set_component_style(PasswordStyle(Mode.PROMPT))
-        self.set_component_style(PasswordStyle(Mode.DIALOG))
         self.set_component_style(ErrorStyle(Mode.PROMPT))
         self.set_component_style(ErrorStyle(Mode.DIALOG))
-        self.set_component_style(TooManyWidgetsStyle(Mode.DIALOG))
-
-        # self.set_component_style(PromptSelectOneStyle())
+        self.set_component_style(InputStyle(Mode.PROMPT))
+        self.set_component_style(InputStyle(
+            Mode.DIALOG,
+            question=Rule(fg='ansiblue', bg='#eeeeee'),
+            answer=Rule(fg='#efa147', bg='#eeeeee')))
+        self.set_component_style(PasswordStyle(Mode.PROMPT))
+        self.set_component_style(PasswordStyle  (
+            Mode.DIALOG,
+            question=Rule(fg='ansiblue', bg='#eeeeee'),
+            answer=Rule(fg='#efa147', bg='#eeeeee')))
+        self.set_component_style(SelectOneStyle(Mode.PROMPT))
+        self.set_component_style(SelectOneStyle(Mode.DIALOG))
 
 class ThemeManager(object):
 

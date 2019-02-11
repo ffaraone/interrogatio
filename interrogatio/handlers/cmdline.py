@@ -140,7 +140,10 @@ class SelectOneHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)
-        self.widget = RadioList(**self.get_kwargs())
+        self.widget = RadioList(
+            **self.get_kwargs(), 
+            style='class:{}.selectone.answer'.format(self._mode)
+        )
 
     def get_value(self):
         return self.widget.current_value
