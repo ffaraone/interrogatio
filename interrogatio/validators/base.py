@@ -16,7 +16,10 @@ __all__ = [
     'URLValidator',
     'EmailValidator',
     'MinLengthValidator',
-    'MaxLengthValidator'
+    'MaxLengthValidator',
+    'ExactLengthValidator',
+    'NumberValidator',
+    'IntegerValidator'
 ]
 
 
@@ -258,6 +261,33 @@ class MaxLengthValidator(Validator):
             raise ValidationError(message=self.message)
 
 
+class ExactLengthValidator(Validator):
+    def __init__(self, length, message=None):
+        self.length = length
+        self.message = message or 'the length of this field must be '\
+            '{} characters long'.format(self.length)
+
+    def validate(self, value, context):
+        if len(value) > self.length:
+            raise ValidationError(message=self.message)
+
 
 class NumberValidator(Validator):
-    pass
+    def __init__(self, message=None):
+        self.message = message or 'this field must be a number'
+
+    def validate(self, value, context):
+        try:
+            float(value)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+class IntegerValidator(Validator):
+    def __init__(self, message=None):
+        self.message = message or 'this field must be an integer'
+
+    def validate(self, value, context):
+        try:
+            int(value)
+        except ValueError:
+            raise ValidationError(message=self.message)

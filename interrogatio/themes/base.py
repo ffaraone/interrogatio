@@ -1,62 +1,14 @@
-import abc
-
-import six
-from prompt_toolkit.styles import (ANSI_COLOR_NAMES, Style, default_ui_style,
-                                   merge_styles)
-from prompt_toolkit.styles.named_colors import NAMED_COLORS
+from prompt_toolkit.styles import Style, default_ui_style, merge_styles
 
 from ..enums import Mode
 from .styles import (ComponentStyle, ErrorStyle, InputStyle, PasswordStyle,
-                     Rule, SelectOneStyle)
+                     Rule, SelectOneStyle, SelectManyStyle)
 
 __all__ = [
     'Theme',
     'DefaultTheme',
     'get_theme_manager'
 ]
-
-ATTRIBUTES = [
-    'bold',
-    'underline',
-    'italic',
-    'blink',
-    'reverse',
-    'hidden'
-]
-
-ANSI_COLOR_NAMES_ALIASES = {
-    'ansidarkgray': 'ansibrightblack',
-    'ansiteal': 'ansicyan',
-    'ansiturquoise': 'ansibrightcyan',
-    'ansibrown': 'ansiyellow',
-    'ansipurple': 'ansimagenta',
-    'ansifuchsia': 'ansibrightmagenta',
-    'ansilightgray': 'ansigray',
-    'ansidarkred': 'ansired',
-    'ansidarkgreen': 'ansigreen',
-    'ansidarkblue': 'ansiblue',
-}
-
-
-
-# class Rule:
-
-#     INPUT_PROMPT_QUESTION = 'interrogatio.question'
-#     INPUT_PROMPT_ERROR = 'interrogatio.error'
-#     INPUT_PROMPT_ANSWER = ''
-#     INPUT_DIALOG_QUESTION = 'label'
-#     INPUT_DIALOG_ANSWER = 'dialog.body text-area'
-#     INPUT_DIALOG_LASTLINE = 'dialog.body text-area last-line'
-#     SELECTONE_PROMPT_QUESTION = 'radio'
-#     SELECTONE_PROMPT_SELECTED = 'radio-selected'
-#     SELECTONE_PROMPT_CHECKED = 'radio-checked'
-#     SELECTONE_DIALOG_QUESTION = 'dialog.body radio'
-#     SELECTONE_DIALOG_SELECTED = 'dialog.body radio-selected'
-#     SELECTONE_DIALOG_CHECKED = 'dialog.body radio-checked'
-
-
-
-
 
 
 class Theme(object):
@@ -97,6 +49,9 @@ class DefaultTheme(Theme):
             answer=Rule(fg='#efa147', bg='#eeeeee')))
         self.set_component_style(SelectOneStyle(Mode.PROMPT))
         self.set_component_style(SelectOneStyle(Mode.DIALOG))
+        self.set_component_style(SelectManyStyle(Mode.PROMPT))
+        self.set_component_style(SelectManyStyle(Mode.DIALOG))
+
 
 class ThemeManager(object):
 

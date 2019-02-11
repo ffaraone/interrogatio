@@ -193,3 +193,74 @@ class SelectOneStyle(ComponentStyle):
             )
         )
         return rules
+
+
+class SelectManyStyle(ComponentStyle):
+
+    def __init__(self,
+        mode,
+        question=Rule(fg='ansiblue'),
+        answer=Rule(fg='#efa147'),
+        selected=Rule(fg='ansicyan', attr='underline'),
+        checked=Rule(fg='ansimagenta', attr='underline bold')):
+
+        super(SelectManyStyle, self).__init__(
+            mode,
+            question=question,
+            answer=answer,
+            selected=selected,
+            checked=checked
+        )
+        self._question = question
+        self._answer = answer
+        self._selected = selected
+        self._checked = checked
+
+
+    def to_style(self):
+        rules = []
+
+        rules.append(
+            (
+                '{}.selectmany.question'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._question.bg or 'default',
+                    self._question.fg or '',
+                    self._question.attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.selectmany.answer'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._answer.bg or 'default',
+                    self._answer.fg or '',
+                    self._answer.attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.selectmany.answer checkbox-selected'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._selected.bg or 'default',
+                    self._selected.fg or '',
+                    self._selected.attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.selectmany.answer checkbox-checked'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._checked.bg or 'default',
+                    self._checked.fg or '',
+                    self._checked.attr or ''
+                ).strip()
+            )
+        )
+        return rules

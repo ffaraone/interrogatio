@@ -15,7 +15,7 @@ from prompt_toolkit.widgets import Label, TextArea
 
 from ..themes import get_theme_manager
 from ..validators import ValidationContext, ValidationError
-from ..widgets import RadioList
+from ..widgets import SelectOne, SelectMany
 from ..enums import Mode
 
 from .base import Handler
@@ -140,7 +140,7 @@ class SelectOneHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)
-        self.widget = RadioList(
+        self.widget = SelectOne(
             **self.get_kwargs(), 
             style='class:{}.selectone.answer'.format(self._mode)
         )
@@ -185,3 +185,52 @@ class SelectOneHandler(Handler):
             style=get_theme_manager().get_current_style())
 
 
+class SelectManyHandler(Handler):
+
+    ALIAS = 'selectmany'
+
+    def __init__(self, *args, **kwargs):
+        super(SelectManyHandler, self).__init__(*args, **kwargs)
+        self.widget = SelectMany(
+            **self.get_kwargs(), 
+            style='class:{}.selectmany.answer'.format(self._mode)
+        )
+
+    def get_value(self):
+        return self.widget.checked
+
+    def get_kwargs(self):
+        kwargs = dict(values=self._question['values'])
+        if 'default' in self._question:
+            kwargs['default'] = self._question['default']
+
+        return kwargs
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        
+        return HSplit([
+            Label(msg, style='class:{}.selectmany.question'.format(self._mode)),
+            self.widget
+        ])
+
+    def get_app(self):
+
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
+
+        def accept_handler(value):
+            get_app().exit(result=self.get_answer())
+        
+        self.widget.accept_handler = accept_handler
+
+        return Application(
+            layout=Layout(self.get_layout()),
+            key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+            style=get_theme_manager().get_current_style())
