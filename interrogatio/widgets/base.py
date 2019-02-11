@@ -83,7 +83,7 @@ class SelectOne(object):
             right_margins=[],
             dont_extend_height=True)
 
-    def _get_text_fragments(self, style):
+    def _get_text_fragments(self, out_style):
         def mouse_handler(mouse_event):
             """
             Set `_selected_index` and `current_value` according to the y
@@ -97,7 +97,7 @@ class SelectOne(object):
         for i, value in enumerate(self.values):
             checked = (value[0] == self.current_value)
             selected = (i == self._selected_index)
-
+            style = out_style
             if checked:
                 style += ' class:radio-checked'
             if selected:
@@ -114,8 +114,8 @@ class SelectOne(object):
                 result.append((style, ' '))
 
             result.append((style, ')'))
-            result.append(('class:radio', ' '))
-            result.extend(to_formatted_text(value[1], style='class:radio'))
+            result.append((out_style + ' class:radio', ' '))
+            result.extend(to_formatted_text(value[1], style=out_style + ' class:radio'))
             result.append(('', '\n'))
 
         # Add mouse handler to all fragments.
@@ -188,7 +188,7 @@ class SelectMany(object):
         @kb.add('enter')
         def _(event):
             if self.accept_handler:
-                self.accept_handler(self.checked)
+                self.accept_handler(list(self.checked))
 
         @kb.add(Keys.Any)
         def _(event):
@@ -210,7 +210,7 @@ class SelectMany(object):
             right_margins=[],
             dont_extend_height=True)
 
-    def _get_text_fragments(self, style):
+    def _get_text_fragments(self, out_style):
         def mouse_handler(mouse_event):
             """
             Set `_selected_index` and `current_value` according to the y
@@ -227,7 +227,7 @@ class SelectMany(object):
         for i, value in enumerate(self.values):
             checked = (value[0] in self.checked)
             selected = (i == self._selected_index)
-
+            style = out_style
             if checked:
                 style += ' class:checkbox-checked'
             if selected:
@@ -244,8 +244,8 @@ class SelectMany(object):
                 result.append((style, ' '))
 
             result.append((style, ']'))
-            result.append(('class:checkbox', ' '))
-            result.extend(to_formatted_text(value[1], style='class:checkbox'))
+            result.append((out_style + ' class:checkbox', ' '))
+            result.extend(to_formatted_text(value[1], style=out_style + ' class:checkbox'))
             result.append(('', '\n'))
 
         # Add mouse handler to all fragments.

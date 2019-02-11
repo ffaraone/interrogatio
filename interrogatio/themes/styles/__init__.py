@@ -1,6 +1,7 @@
 import abc
 import six
 
+
 from collections import namedtuple
 
 from ...enums import Mode
@@ -22,8 +23,12 @@ class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
     def to_style(self):
         pass
 
+    def __hash__(self):
+        return hash('{}.{}'.format(self._mode, self.__class__))
+
 class ErrorStyle(ComponentStyle):
-    def __init__(self, mode, message=Rule(fg='ansired')):
+    def __init__(self, mode, message=Rule(fg='darkred', 
+                                          attr='bold underline')):
         super(ErrorStyle, self).__init__(mode, message=message)
         self._message = message
 
@@ -47,8 +52,8 @@ class InputStyle(ComponentStyle):
 
     def __init__(self,
         mode,
-        question=Rule(fg='ansiblue'),
-        answer=Rule(fg='#efa147', attr='bold')):
+        question=Rule(fg='darkblue'),
+        answer=Rule(fg='orange', attr='bold')):
 
         super(InputStyle, self).__init__(mode, 
                                          question=question,
@@ -87,8 +92,8 @@ class InputStyle(ComponentStyle):
 class PasswordStyle(ComponentStyle):
     def __init__(self,
         mode,
-        question=Rule(fg='ansimagenta'),
-        answer=Rule(fg='#efa147')):
+        question=Rule(fg='darkblue'),
+        answer=Rule(fg='orange', attr='bold')):
 
         super(PasswordStyle, self).__init__(mode, 
                                          question=question,
@@ -128,10 +133,10 @@ class SelectOneStyle(ComponentStyle):
 
     def __init__(self,
         mode,
-        question=Rule(fg='ansiblue'),
-        answer=Rule(fg='#efa147'),
-        selected=Rule(fg='ansicyan', attr='underline'),
-        checked=Rule(fg='ansimagenta', attr='underline bold')):
+        question=Rule(fg='darkblue'),
+        answer=Rule(fg='darkblue', attr='bold'),
+        selected=Rule(fg='cyan'),
+        checked=Rule(fg='orange', attr='bold')):
 
         super(SelectOneStyle, self).__init__(
             mode,
@@ -173,6 +178,17 @@ class SelectOneStyle(ComponentStyle):
 
         rules.append(
             (
+                '{}.selectone.answer radio'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._answer.bg or 'default',
+                    self._answer.fg or '',
+                    self._answer.attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
                 '{}.selectone.answer radio-selected'.format(self._mode), 
                 'bg:{} {} {}'.format(
                     self._selected.bg or 'default',
@@ -199,10 +215,10 @@ class SelectManyStyle(ComponentStyle):
 
     def __init__(self,
         mode,
-        question=Rule(fg='ansiblue'),
-        answer=Rule(fg='#efa147'),
-        selected=Rule(fg='ansicyan', attr='underline'),
-        checked=Rule(fg='ansimagenta', attr='underline bold')):
+        question=Rule(fg='darkblue'),
+        answer=Rule(fg='darkblue', attr='bold'),
+        selected=Rule(fg='cyan'),
+        checked=Rule(fg='orange', attr='bold')):
 
         super(SelectManyStyle, self).__init__(
             mode,
@@ -234,6 +250,17 @@ class SelectManyStyle(ComponentStyle):
         rules.append(
             (
                 '{}.selectmany.answer'.format(self._mode), 
+                'bg:{} {} {}'.format(
+                    self._answer.bg or 'default',
+                    self._answer.fg or '',
+                    self._answer.attr or ''
+                ).strip()
+            )
+        )
+
+        rules.append(
+            (
+                '{}.selectmany.answer checkbox'.format(self._mode), 
                 'bg:{} {} {}'.format(
                     self._answer.bg or 'default',
                     self._answer.fg or '',
