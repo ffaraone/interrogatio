@@ -46,7 +46,7 @@ class ErrorStyle(InputStyle):
             message = message or Rule(fg='darkred', attr='bold underline')
         else:
             message = message or Rule(fg='darkred', bg='#eeeeee', 
-                                      attr='bold underline')
+                                      attr='bold')
         super(ErrorStyle, self).__init__(mode, message=message)
         self._message = message
 
