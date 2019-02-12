@@ -1,5 +1,7 @@
 from .core import interrogatio
-from .enums import Mode
+from .utils.constants import InputMode
+from .utils.registries import (get_input_handlers_registry,
+                               get_validators_registry)
 
 __version__ = '1.0.0b2'
 

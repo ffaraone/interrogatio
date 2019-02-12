@@ -1,5 +1,5 @@
-from ..enums import Mode
-from ..handlers import get_handlers_registry
+from ..utils.constants import InputMode
+from ..utils.registries import get_input_handlers_registry
 from ..themes import get_theme_manager
 from ..validators import Validator
 from .utils import validate_question
@@ -15,15 +15,16 @@ def interrogatio(questions,
                  title='Please fill the following form',
                  confirm='Ok',
                  cancel='Cancel'):
+    registry = get_input_handlers_registry()
     answers = {}
     for q in questions:
         validate_question(q)
         if not dialog:
-            answers.update(get_handlers_registry().get_handler(
+            answers.update(registry.get_instance(
                 q,
                 questions,
                 answers, 
-                mode=Mode.PROMPT).get_input())
+                mode=InputMode.PROMPT).get_input())
     if dialog:
         return show_dialog(questions, title, confirm, cancel)
     return answers

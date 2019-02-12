@@ -6,10 +6,9 @@ from urllib.parse import urlsplit, urlunsplit
 
 import six
 
+from ..utils.validation import ValidationContext
 
 __all__ = [
-    'get_validators_registry',
-    'ValidationContext',
     'ValidationError',
     'Validator',
     'RequiredValidator',
@@ -28,9 +27,6 @@ __all__ = [
 ]
 
 
-ValidationContext = collections.namedtuple(
-    'ValidationContext', ['questions', 'answers'])
-
 class ValidationError(Exception):
     def __init__(self, message):
         self._message = message
@@ -42,27 +38,6 @@ class ValidationError(Exception):
     def message(self):
         return self._message
 
-
-class Registry(dict):
-    def register(self, clazz):
-        self[clazz.ALIAS] = clazz
-    
-    def is_registered(self, alias):
-        return alias in self
-    
-    def get_registered(self):
-        return list(self.keys())
-
-    def get_instance(self, v):
-        clazz = self[v['name']]
-        if 'args' in v:
-            return clazz(**v['args'])
-        return clazz()
-
-registry = Registry()
-
-def get_validators_registry():
-    return registry
 
 class Validator(six.with_metaclass(abc.ABCMeta, object)):
 
