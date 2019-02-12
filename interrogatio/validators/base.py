@@ -8,6 +8,7 @@ import six
 
 
 __all__ = [
+    'get_validators_registry',
     'ValidationContext',
     'ValidationError',
     'Validator',
@@ -37,6 +38,21 @@ class ValidationError(Exception):
     def message(self):
         return self._message
 
+
+class Registry(dict):
+    def register(self, clazz):
+        self[clazz.ALIAS] = clazz
+    
+    def is_registered(self, alias):
+        return alias in self
+    
+    def get_registered(self):
+        return list(self.keys())
+
+registry = Registry()
+
+def get_validators_registry():
+    return registry
 
 class Validator(six.with_metaclass(abc.ABCMeta, object)):
 
@@ -73,6 +89,7 @@ def validate_ipv46_address(value):
 
 
 class RequiredValidator(Validator):
+    ALIAS = 'required'
     def __init__(self, message=None):
         self.message = message or 'this field is required'
 
@@ -83,6 +100,7 @@ class RequiredValidator(Validator):
 
 
 class RegexValidator(Validator):
+    ALIAS = 'regex'
     def __init__(self, message=None, expr=None, inverse_match=None):
         if expr:
             self.regex = re.compile(expr)
@@ -98,6 +116,7 @@ class RegexValidator(Validator):
 
 
 class EmailValidator(Validator):
+    ALIAS = 'email'
     user_regex = re.compile(
         r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"  # dot-atom
         r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"\Z)',  # quoted-string
@@ -154,6 +173,7 @@ class EmailValidator(Validator):
 
 
 class URLValidator(RegexValidator):
+    ALIAS = 'url'
     ul = '\u00a1-\uffff'  # unicode letters range (must not be a raw string)
 
     # IP patterns
@@ -241,6 +261,7 @@ class URLValidator(RegexValidator):
 #             raise ValidationError(message=self.message)
 
 class MinLengthValidator(Validator):
+    ALIAS = 'min-length'
     def __init__(self, min_length, message=None):
         self.min_length = min_length
         self.message = message or 'the length of this field must be at '\
@@ -251,6 +272,7 @@ class MinLengthValidator(Validator):
             raise ValidationError(message=self.message)
 
 class MaxLengthValidator(Validator):
+    ALIAS = 'max-length'
     def __init__(self, max_length, message=None):
         self.max_length = max_length
         self.message = message or 'the length of this field must be at '\
@@ -262,6 +284,7 @@ class MaxLengthValidator(Validator):
 
 
 class ExactLengthValidator(Validator):
+    ALIAS = 'exact-length'
     def __init__(self, length, message=None):
         self.length = length
         self.message = message or 'the length of this field must be '\
@@ -273,6 +296,7 @@ class ExactLengthValidator(Validator):
 
 
 class NumberValidator(Validator):
+    ALIAS = 'number'
     def __init__(self, message=None):
         self.message = message or 'this field must be a number'
 
@@ -283,6 +307,7 @@ class NumberValidator(Validator):
             raise ValidationError(message=self.message)
 
 class IntegerValidator(Validator):
+    ALIAS = 'integer'
     def __init__(self, message=None):
         self.message = message or 'this field must be an integer'
 

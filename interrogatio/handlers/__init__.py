@@ -1,15 +1,9 @@
-from .base import get_registry, Mode
+from .base import get_handlers_registry, Mode
 from ..validators import ValidationContext
 from .cmdline import ValueHandler, PasswordHandler, SelectOneHandler, SelectManyHandler
 
 
-get_registry().register(ValueHandler)
-get_registry().register(PasswordHandler)
-get_registry().register(SelectOneHandler)
-get_registry().register(SelectManyHandler)
-
-
-def get_handler(question, questions, answers, mode):
-    qtype = question['type']
-    clazz = get_registry()[qtype]
-    return clazz(question, ValidationContext(questions, answers), mode=mode)
+get_handlers_registry().register(ValueHandler)
+get_handlers_registry().register(PasswordHandler)
+get_handlers_registry().register(SelectOneHandler)
+get_handlers_registry().register(SelectManyHandler)
