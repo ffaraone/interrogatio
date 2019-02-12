@@ -22,7 +22,7 @@ class Rule:
             tokens.append(self.attr)
         return ' '.join(tokens)
 
-class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
+class InputStyle(six.with_metaclass(abc.ABCMeta, object)):
 
     def __init__(self, mode, **kwargs):
         assert mode in [Mode.PROMPT,  Mode.DIALOG]
@@ -40,16 +40,35 @@ class ComponentStyle(six.with_metaclass(abc.ABCMeta, object)):
     def __hash__(self):
         return hash('{}.{}'.format(self._mode, self.__class__))
 
-class ErrorStyle(ComponentStyle):
+class ErrorStyle(InputStyle):
     def __init__(self, mode, message=None):
-        message = message or Rule(fg='darkred', attr='bold underline')
+        if mode == Mode.PROMPT:
+            message = message or Rule(fg='darkred', attr='bold underline')
+        else:
+            message = message or Rule(fg='darkred', bg='#eeeeee', 
+                                      attr='bold underline')
         super(ErrorStyle, self).__init__(mode, message=message)
         self._message = message
 
     def to_style(self):
         return [('{}.error'.format(self._mode), str(self._message))]    
 
-class InputStyle(ComponentStyle):
+class DialogStyle(object):
+    def __init__(self, dialog=None, label=None, body=None, shadow=None):
+        self._dialog = dialog or Rule(bg='#4444ff')
+        self._label = label or Rule(fg='magenta', attr='bold')
+        self._body = body or Rule(fg='#000000', bg='#ffffff')
+        self._shadow = shadow or Rule(bg='#00aa00')
+    
+    def to_style(self):
+        return [
+            ('dialog', str(self._dialog)),
+            ('dialog.body', str(self._body)),
+            ('dialog frame.label', str(self._label)),
+            ('dialog shadow', str(self._shadow))
+    ]    
+
+class ValueStyle(InputStyle):
 
     def __init__(self, mode, question=None, answer=None):
         if mode == Mode.PROMPT:
@@ -58,7 +77,7 @@ class InputStyle(ComponentStyle):
         else:
             question = question or Rule(fg='darkblue', bg='#eeeeee')
             answer = answer or Rule(fg='orange', bg='#eeeeee', attr='bold')            
-        super(InputStyle, self).__init__(mode, 
+        super(ValueStyle, self).__init__(mode, 
                                          question=question,
                                          answer=answer)
 
@@ -73,7 +92,7 @@ class InputStyle(ComponentStyle):
 
 
 
-class PasswordStyle(ComponentStyle):
+class PasswordStyle(InputStyle):
     def __init__(self, mode, question=None, answer=None):
 
         if mode == Mode.PROMPT:
@@ -96,7 +115,7 @@ class PasswordStyle(ComponentStyle):
         ]
 
 
-class SelectOneStyle(ComponentStyle):
+class SelectOneStyle(InputStyle):
 
     def __init__(self, mode, question=None, answer=None,
                  selected=None, checked=None):
@@ -137,7 +156,7 @@ class SelectOneStyle(ComponentStyle):
         ]
 
 
-class SelectManyStyle(ComponentStyle):
+class SelectManyStyle(InputStyle):
 
     def __init__(self, mode, question=None, answer=None,
                  selected=None, checked=None):
