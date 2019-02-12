@@ -4,6 +4,8 @@ from ..enums import Mode
 from .styles import (ValueStyle, ErrorStyle, InputStyle, PasswordStyle,
                      Rule, SelectOneStyle, SelectManyStyle, DialogStyle)
 
+from ..handlers import get_handlers_registry
+
 __all__ = [
     'Theme',
     'DefaultTheme',
@@ -14,45 +16,37 @@ __all__ = [
 class Theme(object):
 
     def __init__(self):
-        self.rules = set()
-        self.dialog_style = None
+        self._inputs_styles = dict(prompt=dict(), dialog=dict())
+        self._dialogs_style = None
+        self._buttons_style = None
+        self._registry = get_handlers_registry()
 
-
-    def set_component_style(self, component_style):
-        assert isinstance(component_style, InputStyle)
-        self.rules.add(component_style)
-
-    def set_dialog_style(self, dialog_style):
-        self.dialog_style = dialog_style
+    def set_input_style(self, input_alias, mode, **rules):
+        handler_class = self._registry[input_alias]
+        self._inputs_styles[mode][input_alias] = Style(
+            handler_class.get_style(mode, rules))
 
     def to_style(self):
-        styles = []
-        for component in self.rules:
-            styles.extend(component.to_style())
-
-        if self.dialog_style:
-            styles.extend(self.dialog_style.to_style())
-
-        return merge_styles([
-            default_ui_style(),
-            Style(styles)
-        ])
+        styles = [default_ui_style()]
+        for mode in [Mode.PROMPT, Mode.DIALOG]:
+            styles.extend([s for s in self._inputs_styles[mode].values()])
+        return merge_styles(styles)
         
 
 class DefaultTheme(Theme):
     def __init__(self):
         super(DefaultTheme, self).__init__()
-        self.set_component_style(ErrorStyle(Mode.PROMPT))
-        self.set_component_style(ErrorStyle(Mode.DIALOG))
-        self.set_component_style(ValueStyle(Mode.PROMPT))
-        self.set_component_style(ValueStyle(Mode.DIALOG))
-        self.set_component_style(PasswordStyle(Mode.PROMPT))
-        self.set_component_style(PasswordStyle(Mode.DIALOG))
-        self.set_component_style(SelectOneStyle(Mode.PROMPT))
-        self.set_component_style(SelectOneStyle(Mode.DIALOG))
-        self.set_component_style(SelectManyStyle(Mode.PROMPT))
-        self.set_component_style(SelectManyStyle(Mode.DIALOG))
-        self.set_dialog_style(DialogStyle())
+        # self.set_component_style(ErrorStyle(Mode.PROMPT))
+        # self.set_component_style(ErrorStyle(Mode.DIALOG))
+        # self.set_component_style(ValueStyle(Mode.PROMPT))
+        # self.set_component_style(ValueStyle(Mode.DIALOG))
+        # self.set_component_style(PasswordStyle(Mode.PROMPT))
+        # self.set_component_style(PasswordStyle(Mode.DIALOG))
+        # self.set_component_style(SelectOneStyle(Mode.PROMPT))
+        # self.set_component_style(SelectOneStyle(Mode.DIALOG))
+        # self.set_component_style(SelectManyStyle(Mode.PROMPT))
+        # self.set_component_style(SelectManyStyle(Mode.DIALOG))
+        # self.set_dialog_style(DialogStyle())
 
 
 class ThemeManager(object):

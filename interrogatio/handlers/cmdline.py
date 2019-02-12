@@ -14,6 +14,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
 from ..themes import get_theme_manager
+from ..themes.styles import Rule
 from ..validators import ValidationContext, ValidationError
 from ..widgets import SelectOne, SelectMany
 from ..enums import Mode
@@ -24,6 +25,22 @@ from .base import Handler
 class ValueHandler(Handler):
    
     ALIAS = 'input'
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == Mode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+                                              attr='bold'))
+
+        return [
+            ('{}.input.question'.format(mode), str(question)),
+            ('{}.input.answer'.format(mode), str(answer))
+        ]  
+
 
     def __init__(self, *args, **kwargs):
         super(ValueHandler, self).__init__(*args, **kwargs)
@@ -80,6 +97,7 @@ class ValueHandler(Handler):
 class PasswordHandler(ValueHandler):
 
     ALIAS = 'password'
+
 
     def __init__(self, *args, **kwargs):
         super(PasswordHandler, self).__init__(*args, **kwargs)

@@ -22,6 +22,10 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
         self._context = context
         self._mode = mode
 
+    @abc.abstractstaticmethod
+    def get_style(mode, rules):
+        pass
+
     @abc.abstractmethod
     def get_layout(self):
         pass
