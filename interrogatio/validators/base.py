@@ -20,7 +20,11 @@ __all__ = [
     'MaxLengthValidator',
     'ExactLengthValidator',
     'NumberValidator',
-    'IntegerValidator'
+    'IntegerValidator',
+    'IPv4Validator',
+    'RangeValidator',
+    'MinValidator',
+    'MaxValidator'
 ]
 
 
@@ -48,6 +52,12 @@ class Registry(dict):
     
     def get_registered(self):
         return list(self.keys())
+
+    def get_instance(self, v):
+        clazz = self[v['name']]
+        if 'args' in v:
+            return clazz(**v['args'])
+        return clazz()
 
 registry = Registry()
 
@@ -262,7 +272,7 @@ class URLValidator(RegexValidator):
 
 class MinLengthValidator(Validator):
     ALIAS = 'min-length'
-    def __init__(self, min_length, message=None):
+    def __init__(self, min_length=None, message=None):
         self.min_length = min_length
         self.message = message or 'the length of this field must be at '\
             'least {} characters long'.format(self.min_length)
@@ -273,7 +283,7 @@ class MinLengthValidator(Validator):
 
 class MaxLengthValidator(Validator):
     ALIAS = 'max-length'
-    def __init__(self, max_length, message=None):
+    def __init__(self, max_length=None, message=None):
         self.max_length = max_length
         self.message = message or 'the length of this field must be at '\
             'most {} characters long'.format(self.max_length)
@@ -285,7 +295,7 @@ class MaxLengthValidator(Validator):
 
 class ExactLengthValidator(Validator):
     ALIAS = 'exact-length'
-    def __init__(self, length, message=None):
+    def __init__(self, length=None, message=None):
         self.length = length
         self.message = message or 'the length of this field must be '\
             '{} characters long'.format(self.length)
@@ -314,5 +324,61 @@ class IntegerValidator(Validator):
     def validate(self, value, context):
         try:
             int(value)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+
+class IPv4Validator(Validator):
+    ALIAS = 'ipv4'
+    def __init__(self, message=None):
+        self.message = message or 'this field must be an IPv4 address'
+
+    def validate(self, value, context):
+        try:
+            ipaddress.IPv4Address(value)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+
+class RangeValidator(Validator):
+    ALIAS = 'range'
+    def __init__(self, min=None, max=None, message=None):
+        self.min = float(min)
+        self.max = float(max)
+        self.message = message or \
+            'this field must be a number between {} and {}'.format(min, max)
+    def validate(self, value, context):
+        try:
+            value = float(value)
+            if value < self.min or value > self.max:
+                raise ValidationError(message=self.message)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+class MinValidator(Validator):
+    ALIAS = 'min'
+    def __init__(self, min=None, message=None):
+        self.min = float(min)
+        self.message = message or \
+            'this field must be greater or equal to {}'.format(min)
+    def validate(self, value, context):
+        try:
+            value = float(value)
+            if value < self.min:
+                raise ValidationError(message=self.message)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+class MaxValidator(Validator):
+    ALIAS = 'max'
+    def __init__(self, max=None, message=None):
+        self.max = float(max)
+        self.message = message or \
+            'this field must be smaller or equal to {}'.format(max)
+    def validate(self, value, context):
+        try:
+            value = float(value)
+            if value > self.max:
+                raise ValidationError(message=self.message)
         except ValueError:
             raise ValidationError(message=self.message)

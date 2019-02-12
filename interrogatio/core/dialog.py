@@ -11,7 +11,7 @@ from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog, Label
 
 from ..enums import Mode
-from ..handlers import get_handler
+from ..handlers import get_handlers_registry
 from ..themes import get_theme_manager
 from ..validators import Validator
 
@@ -48,7 +48,8 @@ def show_dialog(questions, title, confirm, cancel):
     handlers = []
 
     for q in questions:
-        handler = get_handler(q, questions, None, mode=Mode.DIALOG)
+        handler = get_handlers_registry().get_handler(
+            q, questions, None, mode=Mode.DIALOG)
         handlers.append(handler)
 
     def ok_handler():
