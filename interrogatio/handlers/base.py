@@ -6,11 +6,11 @@ from prompt_toolkit.shortcuts import print_formatted_text
 
 from ..themes import get_theme_manager
 from ..enums import Mode
-from ..validators import ValidationError
+from ..validators import ValidationError, ValidationContext
 
 
 __all__ = [
-    'get_registry',
+    'get_handlers_registry',
     'Handler'
 ]
 
@@ -79,8 +79,15 @@ class Registry(dict):
     def get_registered(self):
         return list(self.keys())
 
+    def get_handler(self, question, questions, answers, mode):
+        qtype = question['type']
+        clazz = self[qtype]
+        return clazz(
+            question,
+            ValidationContext(questions, answers),
+            mode=mode)
 
 registry = Registry()
 
-def get_registry():
+def get_handlers_registry():
     return registry

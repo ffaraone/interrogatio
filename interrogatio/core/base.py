@@ -1,5 +1,5 @@
 from ..enums import Mode
-from ..handlers import get_handler
+from ..handlers import get_handlers_registry
 from ..themes import get_theme_manager
 from ..validators import Validator
 from .utils import validate_question
@@ -19,7 +19,7 @@ def interrogatio(questions,
     for q in questions:
         validate_question(q)
         if not dialog:
-            answers.update(get_handler(
+            answers.update(get_handlers_registry().get_handler(
                 q,
                 questions,
                 answers, 

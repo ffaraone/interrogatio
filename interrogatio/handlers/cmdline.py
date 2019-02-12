@@ -195,7 +195,7 @@ class SelectManyHandler(Handler):
         self.widget = SelectMany(**self.get_kwargs())
 
     def get_value(self):
-        return self.widget.checked
+        return list(self.widget.checked)
 
     def get_kwargs(self):
         kwargs = dict(
