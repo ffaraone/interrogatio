@@ -27,14 +27,14 @@ class ValueHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(ValueHandler, self).__init__(*args, **kwargs)
-        self.widget = TextArea(
-            multiline=False,
-            style='class:{}.input.answer'.format(self._mode),
-            **self.get_kwargs())
+        self.widget = TextArea(**self.get_kwargs())
 
 
     def get_kwargs(self):
-        kwargs = dict()
+        kwargs = dict(
+            multiline=False,
+            style='class:{}.input.answer'.format(self._mode)
+        )
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
         return kwargs
@@ -83,13 +83,14 @@ class PasswordHandler(ValueHandler):
 
     def __init__(self, *args, **kwargs):
         super(PasswordHandler, self).__init__(*args, **kwargs)
-        self.widget = TextArea(
-            multiline=False,
-            style='class:{}.password.answer'.format(self._mode),
-            **self.get_kwargs())
+        self.widget = TextArea(**self.get_kwargs())
 
     def get_kwargs(self):
-        kwargs = dict(password=True)
+        kwargs = dict(
+            multiline=False,
+            style='class:{}.password.answer'.format(self._mode),
+            password=True
+        )
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
         return kwargs
@@ -140,16 +141,16 @@ class SelectOneHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)
-        self.widget = SelectOne(
-            **self.get_kwargs(), 
-            style='class:{}.selectone.answer'.format(self._mode)
-        )
+        self.widget = SelectOne(**self.get_kwargs())
 
     def get_value(self):
         return self.widget.current_value
 
     def get_kwargs(self):
-        kwargs = dict(values=self._question['values'])
+        kwargs = dict(
+            values=self._question['values'],
+            style='class:{}.selectone.answer'.format(self._mode)
+        )
         if 'default' in self._question:
             kwargs['default'] = self._question['default']
 
@@ -191,16 +192,16 @@ class SelectManyHandler(Handler):
 
     def __init__(self, *args, **kwargs):
         super(SelectManyHandler, self).__init__(*args, **kwargs)
-        self.widget = SelectMany(
-            **self.get_kwargs(), 
-            style='class:{}.selectmany.answer'.format(self._mode)
-        )
+        self.widget = SelectMany(**self.get_kwargs())
 
     def get_value(self):
         return self.widget.checked
 
     def get_kwargs(self):
-        kwargs = dict(values=self._question['values'])
+        kwargs = dict(
+            values=self._question['values'],
+            style='class:{}.selectmany.answer'.format(self._mode)
+        )
         if 'default' in self._question:
             kwargs['default'] = self._question['default']
 
