@@ -38,15 +38,9 @@ class DefaultTheme(Theme):
         self.set_component_style(ErrorStyle(Mode.PROMPT))
         self.set_component_style(ErrorStyle(Mode.DIALOG))
         self.set_component_style(InputStyle(Mode.PROMPT))
-        self.set_component_style(InputStyle(
-            Mode.DIALOG,
-            question=Rule(fg='ansiblue', bg='#eeeeee'),
-            answer=Rule(fg='#efa147', bg='#eeeeee')))
+        self.set_component_style(InputStyle(Mode.DIALOG))
         self.set_component_style(PasswordStyle(Mode.PROMPT))
-        self.set_component_style(PasswordStyle  (
-            Mode.DIALOG,
-            question=Rule(fg='ansiblue', bg='#eeeeee'),
-            answer=Rule(fg='#efa147', bg='#eeeeee')))
+        self.set_component_style(PasswordStyle(Mode.DIALOG))
         self.set_component_style(SelectOneStyle(Mode.PROMPT))
         self.set_component_style(SelectOneStyle(Mode.DIALOG))
         self.set_component_style(SelectManyStyle(Mode.PROMPT))
