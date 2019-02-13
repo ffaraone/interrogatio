@@ -1,6 +1,8 @@
 
-from ..handlers import get_handlers_registry
-from ..validators import Validator, get_validators_registry
+from ..utils.registries import (get_input_handlers_registry,
+                                get_validators_registry)
+from ..validators import Validator
+
 
 class InvalidQuestionError(Exception):
     pass
@@ -27,7 +29,7 @@ def validate_question(q):
         raise InvalidQuestionError('You must specify a question type')
 
     q_type = q['type']
-    if q_type not in get_handlers_registry().get_registered():
+    if q_type not in get_input_handlers_registry().get_registered():
         raise InvalidQuestionError('Unsupported question type: {}'.format(
             q_type))
 

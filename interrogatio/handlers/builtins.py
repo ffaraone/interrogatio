@@ -8,22 +8,43 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.layout import D, HSplit, Layout, VSplit, HorizontalAlign
+from prompt_toolkit.layout import D, HorizontalAlign, HSplit, Layout, VSplit
 from prompt_toolkit.shortcuts import print_formatted_text
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
 from ..themes import get_theme_manager
-from ..validators import ValidationContext, ValidationError
-from ..widgets import SelectOne, SelectMany
-from ..enums import Mode
+from ..utils.constants import InputMode
+from ..utils.styles import Rule
+from ..utils.validation import ValidationContext
+from ..validators import ValidationError
+from ..widgets import SelectMany, SelectOne
+from .base import InputHandler
 
-from .base import Handler
 
-
-class ValueHandler(Handler):
+class ValueHandler(InputHandler):
    
     ALIAS = 'input'
+
+    @staticmethod
+    def get_style_rules_names():
+        return ('question, answer')
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+                                              attr='bold'))
+
+        return [
+            ('{}.input.question'.format(mode), str(question)),
+            ('{}.input.answer'.format(mode), str(answer))
+        ]  
+
 
     def __init__(self, *args, **kwargs):
         super(ValueHandler, self).__init__(*args, **kwargs)
@@ -48,7 +69,7 @@ class ValueHandler(Handler):
             self._question.get('question_mark', ' ?')
         )
         align = HorizontalAlign.LEFT
-        if self._mode == Mode.DIALOG:
+        if self._mode == InputMode.DIALOG:
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
@@ -70,7 +91,7 @@ class ValueHandler(Handler):
         def _enter(event):
             get_app().exit(result=self.get_answer())
 
-
+        print(get_theme_manager().get_current_style().style_rules)
         return Application(
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
@@ -80,6 +101,26 @@ class ValueHandler(Handler):
 class PasswordHandler(ValueHandler):
 
     ALIAS = 'password'
+
+    @staticmethod
+    def get_style_rules_names():
+        return ('question, answer')
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+                                              attr='bold'))
+
+        return [
+            ('{}.password.question'.format(mode), str(question)),
+            ('{}.password.answer'.format(mode), str(answer))
+        ]  
+
 
     def __init__(self, *args, **kwargs):
         super(PasswordHandler, self).__init__(*args, **kwargs)
@@ -104,7 +145,7 @@ class PasswordHandler(ValueHandler):
             self._question.get('question_mark', ' ?')
         )
         align = HorizontalAlign.LEFT
-        if self._mode == Mode.DIALOG:
+        if self._mode == InputMode.DIALOG:
             align = HorizontalAlign.JUSTIFY
 
         return VSplit([
@@ -135,9 +176,38 @@ class PasswordHandler(ValueHandler):
 
 
 
-class SelectOneHandler(Handler):
+class SelectOneHandler(InputHandler):
 
     ALIAS = 'selectone'
+
+    @staticmethod
+    def get_style_rules_names():
+        return ('question, answer', 'selected', 'checked')
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='darkblue', attr='bold'))
+            selected = rules.get('selected', Rule(fg='cyan'))
+            checked = rules.get('checked', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='darkblue', bg='#eeeeee',
+                                              attr='bold'))
+            selected = rules.get('selected', Rule(fg='cyan', bg='#eeeeee'))
+            checked = rules.get('checked', Rule(fg='orange', bg='#eeeeee', 
+                                           attr='bold'))
+
+        return [
+            ('{}.selectone.question'.format(mode), str(question)),
+            ('{}.selectone.answer'.format(mode), str(answer)),
+            ('{}.selectone.answer radio'.format(mode), str(answer)),
+            ('{}.selectone.answer radio-selected'.format(mode), str(selected)),
+            ('{}.selectone.answer radio-checked'.format(mode), str(checked))
+        ]
+
+
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)
@@ -186,9 +256,36 @@ class SelectOneHandler(Handler):
             style=get_theme_manager().get_current_style())
 
 
-class SelectManyHandler(Handler):
+class SelectManyHandler(InputHandler):
 
     ALIAS = 'selectmany'
+
+    @staticmethod
+    def get_style_rules_names():
+        return ('question, answer', 'selected', 'checked')
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='darkblue', attr='bold'))
+            selected = rules.get('selected', Rule(fg='cyan'))
+            checked = rules.get('checked', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='darkblue', bg='#eeeeee',
+                                              attr='bold'))
+            selected = rules.get('selected', Rule(fg='cyan', bg='#eeeeee'))
+            checked = rules.get('checked', Rule(fg='orange', bg='#eeeeee', 
+                                           attr='bold'))
+
+        return [
+            ('{}.selectmany.question'.format(mode), str(question)),
+            ('{}.selectmany.answer'.format(mode), str(answer)),
+            ('{}.selectmany.answer checkbox'.format(mode), str(answer)),
+            ('{}.selectmany.answer checkbox-selected'.format(mode), str(selected)),
+            ('{}.selectmany.answer checkbox-checked'.format(mode), str(checked))
+        ]
 
     def __init__(self, *args, **kwargs):
         super(SelectManyHandler, self).__init__(*args, **kwargs)

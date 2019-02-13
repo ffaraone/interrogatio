@@ -10,8 +10,8 @@ from prompt_toolkit.layout import HSplit, Layout, Window
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog, Label
 
-from ..enums import Mode
-from ..handlers import get_handlers_registry
+from ..utils.constants import InputMode
+from ..utils.registries import get_input_handlers_registry
 from ..themes import get_theme_manager
 from ..validators import Validator
 
@@ -46,10 +46,10 @@ def show_error_dialog(messages):
 def show_dialog(questions, title, confirm, cancel):
 
     handlers = []
-
+    registry = get_input_handlers_registry()
     for q in questions:
-        handler = get_handlers_registry().get_handler(
-            q, questions, None, mode=Mode.DIALOG)
+        handler = registry.get_instance(
+            q, questions, None, mode=InputMode.DIALOG)
         handlers.append(handler)
 
     def ok_handler():

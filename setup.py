@@ -1,9 +1,15 @@
+import os
 from setuptools import find_packages, setup
+
+with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
+    long_description = f.read()
+
 
 setup(
     name='interrogatio',
     version=__import__('interrogatio').get_version(),
-    description='A python library to prompt user for inputs in a terminal application',
+    description='A python library to prompt user for inputs in a terminal application.',
+    long_description=long_description,
     packages=find_packages(),
     install_requires=[
         'prompt-toolkit>=2.0.8', 
@@ -20,8 +26,16 @@ setup(
         'Environment :: Console :: Curses',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python',
-        'Topic :: Terminals',
+        'Topic :: Software Development',
+        'Topic :: Terminals'
     ],
     keywords='console input dialog curses prompt',
 )

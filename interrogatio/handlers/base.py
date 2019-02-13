@@ -5,22 +5,30 @@ from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.shortcuts import print_formatted_text
 
 from ..themes import get_theme_manager
-from ..enums import Mode
-from ..validators import ValidationError, ValidationContext
+from ..utils.constants import InputMode
+from ..validators import ValidationError
+from ..utils.validation import ValidationContext
 
 
 __all__ = [
-    'get_handlers_registry',
-    'Handler'
+    'InputHandler'
 ]
 
 
-class Handler(six.with_metaclass(abc.ABCMeta, object)):
+class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     def __init__(self, question, context, mode):
         self._question = question
         self._context = context
         self._mode = mode
+
+    @abc.abstractstaticmethod
+    def get_style_rules_names():
+        pass
+
+    @abc.abstractstaticmethod
+    def get_style(mode, rules):
+        pass
 
     @abc.abstractmethod
     def get_layout(self):
@@ -34,15 +42,15 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
     def get_value(self):
         pass
 
+    @abc.abstractmethod
+    def get_kwargs(self):
+        pass
+
     def get_answer(self):
         return {self._question['name']: self.get_value()}
 
     def get_variable_name(self):
         return self._question['name']
-
-    @abc.abstractmethod
-    def get_kwargs(self):
-        pass
 
     def apply_validators(self):
         validators = self._question.get('validators', [])
@@ -52,7 +60,7 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
                 validator.validate(self.get_value(), self._context)
             except ValidationError as ve:
                 error_messages.append(ve.message)
-                if self._mode == Mode.PROMPT:
+                if self._mode == InputMode.PROMPT:
                     print_formatted_text(
                         FormattedText([
                             ('class:prompt.error', ve.message)
@@ -67,27 +75,3 @@ class Handler(six.with_metaclass(abc.ABCMeta, object)):
             if not self.apply_validators():
                 return answer
 
-
-
-class Registry(dict):
-    def register(self, clazz):
-        self[clazz.ALIAS] = clazz
-    
-    def is_registered(self, alias):
-        return alias in self
-    
-    def get_registered(self):
-        return list(self.keys())
-
-    def get_handler(self, question, questions, answers, mode):
-        qtype = question['type']
-        clazz = self[qtype]
-        return clazz(
-            question,
-            ValidationContext(questions, answers),
-            mode=mode)
-
-registry = Registry()
-
-def get_handlers_registry():
-    return registry
