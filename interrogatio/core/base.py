@@ -6,25 +6,30 @@ from .utils import validate_question
 from .dialog import show_dialog
 
 __all__ = [
-    'interrogatio'
+    'interrogatio',
+    'dialogus'
 ]
 
-
-def interrogatio(questions, 
-                 dialog=False,
-                 title='Please fill the following form',
-                 confirm='Ok',
-                 cancel='Cancel'):
-    registry = get_input_handlers_registry()
-    answers = {}
+def _validate_questions(questions):
     for q in questions:
         validate_question(q)
-        if not dialog:
-            answers.update(registry.get_instance(
-                q,
-                questions,
-                answers, 
-                mode=InputMode.PROMPT).get_input())
-    if dialog:
-        return show_dialog(questions, title, confirm, cancel)
+
+def interrogatio(questions):
+    registry = get_input_handlers_registry()
+    answers = {}
+    _validate_questions(questions)
+    for q in questions:
+        answers.update(registry.get_instance(
+            q,
+            questions,
+            answers, 
+            mode=InputMode.PROMPT).get_input())
     return answers
+
+def dialogus(
+    questions, 
+    title='Please fill the following form',
+    confirm='Ok',
+    cancel='Cancel'):
+    _validate_questions(questions)
+    return show_dialog(questions, title, confirm, cancel)
