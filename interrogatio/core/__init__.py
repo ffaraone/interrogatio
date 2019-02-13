@@ -1,4 +1,4 @@
-from .base import interrogatio
+from .base import interrogatio, dialogus
 from .utils import validate_question, InvalidQuestionError
 from ..utils.registries import get_input_handlers_registry, get_validators_registry
 from ..handlers import *
