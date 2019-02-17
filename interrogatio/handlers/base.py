@@ -16,6 +16,10 @@ __all__ = [
 
 
 class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
+    """
+    ABC for the different kinds of input handlers.
+    """
+
 
     def __init__(self, question, context, mode):
         self._question = question
@@ -24,6 +28,9 @@ class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractstaticmethod
     def get_style_rules_names():
+        """
+        Must return a tuple or list with the names of each style rule.
+        """
         pass
 
     @abc.abstractstaticmethod
@@ -53,6 +60,9 @@ class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
         return self._question['name']
 
     def apply_validators(self):
+        """
+        This method will be called by the get_input method to apply validators.
+        """
         validators = self._question.get('validators', [])
         error_messages = []
         for validator in validators:
@@ -70,6 +80,10 @@ class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
         return error_messages
 
     def get_input(self):
+        """
+        This method will be called by the interrogatio function to prompt
+        the user for input.
+        """
         while True:
             answer = self.get_app().run()
             if not self.apply_validators():

@@ -28,6 +28,9 @@ __all__ = [
 
 
 class ValidationError(Exception):
+    """
+    Exception raised when validation fails.
+    """
     def __init__(self, message):
         self._message = message
     
@@ -40,12 +43,29 @@ class ValidationError(Exception):
 
 
 class Validator(six.with_metaclass(abc.ABCMeta, object)):
+    """
+    Abstract class for validators. 
 
+    .. note::  
+        Subclasses must provide a ``ALIAS`` static member with the name 
+        of the validator.
+        Validator aliases must be unique.
+    """
     def __init__(self, message='invalid input'):
         self.message = message
 
     @abc.abstractmethod
     def validate(self, value, context):
+        """
+        Abstract method.
+        Subclasses must implement this method with the validation logic.
+
+        :param value: the value to validate.
+        :type value: str
+
+        :raises: 
+            ValidationError: if the provided input is invalid.
+        """
         if not isinstance(context, ValidationContext):
             raise ValueError('context must be a ValidationContext instance')
 
@@ -76,6 +96,12 @@ def validate_ipv46_address(value):
 class RequiredValidator(Validator):
     ALIAS = 'required'
     def __init__(self, message=None):
+        """
+        Initialise the ``required`` validator.
+
+        :param message: the error message in case that validation fails.
+        :type message: str
+        """
         self.message = message or 'this field is required'
 
     def validate(self, value, context):
@@ -86,7 +112,17 @@ class RequiredValidator(Validator):
 
 class RegexValidator(Validator):
     ALIAS = 'regex'
-    def __init__(self, message=None, expr=None, inverse_match=None):
+    def __init__(self, expr, message=None, inverse_match=None):
+        """
+        Initialise the ``regex`` validator.
+
+        :param expr: the regex to match.
+        :type expr: str
+        :param message: the error message in case that validation fails.
+        :type message: str
+        :param inverse_match: invert the match of the expression.
+        :type inverse_match: bool
+        """
         if expr:
             self.regex = re.compile(expr)
             self.message = message or 'this field does not match {}'.format(
