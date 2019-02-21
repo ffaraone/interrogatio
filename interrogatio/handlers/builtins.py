@@ -49,7 +49,7 @@ class ValueHandler(InputHandler):
     def __init__(self, *args, **kwargs):
         super(ValueHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(**self.get_kwargs())
-
+        self.widget.buffer.cursor_position = len(self.widget.text)
 
     def get_kwargs(self):
         kwargs = dict(
@@ -91,7 +91,6 @@ class ValueHandler(InputHandler):
         def _enter(event):
             get_app().exit(result=self.get_answer())
 
-        print(get_theme_manager().get_current_style().style_rules)
         return Application(
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
@@ -125,6 +124,7 @@ class PasswordHandler(ValueHandler):
     def __init__(self, *args, **kwargs):
         super(PasswordHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(**self.get_kwargs())
+        self.widget.buffer.cursor_position = len(self.widget.text)
 
     def get_kwargs(self):
         kwargs = dict(
