@@ -9,6 +9,7 @@ get_input_handlers_registry().register(ValueHandler)
 get_input_handlers_registry().register(PasswordHandler)
 get_input_handlers_registry().register(SelectOneHandler)
 get_input_handlers_registry().register(SelectManyHandler)
+get_input_handlers_registry().register(TextHandler)
 
 
 

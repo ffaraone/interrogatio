@@ -332,3 +332,78 @@ class SelectManyHandler(InputHandler):
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_theme_manager().get_current_style())
+
+class TextHandler(InputHandler):
+   
+    ALIAS = 'text'
+
+    @staticmethod
+    def get_style_rules_names():
+        return ('question, answer')
+
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+                                              attr='bold'))
+
+        return [
+            ('{}.text.question'.format(mode), str(question)),
+            ('{}.text.answer'.format(mode), str(answer))
+        ]  
+
+
+    def __init__(self, *args, **kwargs):
+        super(TextHandler, self).__init__(*args, **kwargs)
+        self.widget = TextArea(**self.get_kwargs())
+
+
+    def get_kwargs(self):
+        kwargs = dict(
+            multiline=True,
+            style='class:{}.text.answer'.format(self._mode)
+        )
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
+
+    def get_value(self):
+        return self.widget.text
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        align = HorizontalAlign.LEFT
+        if self._mode == InputMode.DIALOG:
+            align = HorizontalAlign.JUSTIFY
+
+        return VSplit([
+                Label(
+                    msg,
+                    dont_extend_width=True,
+                    style='class:{}.text.question'.format(self._mode)),
+                self.widget
+            ], padding=1, align=align)
+
+    def get_app(self):
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
+
+        @bindings.add(Keys.ControlX)
+        def _enter(event):
+            get_app().exit(result=self.get_answer())
+
+        print(get_theme_manager().get_current_style().style_rules)
+        return Application(
+            layout=Layout(self.get_layout()),
+            key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+            style=get_theme_manager().get_current_style())
