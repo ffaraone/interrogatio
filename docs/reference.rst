@@ -28,3 +28,15 @@ Validators
 
 .. autoclass:: interrogatio.validators.RegexValidator
     :members: __init__
+
+.. autoclass:: interrogatio.validators.EmailValidator
+    :members: __init__
+
+.. autoclass:: interrogatio.validators.URLValidator
+    :members: __init__
+
+.. autoclass:: interrogatio.validators.MinLengthValidator
+    :members: __init__
+
+.. autoclass:: interrogatio.validators.MaxLengthValidator
+    :members: __init__

@@ -152,7 +152,16 @@ class EmailValidator(Validator):
         re.IGNORECASE)
     domain_whitelist = ['localhost']
 
-    def __init__(self, message=None, whitelist=None):
+    def __init__(self, whitelist=None, message=None):
+        """
+        Initialise the ``email`` validator.
+
+        :param whitelist: an optiona whitelist of domain names to be 
+                          considered valid.
+        :type whitelist: list
+        :param message: the error message in case that validation fails.
+        :type message: str
+        """
         self.message = message or 'this field must be an email address'
         if whitelist is not None:
             self.domain_whitelist = whitelist
@@ -193,7 +202,7 @@ class EmailValidator(Validator):
         return False
 
 
-class URLValidator(RegexValidator):
+class URLValidator(Validator):
     ALIAS = 'url'
     ul = '\u00a1-\uffff'  # unicode letters range (must not be a raw string)
 
@@ -226,6 +235,14 @@ class URLValidator(RegexValidator):
     message = 'the URL is invalid'
 
     def __init__(self, schemes=None, **kwargs):
+        """
+        Initialise the ``url`` validator.
+
+        :param schemes: an optional list of url schemes
+        :type schemes: list
+        :param message: the error message in case that validation fails.
+        :type message: str
+        """
         super().__init__(**kwargs)
         if schemes is not None:
             self.schemes = schemes
@@ -283,7 +300,17 @@ class URLValidator(RegexValidator):
 
 class MinLengthValidator(Validator):
     ALIAS = 'min-length'
-    def __init__(self, min_length=None, message=None):
+    def __init__(self, min_length, message=None):
+        """
+        Initialise the ``min-length`` validator.
+
+        :param min_length: Minumum length from which the value has to be 
+                           considered valid.
+        :type min_length: int
+        :param message: the error message in case that validation fails.
+        :type message: str
+        """
+
         self.min_length = min_length
         self.message = message or 'the length of this field must be at '\
             'least {} characters long'.format(self.min_length)
@@ -294,7 +321,16 @@ class MinLengthValidator(Validator):
 
 class MaxLengthValidator(Validator):
     ALIAS = 'max-length'
-    def __init__(self, max_length=None, message=None):
+    def __init__(self, max_length, message=None):
+        """
+        Initialise the ``max-length`` validator.
+
+        :param min_length: Maximum length from which the value has to be 
+                           considered invalid.
+        :type max_length: int
+        :param message: the error message in case that validation fails.
+        :type message: str
+        """
         self.max_length = max_length
         self.message = message or 'the length of this field must be at '\
             'most {} characters long'.format(self.max_length)
