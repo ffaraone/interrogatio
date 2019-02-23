@@ -19,7 +19,12 @@ setup(
     extras_require={
         'yml':  ['pyyaml>=3.13',],
         'zxcvbn': ['zxcvbn>=4.4.27'],
-    }
+    },
+    entry_points={
+        'console_scripts': [
+            'interrogatio = interrogatio.main:main'
+        ]
+    },
     author='Francesco Faraone',
     author_email='ffaraone@gmail.com',
     url='https://github.com/ffaraone/interrogatio',
