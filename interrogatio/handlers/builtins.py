@@ -333,6 +333,7 @@ class SelectManyHandler(InputHandler):
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_theme_manager().get_current_style())
 
+
 class TextHandler(InputHandler):
    
     ALIAS = 'text'
@@ -365,8 +366,11 @@ class TextHandler(InputHandler):
     def get_kwargs(self):
         kwargs = dict(
             multiline=True,
+            height=4,
             style='class:{}.text.answer'.format(self._mode)
         )
+        if 'rows' in self._question:
+            kwargs['height'] = int(self._question['rows'])
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
         return kwargs
@@ -402,7 +406,6 @@ class TextHandler(InputHandler):
         def _enter(event):
             get_app().exit(result=self.get_answer())
 
-        print(get_theme_manager().get_current_style().style_rules)
         return Application(
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
