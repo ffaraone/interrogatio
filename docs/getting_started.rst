@@ -17,6 +17,23 @@ Using pip
     $ pip install interrogatio
 
 
+Extra dependencies
+^^^^^^^^^^^^^^^^^^
+
+If you want to validate password complexity you can install the 
+`zxvvbn library <https://github.com/dwolfhub/zxcvbn-python>`_.
+
+::
+
+    $ pip install interrogatio[zxcvbn]
+
+If you want to use the shell command with yml files you can install the yml dependency:
+
+
+::
+
+    $ pip install interrogatio[yml]
+
 
 Basic usage
 -----------

@@ -26,6 +26,7 @@ Questions can be rendered onto the terminal prompt or as curses dialogs.
    :caption: Contents:
    
    getting_started
+   shell_command
    input_handlers
    validators
    styling
