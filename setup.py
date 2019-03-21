@@ -17,7 +17,7 @@ setup(
         'six>=1.12.0'
     ],
     extras_require={
-        'yml':  ['pyyaml>=3.13',],
+        'yml':  ['pyyaml>=5',],
         'zxcvbn': ['zxcvbn>=4.4.27'],
     },
     entry_points={

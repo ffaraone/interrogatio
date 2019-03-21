@@ -7,6 +7,7 @@ name = "pypi"
 prompt-toolkit = "*"
 pygments = "*"
 six = "*"
+pyyaml = "*"
 
 [dev-packages]
 ipython = "*"
