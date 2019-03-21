@@ -14,7 +14,7 @@ def _load_questions(args):
             questions = json.load(f)
         else:
             import yaml
-            questions = yaml.load(f)
+            questions = yaml.load(f, Loader=yaml.FullLoader)
     return questions
 
 def _write_answers(args, answers):

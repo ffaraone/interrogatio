@@ -4,11 +4,10 @@ import six
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.shortcuts import print_formatted_text
 
+from ..core.constants import InputMode
+from ..core.validation import ValidationContext
 from ..themes import get_theme_manager
-from ..utils.constants import InputMode
 from ..validators import ValidationError
-from ..utils.validation import ValidationContext
-
 
 __all__ = [
     'InputHandler'
@@ -88,4 +87,3 @@ class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
             answer = self.get_app().run()
             if not self.apply_validators():
                 return answer
-

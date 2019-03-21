@@ -13,10 +13,10 @@ from prompt_toolkit.shortcuts import print_formatted_text
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
+from ..core.constants import InputMode
+from ..core.styles import Rule
+from ..core.validation import ValidationContext
 from ..themes import get_theme_manager
-from ..utils.constants import InputMode
-from ..utils.styles import Rule
-from ..utils.validation import ValidationContext
 from ..validators import ValidationError
 from ..widgets import SelectMany, SelectOne
 from .base import InputHandler

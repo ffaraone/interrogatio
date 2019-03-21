@@ -10,11 +10,13 @@ from prompt_toolkit.layout import HSplit, Layout, Window
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog, Label
 
-from ..utils.constants import InputMode
-from ..utils.registries import get_input_handlers_registry
-from ..themes import get_theme_manager
-from ..validators import Validator
+from .core.constants import InputMode
+from .core.registries import get_input_handlers_registry
+from .themes import get_theme_manager
+from .utils import validate_questions
+from .validators import Validator
 
+__all__ = ['dialogus']
 
 def show_error_dialog(messages):
     texts = []
@@ -115,3 +117,53 @@ def show_dialog(questions, title, confirm, cancel):
             return answers
         
         show_error_dialog(validation_errors)
+
+def dialogus(
+    questions, 
+    title='Please fill the following form',
+    confirm='Ok',
+    cancel='Cancel'):
+    """
+    Show a dialog with inputs as defined in the questions parameter and returns
+    a dictionary with the answers.
+
+    :param questions: a list of questions.
+    :type questions: list
+    
+    :param title: the title of the dialog. *default: Please fill the following form*
+    :type title: str
+
+    :param confirm: the confirm button text. *default: Ok*
+    :type confirm: str
+
+    :param cancel: the cancel button text. *default: Cancel*
+    :type cancel: str   
+
+    :return: a dictionary with the answers.
+    :rtype: dict
+
+    Usage:
+    
+    .. code-block:: python
+    
+        from interrogatio import dialogus
+        questions = [
+            {
+                'name': 'name',
+                'type': 'input',
+                'message': 'What is your name'
+            },
+            {
+                'name': 'favorite_pet',
+                'type': 'input',
+                'message': 'What is your favorite pet'
+            }           
+        ]
+        answers = dialogus(
+            questions,
+            title='Tell me something about you',
+            confirm='Done',
+            cancel='Skip')
+    """
+    validate_questions(questions)
+    return show_dialog(questions, title, confirm, cancel)

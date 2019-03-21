@@ -6,7 +6,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 import six
 
-from ..utils.validation import ValidationContext
+from ..core.validation import ValidationContext
 
 __all__ = [
     'ValidationError',

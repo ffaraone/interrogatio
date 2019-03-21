@@ -3,10 +3,10 @@ import six
 
 from prompt_toolkit.styles import Style, default_ui_style, merge_styles
 
-from ..utils.constants import InputMode
-from ..utils.styles import Rule
+from ..core.constants import InputMode
+from ..core.styles import Rule
 
-from ..utils.registries import get_input_handlers_registry
+from ..core.registries import get_input_handlers_registry
 
 __all__ = [
     'Theme',

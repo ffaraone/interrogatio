@@ -1,13 +1,8 @@
+from .exceptions import InvalidQuestionError
+from .core.registries import get_input_handlers_registry, get_validators_registry
+from .validators import Validator
 
-from ..utils.registries import (get_input_handlers_registry,
-                                get_validators_registry)
-from ..validators import Validator
-
-
-class InvalidQuestionError(Exception):
-    pass
-
-def validate_validator_object(obj):
+def _validate_validator_object(obj):
     if 'name' not in obj:
         raise InvalidQuestionError('You must specify a name for the validator')    
     
@@ -17,7 +12,7 @@ def validate_validator_object(obj):
     if 'args' in obj and not isinstance(obj['args'], dict):
         raise InvalidQuestionError('Validator arguments must be a dictionary')    
     
-def validate_question(q):
+def _validate_question(q):
 
     if 'name' not in q:
         raise InvalidQuestionError('You must specify a name for the question')
@@ -64,9 +59,13 @@ def validate_question(q):
                     ' instances or a list of validator objects')
 
             if isinstance(v, dict):
-                validate_validator_object(v)
+                _validate_validator_object(v)
                 v = get_validators_registry().get_instance(v)
                 validators.append(v)
             else:
                 validators.append(v)
         q['validators'] = validators
+
+def validate_questions(questions):
+    for q in questions:
+        _validate_question(q)

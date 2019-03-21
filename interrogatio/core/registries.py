@@ -1,4 +1,4 @@
-from ..utils.validation import ValidationContext
+from ..core.validation import ValidationContext
 
 __all__ = [
     'get_input_handlers_registry',
