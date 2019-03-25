@@ -131,14 +131,14 @@ class SelectOne(object):
 
 
 class SelectMany(object):
-    def __init__(self, values=[], default=None, accept_handler=None, style=''):
+    def __init__(self, values=[], checked=[], default=None, accept_handler=None, style=''):
         assert isinstance(values, list)
         assert len(values) > 0
         assert all(isinstance(i, tuple) and len(i) == 2
                    for i in values)
 
         self.values = values
-        self.checked = set()
+        self.checked = checked or set()
         self._selected_index = 0
         self.accept_handler = accept_handler
     

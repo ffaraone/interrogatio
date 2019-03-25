@@ -7,7 +7,7 @@ from .prompt import interrogatio
 from .themes import DefaultTheme, get_theme_manager
 from .validators import *
 
-__version__ = '1.0.0b5'
+__version__ = '1.0.0b8'
 
 __version_info__ = tuple([int(num) if num.isdigit() else num for num in __version__.replace('-', '.', 1).split('.')])
 

@@ -299,6 +299,8 @@ class SelectManyHandler(InputHandler):
             values=self._question['values'],
             style='class:{}.selectmany.answer'.format(self._mode)
         )
+        if 'checked' in self._question:
+            kwargs['checked'] = set(self._question['checked'])
         if 'default' in self._question:
             kwargs['default'] = self._question['default']
 
