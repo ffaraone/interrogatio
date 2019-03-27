@@ -7,7 +7,7 @@ from .prompt import interrogatio
 from .themes import DefaultTheme, get_theme_manager
 from .validators import *
 
-__version__ = '1.0.0b8'
+__version__ = '1.0.0b9'
 
 __version_info__ = tuple([int(num) if num.isdigit() else num for num in __version__.replace('-', '.', 1).split('.')])
 
@@ -24,7 +24,7 @@ get_input_handlers_registry().register(PasswordHandler)
 get_input_handlers_registry().register(SelectOneHandler)
 get_input_handlers_registry().register(SelectManyHandler)
 get_input_handlers_registry().register(TextHandler)
-
+get_input_handlers_registry().register(PathHandler)
 
 
 get_validators_registry().register(RequiredValidator)

@@ -3,7 +3,7 @@ import abc
 import six
 from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import WordCompleter
+from prompt_toolkit.completion import PathCompleter, WordCompleter
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
 from prompt_toolkit.key_binding.defaults import load_key_bindings
@@ -412,3 +412,27 @@ class TextHandler(InputHandler):
             layout=Layout(self.get_layout()),
             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
             style=get_theme_manager().get_current_style())
+
+
+class PathHandler(ValueHandler):
+    
+    ALIAS = 'path'
+
+    def __init__(self, *args, **kwargs):
+        super(PathHandler, self).__init__(*args, **kwargs)
+        self.widget.completer = PathCompleter()
+    
+    @staticmethod
+    def get_style(mode, rules):
+        if mode == InputMode.PROMPT:
+            question = rules.get('question', Rule(fg='darkblue'))
+            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
+        else:
+            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+                                              attr='bold'))
+
+        return [
+            ('{}.path.question'.format(mode), str(question)),
+            ('{}.path.answer'.format(mode), str(answer))
+        ]  
