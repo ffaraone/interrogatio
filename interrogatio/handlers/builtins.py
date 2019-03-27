@@ -466,6 +466,8 @@ class RePasswordHandler(ValueHandler):
         super(RePasswordHandler, self).__init__(*args, **kwargs)
         self.widget = TextArea(**self.get_kwargs())
         self.widget.buffer.cursor_position = len(self.widget.text)
+        self.rewidget = TextArea(**self.get_kwargs())
+        self.rewidget.buffer.cursor_position = len(self.rewidget.text)
 
     def get_kwargs(self):
         kwargs = dict(
@@ -502,7 +504,7 @@ class RePasswordHandler(ValueHandler):
                         'Again',
                         dont_extend_width=True,
                         style='class:{}.repassword.question'.format(self._mode)),
-                    TextArea(multiline=False, password=True)
+                    self.rewidget
                 ], padding=1, align=align)
         ])
 
@@ -513,17 +515,40 @@ class RePasswordHandler(ValueHandler):
         def _ctrl_c(event):
             get_app().exit(exception=KeyboardInterrupt)
 
+
+        @bindings.add('tab')
+        def _tab(event):
+            get_app().layout.focus_next()
+
+        @bindings.add('s-tab')
+        def _stab(event):
+            get_app().layout.focus_previous()
+
         @bindings.add(Keys.Enter)
         def _enter(event):
-            # show errors if password not match
-            get_app().exit(result=self.get_answer())
+            if get_app().layout.has_focus(self.rewidget):
+                get_app().exit(result=self.get_answer())
+            else:
+                get_app().layout.focus_next()
+
+        return Application(
+            layout=Layout(self.get_layout()),
+            key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
+            style=get_theme_manager().get_current_style())
 
     def apply_validators(self):
-        """
-        This method will be called by the get_input method to apply validators.
-        """
         validators = self._question.get('validators', [])
         error_messages = []
+        if self.widget.text != self.rewidget.text:
+            msg = 'Password and repeat password doesn\'t match'
+            error_messages.append(msg)
+            if self._mode == InputMode.PROMPT:
+                print_formatted_text(
+                    FormattedText([
+                        ('class:prompt.error', msg)
+                    ]),
+                    style=get_theme_manager().get_current_style()
+                )            
         for validator in validators:
             try:
                 validator.validate(self.get_value(), self._context)
@@ -537,9 +562,3 @@ class RePasswordHandler(ValueHandler):
                         style=get_theme_manager().get_current_style()
                     )
         return error_messages
-
-
-        return Application(
-            layout=Layout(self.get_layout()),
-            key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-            style=get_theme_manager().get_current_style())
