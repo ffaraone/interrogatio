@@ -437,14 +437,14 @@ class PathHandler(ValueHandler):
             ('{}.path.answer'.format(mode), str(answer))
         ]  
 
-
+    
 class RePasswordHandler(ValueHandler):
 
     ALIAS = 'repassword'
 
     @staticmethod
     def get_style_rules_names():
-        return ('question, answer')
+        return ('question', 'answer')
 
     @staticmethod
     def get_style(mode, rules):
@@ -453,13 +453,13 @@ class RePasswordHandler(ValueHandler):
             answer = rules.get('answer', Rule(fg='orange', attr='bold'))
         else:
             question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
+            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee',
                                               attr='bold'))
 
         return [
-            ('{}.repassword.question'.format(mode), str(question)),
-            ('{}.repassword.answer'.format(mode), str(answer))
-        ]  
+            ('{}.{}.question'.format(mode, RePasswordHandler.ALIAS), str(question)),
+            ('{}.{}.answer'.format(mode, RePasswordHandler.ALIAS), str(answer))
+        ]
 
 
     def __init__(self, *args, **kwargs):
@@ -472,7 +472,7 @@ class RePasswordHandler(ValueHandler):
     def get_kwargs(self):
         kwargs = dict(
             multiline=False,
-            style='class:{}.repassword.answer'.format(self._mode),
+            style='class:{}.{}.answer'.format(self._mode, self.ALIAS),
             password=True
         )
         if 'default' in self._question:
@@ -491,19 +491,21 @@ class RePasswordHandler(ValueHandler):
         if self._mode == InputMode.DIALOG:
             align = HorizontalAlign.JUSTIFY
 
-        return HSplit([      
+        return HSplit([
             VSplit([
                     Label(
                         msg,
                         dont_extend_width=True,
-                        style='class:{}.repassword.question'.format(self._mode)),
+                        style='class:{}.{}.question'.format(self._mode,
+                                                            self.ALIAS)),
                     self.widget
                 ], padding=1, align=align),
             VSplit([
                     Label(
                         'Again',
                         dont_extend_width=True,
-                        style='class:{}.repassword.question'.format(self._mode)),
+                        style='class:{}.{}.question'.format(self._mode,
+                                                            self.ALIAS)),
                     self.rewidget
                 ], padding=1, align=align)
         ])
@@ -548,7 +550,7 @@ class RePasswordHandler(ValueHandler):
                         ('class:prompt.error', msg)
                     ]),
                     style=get_theme_manager().get_current_style()
-                )            
+                )
         for validator in validators:
             try:
                 validator.validate(self.get_value(), self._context)
