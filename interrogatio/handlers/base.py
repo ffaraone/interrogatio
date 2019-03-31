@@ -10,11 +10,11 @@ from ..themes import get_theme_manager
 from ..validators import ValidationError
 
 __all__ = [
-    'InputHandler'
+    'QHandler'
 ]
 
 
-class InputHandler(six.with_metaclass(abc.ABCMeta, object)):
+class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     """
     ABC for the different kinds of input handlers.
     """

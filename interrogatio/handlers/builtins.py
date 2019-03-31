@@ -19,10 +19,10 @@ from ..core.validation import ValidationContext
 from ..themes import get_theme_manager
 from ..validators import ValidationError
 from ..widgets import SelectMany, SelectOne
-from .base import InputHandler
+from .base import QHandler
 
 
-class ValueHandler(InputHandler):
+class ValueHandler(QHandler):
    
     ALIAS = 'input'
 
@@ -176,7 +176,7 @@ class PasswordHandler(ValueHandler):
 
 
 
-class SelectOneHandler(InputHandler):
+class SelectOneHandler(QHandler):
 
     ALIAS = 'selectone'
 
@@ -256,7 +256,7 @@ class SelectOneHandler(InputHandler):
             style=get_theme_manager().get_current_style())
 
 
-class SelectManyHandler(InputHandler):
+class SelectManyHandler(QHandler):
 
     ALIAS = 'selectmany'
 
@@ -336,7 +336,7 @@ class SelectManyHandler(InputHandler):
             style=get_theme_manager().get_current_style())
 
 
-class TextHandler(InputHandler):
+class TextHandler(QHandler):
    
     ALIAS = 'text'
 
@@ -438,7 +438,7 @@ class PathHandler(ValueHandler):
         ]  
 
     
-class RePasswordHandler(ValueHandler):
+class RePasswordHandler(QHandler):
 
     ALIAS = 'repassword'
 
