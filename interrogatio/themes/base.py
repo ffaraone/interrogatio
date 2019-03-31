@@ -55,7 +55,7 @@ class Theme:
 
     def save(self, filename):
         with open(filename, 'w') as f:
-            json.dump(self._styles, f)
+            json.dump(self._styles, f, indent=2)
         
 
 class DefaultTheme(Theme):
