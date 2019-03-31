@@ -14,7 +14,7 @@ from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
 from ..core.constants import InputMode
-from ..core.styles import Rule
+from ..core.styles import to_style_token
 from ..core.validation import ValidationContext
 from ..themes import get_theme_manager
 from ..validators import ValidationError
@@ -25,25 +25,6 @@ from .base import QHandler
 class ValueHandler(QHandler):
    
     ALIAS = 'input'
-
-    @staticmethod
-    def get_style_rules_names():
-        return ('question, answer')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
-                                              attr='bold'))
-
-        return [
-            ('{}.input.question'.format(mode), str(question)),
-            ('{}.input.answer'.format(mode), str(answer))
-        ]  
 
 
     def __init__(self, *args, **kwargs):
@@ -100,25 +81,6 @@ class ValueHandler(QHandler):
 class PasswordHandler(ValueHandler):
 
     ALIAS = 'password'
-
-    @staticmethod
-    def get_style_rules_names():
-        return ('question, answer')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
-                                              attr='bold'))
-
-        return [
-            ('{}.password.question'.format(mode), str(question)),
-            ('{}.password.answer'.format(mode), str(answer))
-        ]  
 
 
     def __init__(self, *args, **kwargs):
@@ -180,34 +142,6 @@ class SelectOneHandler(QHandler):
 
     ALIAS = 'selectone'
 
-    @staticmethod
-    def get_style_rules_names():
-        return ('question, answer', 'selected', 'checked')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='darkblue', attr='bold'))
-            selected = rules.get('selected', Rule(fg='cyan'))
-            checked = rules.get('checked', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='darkblue', bg='#eeeeee',
-                                              attr='bold'))
-            selected = rules.get('selected', Rule(fg='cyan', bg='#eeeeee'))
-            checked = rules.get('checked', Rule(fg='orange', bg='#eeeeee', 
-                                           attr='bold'))
-
-        return [
-            ('{}.selectone.question'.format(mode), str(question)),
-            ('{}.selectone.answer'.format(mode), str(answer)),
-            ('{}.selectone.answer radio'.format(mode), str(answer)),
-            ('{}.selectone.answer radio-selected'.format(mode), str(selected)),
-            ('{}.selectone.answer radio-checked'.format(mode), str(checked))
-        ]
-
-
 
     def __init__(self, *args, **kwargs):
         super(SelectOneHandler, self).__init__(*args, **kwargs)
@@ -260,32 +194,6 @@ class SelectManyHandler(QHandler):
 
     ALIAS = 'selectmany'
 
-    @staticmethod
-    def get_style_rules_names():
-        return ('question, answer', 'selected', 'checked')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='darkblue', attr='bold'))
-            selected = rules.get('selected', Rule(fg='cyan'))
-            checked = rules.get('checked', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='darkblue', bg='#eeeeee',
-                                              attr='bold'))
-            selected = rules.get('selected', Rule(fg='cyan', bg='#eeeeee'))
-            checked = rules.get('checked', Rule(fg='orange', bg='#eeeeee', 
-                                           attr='bold'))
-
-        return [
-            ('{}.selectmany.question'.format(mode), str(question)),
-            ('{}.selectmany.answer'.format(mode), str(answer)),
-            ('{}.selectmany.answer checkbox'.format(mode), str(answer)),
-            ('{}.selectmany.answer checkbox-selected'.format(mode), str(selected)),
-            ('{}.selectmany.answer checkbox-checked'.format(mode), str(checked))
-        ]
 
     def __init__(self, *args, **kwargs):
         super(SelectManyHandler, self).__init__(*args, **kwargs)
@@ -339,25 +247,6 @@ class SelectManyHandler(QHandler):
 class TextHandler(QHandler):
    
     ALIAS = 'text'
-
-    @staticmethod
-    def get_style_rules_names():
-        return ('question, answer')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
-                                              attr='bold'))
-
-        return [
-            ('{}.text.question'.format(mode), str(question)),
-            ('{}.text.answer'.format(mode), str(answer))
-        ]  
 
 
     def __init__(self, *args, **kwargs):
@@ -422,44 +311,11 @@ class PathHandler(ValueHandler):
         super(PathHandler, self).__init__(*args, **kwargs)
         self.widget.completer = PathCompleter()
     
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee', 
-                                              attr='bold'))
-
-        return [
-            ('{}.path.question'.format(mode), str(question)),
-            ('{}.path.answer'.format(mode), str(answer))
-        ]  
 
     
 class RePasswordHandler(QHandler):
 
     ALIAS = 'repassword'
-
-    @staticmethod
-    def get_style_rules_names():
-        return ('question', 'answer')
-
-    @staticmethod
-    def get_style(mode, rules):
-        if mode == InputMode.PROMPT:
-            question = rules.get('question', Rule(fg='darkblue'))
-            answer = rules.get('answer', Rule(fg='orange', attr='bold'))
-        else:
-            question = rules.get('question', Rule(fg='darkblue', bg='#eeeeee'))
-            answer = rules.get('answer', Rule(fg='orange', bg='#eeeeee',
-                                              attr='bold'))
-
-        return [
-            ('{}.{}.question'.format(mode, RePasswordHandler.ALIAS), str(question)),
-            ('{}.{}.answer'.format(mode, RePasswordHandler.ALIAS), str(answer))
-        ]
 
 
     def __init__(self, *args, **kwargs):

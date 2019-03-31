@@ -1,15 +1,9 @@
-class Rule:
-    def __init__(self, fg='', bg='', attr=''):
-        self.fg = fg
-        self.bg = bg
-        self.attr = attr
-
-    def __str__(self):
+def to_style_token(fg='', bg='', attr=''):
         tokens = []
-        if self.bg:
-            tokens.append('bg:{}'.format(self.bg))
-        if self.fg:
-            tokens.append(self.fg)
-        if self.attr:
-            tokens.append(self.attr)
+        if bg:
+            tokens.append('bg:{}'.format(bg))
+        if fg:
+            tokens.append(fg)
+        if attr:
+            tokens.append(attr)
         return ' '.join(tokens)

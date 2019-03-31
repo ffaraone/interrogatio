@@ -1,4 +1,4 @@
-from .base import InputHandler
+from .base import QHandler
 from .builtins import (PasswordHandler, SelectManyHandler, SelectOneHandler,
                        ValueHandler, TextHandler, PathHandler, RePasswordHandler)
 
