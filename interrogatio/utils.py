@@ -2,24 +2,29 @@ from .core.exceptions import InvalidQuestionError
 from . import validators
 from . import handlers
 
+
 def _validate_validator_object(obj):
     if 'name' not in obj:
-        raise InvalidQuestionError('You must specify a name for the validator')    
-    
+        raise InvalidQuestionError(
+            'You must specify a name for the validator')
+
     if obj['name'] not in validators.get_registered():
-        raise InvalidQuestionError('Validator {} does not exists'.format(obj['name']))
-    
+        raise InvalidQuestionError(
+            'Validator {} does not exists'.format(obj['name']))
+
     if 'args' in obj and not isinstance(obj['args'], dict):
-        raise InvalidQuestionError('Validator arguments must be a dictionary')    
-    
+        raise InvalidQuestionError('Validator arguments must be a dictionary')
+
+
 def _validate_question(q):
 
     if 'name' not in q:
         raise InvalidQuestionError('You must specify a name for the question')
 
     if 'message' not in q:
-        raise InvalidQuestionError('You must specify a message for the question')
-    
+        raise InvalidQuestionError(
+            'You must specify a message for the question')
+
     if 'type' not in q:
         raise InvalidQuestionError('You must specify a question type')
 
@@ -45,16 +50,17 @@ def _validate_question(q):
                                        ' tuples.')
         if len(first_value) != 2:
             raise InvalidQuestionError('Every choice must be a tuple'
-                                       ' (value, label)')            
+                                       ' (value, label)')
 
     if 'validators' in q:
         if not isinstance(q['validators'], (list, tuple)):
-            raise InvalidQuestionError('Validators must be a list or tuple') 
+            raise InvalidQuestionError('Validators must be a list or tuple')
 
         validator_instances = []
         for v in q['validators']:
             if not isinstance(v, (validators.Validator, dict)):
-                raise InvalidQuestionError('Validators must be a list of  '
+                raise InvalidQuestionError(
+                    'Validators must be a list of  '
                     'interrogatio.validators.Validator'
                     ' instances or a list of validator objects')
 
@@ -65,6 +71,7 @@ def _validate_question(q):
             else:
                 validator_instances.append(v)
         q['validators'] = validator_instances
+
 
 def validate_questions(questions):
     for q in questions:

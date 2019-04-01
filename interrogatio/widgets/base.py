@@ -1,6 +1,6 @@
-from prompt_toolkit.application.current import get_app
+# pylint: disable=unused-argument
 from prompt_toolkit.formatted_text import to_formatted_text
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
@@ -8,23 +8,23 @@ from prompt_toolkit.mouse_events import MouseEventType
 
 
 class SelectOne(object):
-    def __init__(self, values=[], default=None, accept_handler=None, style=''):
+    def __init__(self, values=None, default=None,
+                 accept_handler=None, style=''):
         assert isinstance(values, list)
-        assert len(values) > 0
         assert all(isinstance(i, tuple) and len(i) == 2
                    for i in values)
 
-        self.values = values
+        self.values = values or []
         self.current_value = values[0][0]
         self._selected_index = 0
         self.accept_handler = accept_handler
-    
+
         for i in range(len(self.values)):
             if self.values[i][0] == default:
                 self._selected_index = i
                 self.current_value = self.values[i][0]
                 break
-        
+
 
         # Key bindings.
         kb = KeyBindings()
@@ -115,12 +115,13 @@ class SelectOne(object):
 
             result.append((style, ')'))
             result.append((out_style + ' class:radio', ' '))
-            result.extend(to_formatted_text(value[1], style=out_style + ' class:radio'))
+            result.extend(
+                to_formatted_text(value[1], style=out_style + ' class:radio'))
             result.append(('', '\n'))
 
         # Add mouse handler to all fragments.
-        for i in range(len(result)):
-            result[i] = (result[i][0], result[i][1], mouse_handler)
+        for i, fragment in enumerate(result):
+            result[i] = (fragment[0], fragment[1], mouse_handler)
 
         result.pop()  # Remove last newline.
         return result
@@ -131,9 +132,9 @@ class SelectOne(object):
 
 
 class SelectMany(object):
-    def __init__(self, values=[], checked=[], default=None, accept_handler=None, style=''):
+    def __init__(self, values=None, checked=None, default=None,
+                 accept_handler=None, style=''):
         assert isinstance(values, list)
-        assert len(values) > 0
         assert all(isinstance(i, tuple) and len(i) == 2
                    for i in values)
 
@@ -141,13 +142,13 @@ class SelectMany(object):
         self.checked = checked or set()
         self._selected_index = 0
         self.accept_handler = accept_handler
-    
+
         # for i in range(len(self.values)):
         #     if self.values[i][0] == default:
         #         self._selected_index = i
         #         self.current_value = self.values[i][0]
         #         break
-        
+
 
         # Key bindings.
         kb = KeyBindings()
@@ -245,12 +246,14 @@ class SelectMany(object):
 
             result.append((style, ']'))
             result.append((out_style + ' class:checkbox', ' '))
-            result.extend(to_formatted_text(value[1], style=out_style + ' class:checkbox'))
+            result.extend(
+                to_formatted_text(value[1],
+                                  style=out_style + ' class:checkbox'))
             result.append(('', '\n'))
 
         # Add mouse handler to all fragments.
-        for i in range(len(result)):
-            result[i] = (result[i][0], result[i][1], mouse_handler)
+        for i, fragment in enumerate(result):
+            result[i] = (fragment[0], fragment[1], mouse_handler)
 
         result.pop()  # Remove last newline.
         return result

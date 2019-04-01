@@ -1,8 +1,6 @@
 import abc
 
 import six
-from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit.shortcuts import print_formatted_text
 
 from ..core.exceptions import AlreadyRegisteredError, ValidationError
 
@@ -23,7 +21,7 @@ class QHandlersRegistry(dict):
 
     def get_registered(self):
         return list(self.keys())
-    
+
     def get_instance(self, question):
         qtype = question['type']
         clazz = self[qtype]
@@ -49,12 +47,10 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     ABC for the different kinds of input handlers.
     """
 
-
     def __init__(self, question):
         self._question = question
         self._widget = None
         self._errors = []
-
 
     @property
     def errors(self):
@@ -81,7 +77,6 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
             clazz = self.get_widget_class()
             self._widget = clazz(**self.get_widget_init_kwargs())
         return self._widget
-        
 
     @abc.abstractmethod
     def get_keybindings(self):
@@ -105,4 +100,3 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
             except ValidationError as ve:
                 self._errors.append(ve.message)
         return not self._errors
-

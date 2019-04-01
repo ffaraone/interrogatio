@@ -29,7 +29,7 @@ def show_error_dialog(messages):
         body=HSplit(
             texts,
             padding=1
-        ),      
+        ),
         buttons=[
             Button(text='Ok', handler=lambda: get_app().exit()),
         ],
@@ -66,9 +66,9 @@ def show_dialog(questions, title, confirm, cancel):
     dialog = Dialog(
         title=title,
         body=HSplit(
-            layouts, 
+            layouts,
             padding=1
-        ),      
+        ),
         buttons=[
             Button(text=confirm, handler=ok_handler),
             Button(text=cancel, handler=lambda: get_app().exit()),
@@ -77,8 +77,6 @@ def show_dialog(questions, title, confirm, cancel):
 
     # Key bindings.
     bindings = KeyBindings()
-    # bindings.add('tab')(focus_next)
-    # bindings.add('s-tab')(focus_previous)
 
     app = Application(
         layout=Layout(dialog),
@@ -97,7 +95,7 @@ def show_dialog(questions, title, confirm, cancel):
         message_dialog(
             title='Too many questions',
             text='Cannot render a {} rows dialog in a '
-                 '{} rows screen: too many questions!'.format(height, 
+                 '{} rows screen: too many questions!'.format(height,
                                                               size.rows),
             ok_text='Got it!'
         )
@@ -119,22 +117,21 @@ def show_dialog(questions, title, confirm, cancel):
                     )
         if not validation_errors:
             return answers
-        
+
         show_error_dialog(validation_errors)
 
-def dialogus(
-    questions, 
-    title='Please fill the following form',
-    confirm='Ok',
-    cancel='Cancel',
-    theme='default'):
+def dialogus(questions,
+             title='Please fill the following form',
+             confirm='Ok',
+             cancel='Cancel',
+             theme='default'):
     """
     Show a dialog with inputs as defined in the questions parameter and returns
     a dictionary with the answers.
 
     :param questions: a list of questions.
     :type questions: list
-    
+
     :param title: the title of the dialog. *default: Please fill the following form*
     :type title: str
 
@@ -142,15 +139,15 @@ def dialogus(
     :type confirm: str
 
     :param cancel: the cancel button text. *default: Cancel*
-    :type cancel: str   
+    :type cancel: str
 
     :return: a dictionary with the answers.
     :rtype: dict
 
     Usage:
-    
+
     .. code-block:: python
-    
+
         from interrogatio import dialogus
         questions = [
             {
@@ -162,7 +159,7 @@ def dialogus(
                 'name': 'favorite_pet',
                 'type': 'input',
                 'message': 'What is your favorite pet'
-            }           
+            }
         ]
         answers = dialogus(
             questions,

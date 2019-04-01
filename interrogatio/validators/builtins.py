@@ -54,7 +54,9 @@ class RequiredValidator(Validator):
         :param message: the error message in case that validation fails.
         :type message: str
         """
-        self.message = message or 'this field is required'
+        super(RequiredValidator, self).__init__(
+            message=message or 'this field is required'
+        )
 
     def validate(self, value):
         if value.strip():
@@ -76,15 +78,16 @@ class RegexValidator(Validator):
         :param inverse_match: invert the match of the expression.
         :type inverse_match: bool
         """
-        if expr:
-            self.regex = re.compile(expr)
-            self.message = message or 'this field does not match {}'.format(
-                expr)
+        super(RegexValidator, self).__init__(
+            message=message or 'this field does not match {}'.format(expr)
+        )
+        self.regex = re.compile(expr)
         self.inverse_match = inverse_match
 
     def validate(self, value):
         regex_matches = self.regex.search(str(value))
-        invalid_input = regex_matches if self.inverse_match else not regex_matches
+        invalid_input = regex_matches \
+                if self.inverse_match else not regex_matches
         if invalid_input:
             raise ValidationError(self.message)
 
@@ -93,15 +96,15 @@ register('regex', RegexValidator)
 
 class EmailValidator(Validator):
     user_regex = re.compile(
-        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"  # dot-atom
-        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|\\[\001-\011\013\014\016-\177])*"\Z)',  # quoted-string
+        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"
+        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|'
+        r'\\[\001-\011\013\014\016-\177])*"\Z)',
         re.IGNORECASE)
     domain_regex = re.compile(
-        # max length for domain name labels is 63 characters per RFC 1034
-        r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)(?:[A-Z0-9-]{2,63}(?<!-))\Z',
+        r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)'
+        r'(?:[A-Z0-9-]{2,63}(?<!-))\Z',
         re.IGNORECASE)
     literal_regex = re.compile(
-        # literal form, ipv4 or ipv6 address (SMTP 4.1.3)
         r'\[([A-f0-9:\.]+)\]\Z',
         re.IGNORECASE)
     domain_whitelist = ['localhost']
@@ -110,13 +113,15 @@ class EmailValidator(Validator):
         """
         Initialise the ``email`` validator.
 
-        :param whitelist: an optiona whitelist of domain names to be 
+        :param whitelist: an optiona whitelist of domain names to be
                           considered valid.
         :type whitelist: list
         :param message: the error message in case that validation fails.
         :type message: str
         """
-        self.message = message or 'this field must be an email address'
+        super(EmailValidator, self).__init__(
+            message=message or 'this field must be an email address'
+        )
         if whitelist is not None:
             self.domain_whitelist = whitelist
 
@@ -162,11 +167,13 @@ class URLValidator(Validator):
     ul = '\u00a1-\uffff'  # unicode letters range (must not be a raw string)
 
     # IP patterns
-    ipv4_re = r'(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}'
+    ipv4_re = (r'(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)'
+               r'(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}')
     ipv6_re = r'\[[0-9a-f:\.]+\]'  # (simple regex, validated later)
 
     # Host patterns
-    hostname_re = r'[a-z' + ul + r'0-9](?:[a-z' + ul + r'0-9-]{0,61}[a-z' + ul + r'0-9])?'
+    hostname_re = (r'[a-z' + ul + r'0-9]'
+                   r'(?:[a-z' + ul + r'0-9-]{0,61}[a-z' + ul + r'0-9])?')
     # Max length for domain name labels is 63 characters per RFC 1034 sec. 3.1
     domain_re = r'(?:\.(?!-)[a-z' + ul + r'0-9-]{1,63}(?<!-))*'
     tld_re = (
@@ -201,7 +208,7 @@ class URLValidator(Validator):
         super().__init__(**kwargs)
         if schemes is not None:
             self.schemes = schemes
-        
+
     def validate(self, value):
         scheme = value.split('://')[0].lower()
         if scheme not in self.schemes:
@@ -218,7 +225,7 @@ class URLValidator(Validator):
                 except ValueError:  # for example, "Invalid IPv6 URL"
                     raise ValidationError(message=self.message)
                 try:
-                    netloc = netloc.encode('idna').decode('ascii')  # IDN -> ACE
+                    netloc = netloc.encode('idna').decode('ascii')
                 except UnicodeError:  # invalid domain part
                     raise e
                 url = urlunsplit((scheme, netloc, path, query, fragment))
@@ -227,7 +234,8 @@ class URLValidator(Validator):
                 raise
         else:
             # Now verify IPv6 in the netloc part
-            host_match = re.search(r'^\[(.+)\](?::\d{2,5})?$', urlsplit(value).netloc)
+            host_match = re.search(r'^\[(.+)\](?::\d{2,5})?$',
+                                   urlsplit(value).netloc)
             if host_match:
                 potential_ip = host_match.groups()[0]
                 try:
@@ -251,7 +259,7 @@ class MinLengthValidator(Validator):
         """
         Initialise the ``min-length`` validator.
 
-        :param min_length: Minumum length from which the value has to be 
+        :param min_length: Minumum length from which the value has to be
                            considered valid.
         :type min_length: int
         :param message: the error message in case that validation fails.
@@ -274,7 +282,7 @@ class MaxLengthValidator(Validator):
         """
         Initialise the ``max-length`` validator.
 
-        :param min_length: Maximum length from which the value has to be 
+        :param max_length: Maximum length from which the value has to be
                            considered invalid.
         :type max_length: int
         :param message: the error message in case that validation fails.

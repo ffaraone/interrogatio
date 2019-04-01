@@ -2,7 +2,7 @@ import abc
 import six
 
 
-from ..core.exceptions import ValidationError, AlreadyRegisteredError
+from ..core.exceptions import AlreadyRegisteredError
 
 
 __all__ = [
@@ -16,10 +16,10 @@ __all__ = [
 class ValidatorsRegistry(dict):
     def register(self, alias, clazz):
         if alias in self:
-            raise AlreadyRegisteredError('validator {} already registered'.format(alias))
+            raise AlreadyRegisteredError(
+                'validator {} already registered'.format(alias))
         self[alias] = clazz
-    
-    
+
     def get_registered(self):
         return list(self.keys())
 
@@ -44,10 +44,10 @@ def get_instance(v):
 
 class Validator(six.with_metaclass(abc.ABCMeta, object)):
     """
-    Abstract class for validators. 
+    Abstract class for validators.
 
-    .. note::  
-        Subclasses must provide a ``ALIAS`` static member with the name 
+    .. note::
+        Subclasses must provide a ``ALIAS`` static member with the name
         of the validator.
         Validator aliases must be unique.
     """
@@ -63,8 +63,6 @@ class Validator(six.with_metaclass(abc.ABCMeta, object)):
         :param value: the value to validate.
         :type value: str
 
-        :raises: 
+        :raises:
             ValidationError: if the provided input is invalid.
         """
-
-

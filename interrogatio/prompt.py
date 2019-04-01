@@ -20,14 +20,14 @@ def interrogatio(questions, theme='default'):
 
     :param questions: a list of questions.
     :type questions: list
-    
+
     :return: a dictionary with the answers.
     :rtype: dict
 
     Usage:
-    
+
     .. code-block:: python
-    
+
         from interrogatio import interrogatio
         questions = [
             {
@@ -39,7 +39,7 @@ def interrogatio(questions, theme='default'):
                 'name': 'favorite_pet',
                 'type': 'input',
                 'message': 'What is your favorite pet'
-            }           
+            }
         ]
         answers = interrogatio(questions)
     """
@@ -50,9 +50,9 @@ def interrogatio(questions, theme='default'):
         handler = get_instance(q)
         l = handler.get_layout()
         l.align = HorizontalAlign.LEFT
-        
+
         bindings = [load_key_bindings()]
-        
+
         handler_bindings = handler.get_keybindings()
 
         if handler_bindings:
@@ -62,7 +62,7 @@ def interrogatio(questions, theme='default'):
             layout=Layout(l),
             key_bindings=merge_key_bindings(bindings),
             style=for_prompt())
-        
+
         while True:
             app.run()
             if handler.is_valid():

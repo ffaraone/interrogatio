@@ -1,18 +1,12 @@
-import abc
+# pylint: disable=unused-argument
 
-import six
-from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter, WordCompleter
-from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.layout import D, HorizontalAlign, HSplit, Layout, VSplit
-from prompt_toolkit.shortcuts import print_formatted_text
-from prompt_toolkit.styles import Style
+from prompt_toolkit.layout import HSplit, VSplit
 from prompt_toolkit.widgets import Label, TextArea
 
-from ..core.exceptions import ValidationError
 from ..widgets import SelectMany, SelectOne
 from .base import QHandler, register
 
@@ -38,13 +32,14 @@ class StringHandler(QHandler):
         )
         widget = self.get_widget()
         widget.buffer.cursor_position = len(widget.text)
-        return VSplit([
-                Label(
-                    msg,
-                    dont_extend_width=True,
-                    style='class:input.question'),
+        return VSplit(
+            [
+                Label(msg,
+                      dont_extend_width=True,
+                      style='class:input.question'),
                 widget
-            ], padding=1)
+            ],
+            padding=1)
 
 
     def get_keybindings(self):
@@ -57,7 +52,7 @@ class StringHandler(QHandler):
         @bindings.add(Keys.Enter)
         def _enter(event):
             get_app().exit(result=True)
-        
+
         return bindings
 
     def get_value(self):
@@ -94,13 +89,14 @@ class PasswordHandler(QHandler):
         widget = self.get_widget()
         widget.buffer.cursor_position = len(widget.text)
 
-        return VSplit([
-                Label(
-                    msg,
-                    dont_extend_width=True,
-                    style='class:password.question'),
+        return VSplit(
+            [
+                Label(msg,
+                      dont_extend_width=True,
+                      style='class:password.question'),
                 widget
-            ], padding=1)
+            ],
+            padding=1)
 
     def get_keybindings(self):
         bindings = KeyBindings()
@@ -156,7 +152,7 @@ class SelectOneHandler(QHandler):
 
         def accept_handler(value):
             get_app().exit(result=self.get_answer())
-        
+
         self.get_widget().accept_handler = accept_handler
 
         return bindings
@@ -191,7 +187,7 @@ class SelectManyHandler(QHandler):
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
-        
+
         return HSplit([
             Label(msg, style='class:selectmany.question'),
             self.get_widget()
@@ -207,7 +203,7 @@ class SelectManyHandler(QHandler):
 
         def accept_handler(value):
             get_app().exit(result=self.get_answer())
-        
+
         self.get_widget().accept_handler = accept_handler
 
         return bindings
@@ -215,11 +211,11 @@ class SelectManyHandler(QHandler):
 register('selectmany', SelectManyHandler)
 
 class TextHandler(QHandler):
-   
+
     def get_widget_class(self):
         return TextArea
 
-    
+
     def get_widget_init_kwargs(self):
         kwargs = dict(
             multiline=True,
@@ -240,13 +236,14 @@ class TextHandler(QHandler):
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
-        return VSplit([
-                Label(
-                    msg,
-                    dont_extend_width=True,
-                    style='class:text.question'),
+        return VSplit(
+            [
+                Label(msg,
+                      dont_extend_width=True,
+                      style='class:text.question'),
                 self.get_widget()
-            ], padding=1)
+            ],
+            padding=1)
 
     def get_keybindings(self):
         bindings = KeyBindings()
@@ -262,15 +259,6 @@ class TextHandler(QHandler):
         return bindings
 
 
-# class PathHandler(ValueHandler):
-    
-#     ALIAS = 'path'
-
-#     def __init__(self, *args, **kwargs):
-#         super(PathHandler, self).__init__(*args, **kwargs)
-#         self.widget.completer = PathCompleter()
-    
-
 class PathHandler(StringHandler):
     def get_widget(self):
         widget = super(PathHandler, self).get_widget()
@@ -278,7 +266,7 @@ class PathHandler(StringHandler):
         return widget
 
 register('path', PathHandler)
-    
+
 # class RePasswordHandler(QHandler):
 
 #     ALIAS = 'repassword'

@@ -1,7 +1,5 @@
-import abc
 import json
 
-import six
 from prompt_toolkit.styles import Style, default_ui_style, merge_styles
 
 from ..core.exceptions import AlreadyRegisteredError, ThemeNotFoundError
@@ -28,7 +26,7 @@ class Theme:
             self._name = tmp['name']
             self._prompt_styles = tmp['prompt']
             self._dialog_styles = tmp['dialog']
-    
+
     def for_prompt(self):
         return merge_styles([
             default_ui_style(),
@@ -47,7 +45,7 @@ class Theme:
                 'prompt': self._prompt_styles,
                 'dialog': self._dialog_styles
             }, f, indent=2)
-        
+
 
 
 class ThemeRegistry(object):
@@ -59,7 +57,8 @@ class ThemeRegistry(object):
     def register(self, alias, theme):
         assert isinstance(theme, Theme)
         if alias in self._themes:
-            raise AlreadyRegisteredError('theme {} already registered'.format(alias))
+            raise AlreadyRegisteredError(
+                'theme {} already registered'.format(alias))
         self._themes[alias] = theme
 
 

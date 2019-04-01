@@ -8,11 +8,12 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
 setup(
     name='interrogatio',
     version=__import__('interrogatio').get_version(),
-    description='A python library to prompt user for inputs in a terminal application.',
+    description='A python library to prompt user '
+                'for inputs in a terminal application.',
     long_description=long_description,
     packages=find_packages(),
     install_requires=[
-        'prompt-toolkit>=2.0.8', 
+        'prompt-toolkit>=2.0.8',
         'pygments>=2.3.1',
         'six>=1.12.0'
     ],
