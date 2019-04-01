@@ -267,110 +267,91 @@ class PathHandler(StringHandler):
 
 register('path', PathHandler)
 
-# class RePasswordHandler(QHandler):
+class RePasswordHandler(QHandler):
 
-#     ALIAS = 'repassword'
-
-
-#     def __init__(self, *args, **kwargs):
-#         super(RePasswordHandler, self).__init__(*args, **kwargs)
-#         self.widget = TextArea(**self.get_kwargs())
-#         self.widget.buffer.cursor_position = len(self.widget.text)
-#         self.rewidget = TextArea(**self.get_kwargs())
-#         self.rewidget.buffer.cursor_position = len(self.rewidget.text)
-
-#     def get_kwargs(self):
-#         kwargs = dict(
-#             multiline=False,
-#             style='class:{}.{}.answer'.format(self._mode, self.ALIAS),
-#             password=True
-#         )
-#         if 'default' in self._question:
-#             kwargs['text'] = self._question['default']
-#         return kwargs
-
-#     def get_value(self):
-#         return self.widget.text
-
-#     def get_layout(self):
-#         msg = '{}{}'.format(
-#             self._question['message'],
-#             self._question.get('question_mark', ' ?')
-#         )
-#         align = HorizontalAlign.LEFT
-#         if self._mode == InputMode.DIALOG:
-#             align = HorizontalAlign.JUSTIFY
-
-#         return HSplit([
-#             VSplit([
-#                     Label(
-#                         msg,
-#                         dont_extend_width=True,
-#                         style='class:{}.{}.question'.format(self._mode,
-#                                                             self.ALIAS)),
-#                     self.widget
-#                 ], padding=1, align=align),
-#             VSplit([
-#                     Label(
-#                         'Again',
-#                         dont_extend_width=True,
-#                         style='class:{}.{}.question'.format(self._mode,
-#                                                             self.ALIAS)),
-#                     self.rewidget
-#                 ], padding=1, align=align)
-#         ])
-
-#     def get_app(self):
-#         bindings = KeyBindings()
-
-#         @bindings.add(Keys.ControlC)
-#         def _ctrl_c(event):
-#             get_app().exit(exception=KeyboardInterrupt)
+    ALIAS = 'repassword'
 
 
-#         @bindings.add('tab')
-#         def _tab(event):
-#             get_app().layout.focus_next()
+    def __init__(self, *args, **kwargs):
+        super(RePasswordHandler, self).__init__(*args, **kwargs)
+        self._rewidget = TextArea(**self.get_widget_init_kwargs())
+        self._rewidget.buffer.cursor_position = len(self._rewidget.text)
 
-#         @bindings.add('s-tab')
-#         def _stab(event):
-#             get_app().layout.focus_previous()
 
-#         @bindings.add(Keys.Enter)
-#         def _enter(event):
-#             if get_app().layout.has_focus(self.rewidget):
-#                 get_app().exit(result=self.get_answer())
-#             else:
-#                 get_app().layout.focus_next()
+    def get_widget_class(self):
+        return TextArea
 
-#         return Application(
-#             layout=Layout(self.get_layout()),
-#             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-#             style=get_theme_manager().get_current_style())
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            multiline=False,
+            style='class:repassword.answer',
+            password=True
+        )
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
 
-#     def apply_validators(self):
-#         validators = self._question.get('validators', [])
-#         error_messages = []
-#         if self.widget.text != self.rewidget.text:
-#             msg = 'Password and repeat password doesn\'t match'
-#             error_messages.append(msg)
-#             if self._mode == InputMode.PROMPT:
-#                 print_formatted_text(
-#                     FormattedText([
-#                         ('class:prompt.error', msg)
-#                     ]),
-#                     style=get_theme_manager().get_current_style()
-#                 )
-#         for validator in validators:
-#             try:
-#                 validator.validate(self.get_value(), self._context)
-#             except ValidationError as ve:
-#                 error_messages.append(ve.message)
-#                 if self._mode == InputMode.PROMPT:
-#                     print_formatted_text(
-#                         FormattedText([
-#                             ('class:prompt.error', ve.message)
-#                         ]),
-#                         style=get_theme_manager().get_current_style()
-#                     )
-#         return error_messages
+    def get_value(self):
+        return self.get_widget().text
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        extra_args = self.get_init_extra_args()
+        remsg = '{}{}'.format(
+            extra_args.get('remessage', 'Please repeat to confirm'),
+            self._question.get('question_mark', ' ?')
+        )
+        lbl_msg = Label(msg,
+                        dont_extend_width=True,
+                        style='class:repassword.question')
+        lbl_remsg = Label(remsg,
+                          dont_extend_width=True,
+                          style='class:repassword.question')
+        return HSplit(
+            [
+                VSplit([lbl_msg, self.get_widget()], padding=1),
+                VSplit([lbl_remsg, self._rewidget], padding=1)
+            ]
+        )
+
+    def get_keybindings(self):
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
+
+
+        @bindings.add('tab')
+        def _tab(event):
+            get_app().layout.focus_next()
+
+        @bindings.add('s-tab')
+        def _stab(event):
+            get_app().layout.focus_previous()
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            if get_app().layout.has_focus(self._rewidget):
+                get_app().exit(result=self.get_answer())
+            else:
+                get_app().layout.focus_next()
+
+        return bindings
+
+    def is_valid(self):
+        extra_args = self.get_init_extra_args()
+        super(RePasswordHandler, self).is_valid()
+        if self.get_widget().text != self._rewidget.text:
+            self._errors.append(
+                extra_args.get(
+                    'reerror',
+                    'Password and repeat password doesn\'t match'
+                )
+            )
+        return not self.errors
+
+register('repassword', RePasswordHandler)

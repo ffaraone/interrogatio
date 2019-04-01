@@ -68,6 +68,9 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     def get_widget_init_kwargs(self):
         pass
 
+    def get_init_extra_args(self):
+        return self._question.get('extra_args', dict())
+
     @abc.abstractmethod
     def get_widget_class(self):
         pass
