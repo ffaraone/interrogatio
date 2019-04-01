@@ -20,12 +20,12 @@ def get_version():
 
 
 get_input_handlers_registry().register(ValueHandler)
-get_input_handlers_registry().register(PasswordHandler)
-get_input_handlers_registry().register(SelectOneHandler)
-get_input_handlers_registry().register(SelectManyHandler)
-get_input_handlers_registry().register(TextHandler)
-get_input_handlers_registry().register(PathHandler)
-get_input_handlers_registry().register(RePasswordHandler)
+# get_input_handlers_registry().register(PasswordHandler)
+# get_input_handlers_registry().register(SelectOneHandler)
+# get_input_handlers_registry().register(SelectManyHandler)
+# get_input_handlers_registry().register(TextHandler)
+# get_input_handlers_registry().register(PathHandler)
+# get_input_handlers_registry().register(RePasswordHandler)
 
 
 get_validators_registry().register(RequiredValidator)

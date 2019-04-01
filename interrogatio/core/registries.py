@@ -1,4 +1,3 @@
-from ..core.validation import ValidationContext
 
 __all__ = [
     'get_input_handlers_registry',
@@ -15,13 +14,10 @@ class InputHandlersRegistry(dict):
     def get_registered(self):
         return list(self.keys())
 
-    def get_instance(self, question, questions, answers, mode):
-        qtype = question['type']
+    def get_instance(self, q):
+        qtype = q['type']
         clazz = self[qtype]
-        return clazz(
-            question,
-            ValidationContext(questions, answers),
-            mode=mode)
+        return clazz(q)
 
 _input_handlers_registry = InputHandlersRegistry()
 

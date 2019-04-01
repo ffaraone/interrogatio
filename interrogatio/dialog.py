@@ -16,13 +16,15 @@ from .themes import get_theme_manager
 from .utils import validate_questions
 from .validators import Validator
 
+from prompt_toolkit.layout import Layout, HorizontalAlign
+
 __all__ = ['dialogus']
 
 def show_error_dialog(messages):
     texts = []
     for message in messages:
         texts.append(
-            Label(message, style='class:dialog.error', dont_extend_height=True)
+            Label(message, style='class:error', dont_extend_height=True)
         )
     dialog = Dialog(
         title='Some inputs are invalid',
@@ -40,7 +42,7 @@ def show_error_dialog(messages):
         layout=Layout(dialog),
         key_bindings=load_key_bindings(),
         mouse_support=True,
-        style=get_theme_manager().get_current_style(),
+        style=get_theme_manager().get_current_theme().for_dialog(),
         full_screen=True)
 
     app.run()
@@ -48,10 +50,13 @@ def show_error_dialog(messages):
 def show_dialog(questions, title, confirm, cancel):
 
     handlers = []
+    layouts = []
     registry = get_input_handlers_registry()
     for q in questions:
-        handler = registry.get_instance(
-            q, questions, None, mode=InputMode.DIALOG)
+        handler = registry.get_instance(q)
+        l = handler.get_layout()
+        l.align = HorizontalAlign.JUSTIFY
+        layouts.append(l)
         handlers.append(handler)
 
     def ok_handler():
@@ -60,10 +65,11 @@ def show_dialog(questions, title, confirm, cancel):
             result.update(handler.get_answer())
         get_app().exit(result=result)
 
+
     dialog = Dialog(
         title=title,
         body=HSplit(
-            [h.get_layout() for h in handlers], 
+            layouts, 
             padding=1
         ),      
         buttons=[
@@ -84,7 +90,7 @@ def show_dialog(questions, title, confirm, cancel):
             bindings,
         ]),
         mouse_support=True,
-        style=get_theme_manager().get_current_style(),
+        style=get_theme_manager().get_current_theme().for_dialog(),
         full_screen=True)
 
     size = app.renderer.output.get_size()
@@ -106,13 +112,14 @@ def show_dialog(questions, title, confirm, cancel):
         if answers is None:
             return
         for handler in handlers:
-            for msg in handler.apply_validators():
-                validation_errors.append(
-                    '{}: {}'.format(
-                        handler.get_variable_name(),
-                        msg
+            if not handler.is_valid():
+                for msg in handler.errors:
+                    validation_errors.append(
+                        '{}: {}'.format(
+                            handler.get_variable_name(),
+                            msg
+                        )
                     )
-                )
         if not validation_errors:
             return answers
         

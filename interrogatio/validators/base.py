@@ -6,7 +6,6 @@ from urllib.parse import urlsplit, urlunsplit
 
 import six
 
-from ..core.validation import ValidationContext
 
 __all__ = [
     'ValidationError',
@@ -55,7 +54,7 @@ class Validator(six.with_metaclass(abc.ABCMeta, object)):
         self.message = message
 
     @abc.abstractmethod
-    def validate(self, value, context):
+    def validate(self, value):
         """
         Abstract method.
         Subclasses must implement this method with the validation logic.
@@ -66,8 +65,6 @@ class Validator(six.with_metaclass(abc.ABCMeta, object)):
         :raises: 
             ValidationError: if the provided input is invalid.
         """
-        if not isinstance(context, ValidationContext):
-            raise ValueError('context must be a ValidationContext instance')
 
 
 def _validate_ipv4_address(value):
@@ -104,7 +101,7 @@ class RequiredValidator(Validator):
         """
         self.message = message or 'this field is required'
 
-    def validate(self, value, context):
+    def validate(self, value):
         if value.strip():
             return
         raise ValidationError(self.message)
@@ -129,7 +126,7 @@ class RegexValidator(Validator):
                 expr)
         self.inverse_match = inverse_match
 
-    def validate(self, value, context):
+    def validate(self, value):
         regex_matches = self.regex.search(str(value))
         invalid_input = regex_matches if self.inverse_match else not regex_matches
         if invalid_input:
@@ -166,7 +163,7 @@ class EmailValidator(Validator):
         if whitelist is not None:
             self.domain_whitelist = whitelist
 
-    def validate(self, value, context):
+    def validate(self, value):
         if not value or '@' not in value:
             raise ValidationError(self.message)
 
@@ -247,14 +244,14 @@ class URLValidator(Validator):
         if schemes is not None:
             self.schemes = schemes
         
-    def validate(self, value, context):
+    def validate(self, value):
         scheme = value.split('://')[0].lower()
         if scheme not in self.schemes:
             raise ValidationError(message=self.message)
 
         # Then check full URL
         try:
-            super().validate(value, context)
+            super().validate(value)
         except ValidationError as e:
             # Trivial case failed. Try for possible IDN domain
             if value:
@@ -267,7 +264,7 @@ class URLValidator(Validator):
                 except UnicodeError:  # invalid domain part
                     raise e
                 url = urlunsplit((scheme, netloc, path, query, fragment))
-                super().validate(url, context)
+                super().validate(url)
             else:
                 raise
         else:
@@ -315,7 +312,7 @@ class MinLengthValidator(Validator):
         self.message = message or 'the length of this field must be at '\
             'least {} characters long'.format(self.min_length)
 
-    def validate(self, value, context):
+    def validate(self, value):
         if len(value) < self.min_length:
             raise ValidationError(message=self.message)
 
@@ -335,7 +332,7 @@ class MaxLengthValidator(Validator):
         self.message = message or 'the length of this field must be at '\
             'most {} characters long'.format(self.max_length)
 
-    def validate(self, value, context):
+    def validate(self, value):
         if len(value) > self.max_length:
             raise ValidationError(message=self.message)
 
@@ -347,7 +344,7 @@ class ExactLengthValidator(Validator):
         self.message = message or 'the length of this field must be '\
             '{} characters long'.format(self.length)
 
-    def validate(self, value, context):
+    def validate(self, value):
         if len(value) > self.length:
             raise ValidationError(message=self.message)
 
@@ -357,7 +354,7 @@ class NumberValidator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be a number'
 
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             float(value)
         except ValueError:
@@ -368,7 +365,7 @@ class IntegerValidator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be an integer'
 
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             int(value)
         except ValueError:
@@ -380,7 +377,7 @@ class IPv4Validator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be an IPv4 address'
 
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             ipaddress.IPv4Address(value)
         except ValueError:
@@ -394,7 +391,7 @@ class RangeValidator(Validator):
         self.max = float(max)
         self.message = message or \
             'this field must be a number between {} and {}'.format(min, max)
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             value = float(value)
             if value < self.min or value > self.max:
@@ -408,7 +405,7 @@ class MinValidator(Validator):
         self.min = float(min)
         self.message = message or \
             'this field must be greater or equal to {}'.format(min)
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             value = float(value)
             if value < self.min:
@@ -422,7 +419,7 @@ class MaxValidator(Validator):
         self.max = float(max)
         self.message = message or \
             'this field must be smaller or equal to {}'.format(max)
-    def validate(self, value, context):
+    def validate(self, value):
         try:
             value = float(value)
             if value > self.max:
