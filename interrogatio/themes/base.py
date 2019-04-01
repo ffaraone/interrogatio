@@ -1,9 +1,9 @@
 import abc
 import json
-import six
 
+import six
 from prompt_toolkit.styles import Style, default_ui_style, merge_styles
-from ..core.styles import to_style_token
+
 from ..core.exceptions import AlreadyRegisteredError, ThemeNotFoundError
 
 __all__ = [
@@ -86,4 +86,3 @@ def for_prompt():
 
 def set_theme(alias):
     _registry.set_current(alias)
-

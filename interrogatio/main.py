@@ -36,6 +36,11 @@ def main():
                         '-o',
                         type=argparse.FileType('w'),
                         default=sys.stdout)
+
+    parser.add_argument('--theme',
+                        '-t',
+                        default='default')
+    
     subparsers = parser.add_subparsers()
 
     dialog_parser = subparsers.add_parser('dialog')
@@ -66,8 +71,8 @@ def main():
             kwargs['cancel'] = args.cancel
         _write_answers(args, dialogus(_load_questions(args), **kwargs))
     else:
-        _write_answers(args, interrogatio(_load_questions(args)))
-
+        _write_answers(args, interrogatio(_load_questions(args), 
+                                          theme=args.theme))
     
 
 if __name__ == '__main__':
