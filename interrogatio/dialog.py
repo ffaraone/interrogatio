@@ -132,13 +132,13 @@ def dialogus(questions,
     :param questions: a list of questions.
     :type questions: list
 
-    :param title: the title of the dialog. *default: Please fill the following form*
+    :param title: the title of the dialog.
     :type title: str
 
-    :param confirm: the confirm button text. *default: Ok*
+    :param confirm: the confirm button text.
     :type confirm: str
 
-    :param cancel: the cancel button text. *default: Cancel*
+    :param cancel: the cancel button text.
     :type cancel: str
 
     :return: a dictionary with the answers.
