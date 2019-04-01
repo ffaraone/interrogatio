@@ -1,5 +1,7 @@
 from prompt_toolkit.application import Application
 from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.layout import HorizontalAlign, Layout
 from prompt_toolkit.shortcuts import print_formatted_text
 
@@ -48,9 +50,17 @@ def interrogatio(questions, theme='default'):
         handler = get_instance(q)
         l = handler.get_layout()
         l.align = HorizontalAlign.LEFT
+        
+        bindings = [load_key_bindings()]
+        
+        handler_bindings = handler.get_keybindings()
+
+        if handler_bindings:
+            bindings.append(handler_bindings)
+
         app = Application(
             layout=Layout(l),
-            key_bindings=handler.get_keybindings(),
+            key_bindings=merge_key_bindings(bindings),
             style=for_prompt())
         
         while True:

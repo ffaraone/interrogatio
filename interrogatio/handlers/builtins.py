@@ -5,8 +5,7 @@ from prompt_toolkit.application import Application
 from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter, WordCompleter
 from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
-from prompt_toolkit.key_binding.defaults import load_key_bindings
+from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout import D, HorizontalAlign, HSplit, Layout, VSplit
 from prompt_toolkit.shortcuts import print_formatted_text
@@ -59,7 +58,7 @@ class StringHandler(QHandler):
         def _enter(event):
             get_app().exit(result=True)
         
-        return merge_key_bindings([load_key_bindings(), bindings])
+        return bindings
 
     def get_value(self):
         return self.get_widget().text
@@ -69,229 +68,198 @@ register('input', StringHandler)
 
 
 
-# class PasswordHandler(ValueHandler):
+class PasswordHandler(QHandler):
 
-#     ALIAS = 'password'
+    def get_widget_class(self):
+        return TextArea
 
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            multiline=False,
+            style='class:password.answer',
+            password=True
+        )
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
 
-#     def __init__(self, *args, **kwargs):
-#         super(PasswordHandler, self).__init__(*args, **kwargs)
-#         self.widget = TextArea(**self.get_kwargs())
-#         self.widget.buffer.cursor_position = len(self.widget.text)
+    def get_value(self):
+        return self.get_widget().text
 
-#     def get_kwargs(self):
-#         kwargs = dict(
-#             multiline=False,
-#             style='class:{}.password.answer'.format(self._mode),
-#             password=True
-#         )
-#         if 'default' in self._question:
-#             kwargs['text'] = self._question['default']
-#         return kwargs
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        widget = self.get_widget()
+        widget.buffer.cursor_position = len(widget.text)
 
-#     def get_value(self):
-#         return self.widget.text
+        return VSplit([
+                Label(
+                    msg,
+                    dont_extend_width=True,
+                    style='class:password.question'),
+                widget
+            ], padding=1)
 
-#     def get_layout(self):
-#         msg = '{}{}'.format(
-#             self._question['message'],
-#             self._question.get('question_mark', ' ?')
-#         )
-#         align = HorizontalAlign.LEFT
-#         if self._mode == InputMode.DIALOG:
-#             align = HorizontalAlign.JUSTIFY
+    def get_keybindings(self):
+        bindings = KeyBindings()
 
-#         return VSplit([
-#                 Label(
-#                     msg,
-#                     dont_extend_width=True,
-#                     style='class:{}.password.question'.format(self._mode)),
-#                 self.widget
-#             ], padding=1, align=align)
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
 
-#     def get_app(self):
-#         bindings = KeyBindings()
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=self.get_answer())
 
-#         @bindings.add(Keys.ControlC)
-#         def _ctrl_c(event):
-#             get_app().exit(exception=KeyboardInterrupt)
+        return bindings
 
-#         @bindings.add(Keys.Enter)
-#         def _enter(event):
-#             get_app().exit(result=self.get_answer())
+register('password', PasswordHandler)
 
 
-#         return Application(
-#             layout=Layout(self.get_layout()),
-#             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-#             style=get_theme_manager().get_current_style())
+class SelectOneHandler(QHandler):
 
+    def get_widget_class(self):
+        return SelectOne
 
+    def get_value(self):
+        return self.get_widget().current_value
 
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            values=self._question['values'],
+            style='class:selectone.answer'
+        )
+        if 'default' in self._question:
+            kwargs['default'] = self._question['default']
 
-# class SelectOneHandler(QHandler):
+        return kwargs
 
-#     ALIAS = 'selectone'
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        return HSplit([
+            Label(msg, style='class:selectone.question'),
+            self.get_widget()
+        ])
 
+    def get_keybindings(self):
 
-#     def __init__(self, *args, **kwargs):
-#         super(SelectOneHandler, self).__init__(*args, **kwargs)
-#         self.widget = SelectOne(**self.get_kwargs())
+        bindings = KeyBindings()
 
-#     def get_value(self):
-#         return self.widget.current_value
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
 
-#     def get_kwargs(self):
-#         kwargs = dict(
-#             values=self._question['values'],
-#             style='class:{}.selectone.answer'.format(self._mode)
-#         )
-#         if 'default' in self._question:
-#             kwargs['default'] = self._question['default']
-
-#         return kwargs
-
-#     def get_layout(self):
-#         msg = '{}{}'.format(
-#             self._question['message'],
-#             self._question.get('question_mark', ' ?')
-#         )
+        def accept_handler(value):
+            get_app().exit(result=self.get_answer())
         
-#         return HSplit([
-#             Label(msg, style='class:{}.selectone.question'.format(self._mode)),
-#             self.widget
-#         ])
+        self.get_widget().accept_handler = accept_handler
 
-#     def get_app(self):
+        return bindings
 
-#         bindings = KeyBindings()
+register('selectone', SelectOneHandler)
 
-#         @bindings.add(Keys.ControlC)
-#         def _ctrl_c(event):
-#             get_app().exit(exception=KeyboardInterrupt)
 
-#         def accept_handler(value):
-#             get_app().exit(result=self.get_answer())
+class SelectManyHandler(QHandler):
+
+
+    def get_widget_class(self):
+        return SelectMany
+
+
+    def get_value(self):
+        return list(self.get_widget().checked)
+
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            values=self._question['values'],
+            style='class:selectmany.answer'
+        )
+        if 'checked' in self._question:
+            kwargs['checked'] = set(self._question['checked'])
+        if 'default' in self._question:
+            kwargs['default'] = self._question['default']
+
+        return kwargs
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
         
-#         self.widget.accept_handler = accept_handler
+        return HSplit([
+            Label(msg, style='class:selectmany.question'),
+            self.get_widget()
+        ])
 
-#         return Application(
-#             layout=Layout(self.get_layout()),
-#             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-#             style=get_theme_manager().get_current_style())
+    def get_keybindings(self):
 
+        bindings = KeyBindings()
 
-# class SelectManyHandler(QHandler):
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
 
-#     ALIAS = 'selectmany'
-
-
-#     def __init__(self, *args, **kwargs):
-#         super(SelectManyHandler, self).__init__(*args, **kwargs)
-#         self.widget = SelectMany(**self.get_kwargs())
-
-#     def get_value(self):
-#         return list(self.widget.checked)
-
-#     def get_kwargs(self):
-#         kwargs = dict(
-#             values=self._question['values'],
-#             style='class:{}.selectmany.answer'.format(self._mode)
-#         )
-#         if 'checked' in self._question:
-#             kwargs['checked'] = set(self._question['checked'])
-#         if 'default' in self._question:
-#             kwargs['default'] = self._question['default']
-
-#         return kwargs
-
-#     def get_layout(self):
-#         msg = '{}{}'.format(
-#             self._question['message'],
-#             self._question.get('question_mark', ' ?')
-#         )
+        def accept_handler(value):
+            get_app().exit(result=self.get_answer())
         
-#         return HSplit([
-#             Label(msg, style='class:{}.selectmany.question'.format(self._mode)),
-#             self.widget
-#         ])
+        self.get_widget().accept_handler = accept_handler
 
-#     def get_app(self):
+        return bindings
 
-#         bindings = KeyBindings()
+register('selectmany', SelectManyHandler)
 
-#         @bindings.add(Keys.ControlC)
-#         def _ctrl_c(event):
-#             get_app().exit(exception=KeyboardInterrupt)
-
-#         def accept_handler(value):
-#             get_app().exit(result=self.get_answer())
-        
-#         self.widget.accept_handler = accept_handler
-
-#         return Application(
-#             layout=Layout(self.get_layout()),
-#             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-#             style=get_theme_manager().get_current_style())
-
-
-# class TextHandler(QHandler):
+class TextHandler(QHandler):
    
-#     ALIAS = 'text'
+    def get_widget_class(self):
+        return TextArea
 
+    
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            multiline=True,
+            height=4,
+            style='class:text.answer'
+        )
+        if 'rows' in self._question:
+            kwargs['height'] = int(self._question['rows'])
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
 
-#     def __init__(self, *args, **kwargs):
-#         super(TextHandler, self).__init__(*args, **kwargs)
-#         self.widget = TextArea(**self.get_kwargs())
+    def get_value(self):
+        return self.get_widget().text
 
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        return VSplit([
+                Label(
+                    msg,
+                    dont_extend_width=True,
+                    style='class:text.question'),
+                self.get_widget()
+            ], padding=1)
 
-#     def get_kwargs(self):
-#         kwargs = dict(
-#             multiline=True,
-#             height=4,
-#             style='class:{}.text.answer'.format(self._mode)
-#         )
-#         if 'rows' in self._question:
-#             kwargs['height'] = int(self._question['rows'])
-#         if 'default' in self._question:
-#             kwargs['text'] = self._question['default']
-#         return kwargs
+    def get_keybindings(self):
+        bindings = KeyBindings()
 
-#     def get_value(self):
-#         return self.widget.text
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(exception=KeyboardInterrupt)
 
-#     def get_layout(self):
-#         msg = '{}{}'.format(
-#             self._question['message'],
-#             self._question.get('question_mark', ' ?')
-#         )
-#         align = HorizontalAlign.LEFT
-#         if self._mode == InputMode.DIALOG:
-#             align = HorizontalAlign.JUSTIFY
+        @bindings.add(Keys.ControlX)
+        def _enter(event):
+            get_app().exit(result=self.get_answer())
 
-#         return VSplit([
-#                 Label(
-#                     msg,
-#                     dont_extend_width=True,
-#                     style='class:{}.text.question'.format(self._mode)),
-#                 self.widget
-#             ], padding=1, align=align)
-
-#     def get_app(self):
-#         bindings = KeyBindings()
-
-#         @bindings.add(Keys.ControlC)
-#         def _ctrl_c(event):
-#             get_app().exit(exception=KeyboardInterrupt)
-
-#         @bindings.add(Keys.ControlX)
-#         def _enter(event):
-#             get_app().exit(result=self.get_answer())
-
-#         return Application(
-#             layout=Layout(self.get_layout()),
-#             key_bindings=merge_key_bindings([load_key_bindings(), bindings]),
-#             style=get_theme_manager().get_current_style())
+        return bindings
 
 
 # class PathHandler(ValueHandler):
@@ -303,6 +271,13 @@ register('input', StringHandler)
 #         self.widget.completer = PathCompleter()
     
 
+class PathHandler(StringHandler):
+    def get_widget(self):
+        widget = super(PathHandler, self).get_widget()
+        widget.completer = PathCompleter()
+        return widget
+
+register('path', PathHandler)
     
 # class RePasswordHandler(QHandler):
 
