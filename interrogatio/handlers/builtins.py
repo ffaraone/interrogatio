@@ -222,8 +222,6 @@ class TextHandler(QHandler):
             height=4,
             style='class:text.answer'
         )
-        if 'rows' in self._question:
-            kwargs['height'] = int(self._question['rows'])
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
         return kwargs
@@ -236,6 +234,9 @@ class TextHandler(QHandler):
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
+        extra_args = self.get_init_extra_args()
+        if 'rows' in extra_args:
+            self.get_widget().height = int(extra_args['rows'])
         return VSplit(
             [
                 Label(msg,
