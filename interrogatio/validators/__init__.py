@@ -1,6 +1,4 @@
-from .base import (EmailValidator, ExactLengthValidator, IntegerValidator,
-                   IPv4Validator, MaxLengthValidator, MaxValidator,
-                   MinLengthValidator, MinValidator, NumberValidator,
-                   RangeValidator, RegexValidator, RequiredValidator,
-                   URLValidator, ValidationError, Validator)
+from .base import (Validator, register, get_instance, get_registered)
+
+from .builtins import *
 

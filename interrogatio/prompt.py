@@ -1,21 +1,17 @@
-from .core.constants import InputMode
-from .core.registries import (get_input_handlers_registry,
-                              get_validators_registry)
+from prompt_toolkit.application import Application
+from prompt_toolkit.formatted_text import FormattedText
+from prompt_toolkit.layout import HorizontalAlign, Layout
+from prompt_toolkit.shortcuts import print_formatted_text
+
 from .dialog import show_dialog
-from .themes import get_theme_manager
+from .handlers import get_instance
+from .themes import for_prompt, set_theme
 from .utils import validate_questions
 from .validators import Validator
 
-
-from prompt_toolkit.application import Application
-from prompt_toolkit.layout import Layout, HorizontalAlign
-from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit.shortcuts import print_formatted_text
-from .themes import get_theme_manager
-
 __all__ = ['interrogatio']
 
-def interrogatio(questions):
+def interrogatio(questions, theme='default'):
     """
     Prompts user for inputs as defined in the questions parameter and returns
     a dictionary with the answers.
@@ -45,18 +41,17 @@ def interrogatio(questions):
         ]
         answers = interrogatio(questions)
     """
-
-    registry = get_input_handlers_registry()
+    set_theme(theme)
     answers = {}
     validate_questions(questions)
     for q in questions:
-        handler = registry.get_instance(q)
+        handler = get_instance(q)
         l = handler.get_layout()
         l.align = HorizontalAlign.LEFT
         app = Application(
             layout=Layout(l),
             key_bindings=handler.get_keybindings(),
-            style=get_theme_manager().get_current_theme().for_prompt())
+            style=for_prompt())
         
         while True:
             app.run()
@@ -68,6 +63,6 @@ def interrogatio(questions):
                     FormattedText([
                         ('class:error', handler.errors[0])
                     ]),
-                    style=get_theme_manager().get_current_theme().for_prompt()
+                    style=for_prompt()
                 )
     return answers

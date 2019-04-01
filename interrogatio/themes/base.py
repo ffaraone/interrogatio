@@ -3,36 +3,16 @@ import json
 import six
 
 from prompt_toolkit.styles import Style, default_ui_style, merge_styles
-
-from ..core.constants import InputMode
 from ..core.styles import to_style_token
-
-from ..core.registries import get_input_handlers_registry
+from ..core.exceptions import AlreadyRegisteredError, ThemeNotFoundError
 
 __all__ = [
     'Theme',
-    'DefaultTheme',
-    # 'PurpleTheme',
-    'get_theme_manager'
+    'register',
+    'for_dialog',
+    'for_prompt',
+    'set_theme'
 ]
-
-
-class ThemeManager(object):
-
-    def __init__(self):
-        self._current_theme = None
-
-    def set_current_theme(self, theme):
-        assert isinstance(theme, Theme)
-        self._current_theme = theme
-
-    def get_current_theme(self):
-        return self._current_theme
-
-manager = ThemeManager()
-
-def get_theme_manager():
-    return manager
 
 
 class Theme:
@@ -69,79 +49,41 @@ class Theme:
             }, f, indent=2)
         
 
-class DefaultTheme(Theme):
+
+class ThemeRegistry(object):
+
     def __init__(self):
-        self._name = 'default'
-        self._prompt_styles = {
-            'error': to_style_token(fg='red', attr='bold underline'),
-            'input.question': to_style_token(fg='darkblue'),
-            'input.answer': to_style_token(fg='orange', attr='bold'),
+        self._themes = {}
+        self._current_theme = 'default'
 
-            
-            'password.question': to_style_token(fg='darkblue'),
-            'password.answer': to_style_token(fg='orange', attr='bold'),
-
-            'path.question': to_style_token(fg='darkblue'),
-            'path.answer': to_style_token(fg='orange', attr='bold'),
-            
-            'repassword.question': to_style_token(fg='darkblue'),
-            'repassword.answer': to_style_token(fg='orange', attr='bold'),
-
-            'text.question': to_style_token(fg='darkblue'),
-            'text.answer': to_style_token(fg='orange', attr='bold'),
-    
-            'selectone.question': to_style_token(fg='darkblue'),
-            'selectone.answer': to_style_token(fg='darkblue', attr='bold'),
-            'selectone.answer radio': to_style_token(fg='darkblue', attr='bold'),
-            'selectone.answer radio-selected': to_style_token(fg='cyan'),
-            'selectone.answer radio-checked': to_style_token(fg='orange', attr='bold'),
-
-            'selectmany.question': to_style_token(fg='darkblue'),
-            'selectmany.answer': to_style_token(fg='darkblue', attr='bold'),
-            'selectmany.answer checkbox': to_style_token(fg='darkblue', attr='bold'),
-            'selectmany.answer checkbox-selected': to_style_token(fg='cyan'),
-            'selectmany.answer checkbox-checked': to_style_token(fg='orange', attr='bold'),
+    def register(self, alias, theme):
+        assert isinstance(theme, Theme)
+        if alias in self._themes:
+            raise AlreadyRegisteredError('theme {} already registered'.format(alias))
+        self._themes[alias] = theme
 
 
-        }
+    def set_current(self, alias):
+        if alias not in self._themes:
+            raise ThemeNotFoundError('theme {} not registered'.format(alias))
+        self._current_theme = alias
 
-        self._dialog_styles = {
-            'dialog': to_style_token(bg='#4444ff'),
-            'dialog.body': to_style_token(fg='#000000', bg='#ffffff'),
-            'dialog frame.label': to_style_token(fg='magenta', attr='bold'),
-            'dialog shadow': to_style_token(bg='#000088'),
-            'dialog.body shadow': to_style_token(bg='#aaaaaa'),
-            
-            'button': to_style_token(),
-            'button.arrow': to_style_token(attr='bold'),
-            'button.focused': to_style_token(fg='#ffffff', bg='#aa0000'),
+    def get_current(self):
+        return self._themes[self._current_theme]
 
-            'error': to_style_token(fg='red', attr='bold'),
 
-            'input.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'input.answer': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
-    
-            'password.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'password.answer': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
+_registry = ThemeRegistry()
 
-            'path.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'path.answer': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
 
-            'repassword.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'repassword.answer': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
+def register(alias, theme):
+    _registry.register(alias, theme)
 
-            'text.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'text.answer': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
+def for_dialog():
+    return _registry.get_current().for_dialog()
 
-            'selectone.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'selectone.answer': to_style_token(fg='darkblue', bg='#eeeeee', attr='bold'),
-            'selectone.answer radio': to_style_token(fg='darkblue', bg='#eeeeee', attr='bold'),
-            'selectone.answer radio-selected': to_style_token(fg='cyan', bg='#eeeeee'),
-            'selectone.answer radio-checked': to_style_token(fg='orange', bg='#eeeeee', attr='bold'),
+def for_prompt():
+    return _registry.get_current().for_prompt()
 
-            'selectmany.question': to_style_token(fg='darkblue', bg='#eeeeee'),
-            'selectmany.answer': to_style_token(fg='darkblue', bg='#eeeeee', attr='bold'),
-            'selectmany.answer checkbox': to_style_token(fg='darkblue', bg='#eeeeee', attr='bold'),
-            'selectmany.answer checkbox-selected': to_style_token(fg='cyan', bg='#eeeeee'),
-            'selectmany.answer checkbox-checked': to_style_token(fg='orange', bg='#eeeeee', attr='bold')
-        }
+def set_theme(alias):
+    _registry.set_current(alias)
+

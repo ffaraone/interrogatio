@@ -1,12 +1,12 @@
-from .exceptions import InvalidQuestionError
-from .core.registries import get_input_handlers_registry, get_validators_registry
-from .validators import Validator
+from .core.exceptions import InvalidQuestionError
+from . import validators
+from . import handlers
 
 def _validate_validator_object(obj):
     if 'name' not in obj:
         raise InvalidQuestionError('You must specify a name for the validator')    
     
-    if obj['name'] not in get_validators_registry():
+    if obj['name'] not in validators.get_registered():
         raise InvalidQuestionError('Validator {} does not exists'.format(obj['name']))
     
     if 'args' in obj and not isinstance(obj['args'], dict):
@@ -24,7 +24,7 @@ def _validate_question(q):
         raise InvalidQuestionError('You must specify a question type')
 
     q_type = q['type']
-    if q_type not in get_input_handlers_registry().get_registered():
+    if q_type not in handlers.get_registered():
         raise InvalidQuestionError('Unsupported question type: {}'.format(
             q_type))
 
@@ -51,20 +51,20 @@ def _validate_question(q):
         if not isinstance(q['validators'], (list, tuple)):
             raise InvalidQuestionError('Validators must be a list or tuple') 
 
-        validators = []
+        validator_instances = []
         for v in q['validators']:
-            if not isinstance(v, (Validator, dict)):
+            if not isinstance(v, (validators.Validator, dict)):
                 raise InvalidQuestionError('Validators must be a list of  '
                     'interrogatio.validators.Validator'
                     ' instances or a list of validator objects')
 
             if isinstance(v, dict):
                 _validate_validator_object(v)
-                v = get_validators_registry().get_instance(v)
-                validators.append(v)
+                v = validators.get_instance(v)
+                validator_instances.append(v)
             else:
-                validators.append(v)
-        q['validators'] = validators
+                validator_instances.append(v)
+        q['validators'] = validator_instances
 
 def validate_questions(questions):
     for q in questions:

@@ -6,17 +6,15 @@ from prompt_toolkit.key_binding.bindings.focus import (focus_next,
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.key_binding.key_bindings import (KeyBindings,
                                                      merge_key_bindings)
-from prompt_toolkit.layout import HSplit, Layout, Window
+from prompt_toolkit.layout import HorizontalAlign, HSplit, Layout, Window
 from prompt_toolkit.shortcuts import message_dialog
 from prompt_toolkit.widgets import Button, Dialog, Label
 
-from .core.constants import InputMode
-from .core.registries import get_input_handlers_registry
-from .themes import get_theme_manager
+from .handlers import get_instance
+from .themes import for_dialog
 from .utils import validate_questions
 from .validators import Validator
-
-from prompt_toolkit.layout import Layout, HorizontalAlign
+from .themes import set_theme
 
 __all__ = ['dialogus']
 
@@ -42,7 +40,7 @@ def show_error_dialog(messages):
         layout=Layout(dialog),
         key_bindings=load_key_bindings(),
         mouse_support=True,
-        style=get_theme_manager().get_current_theme().for_dialog(),
+        style=for_dialog(),
         full_screen=True)
 
     app.run()
@@ -51,9 +49,8 @@ def show_dialog(questions, title, confirm, cancel):
 
     handlers = []
     layouts = []
-    registry = get_input_handlers_registry()
     for q in questions:
-        handler = registry.get_instance(q)
+        handler = get_instance(q)
         l = handler.get_layout()
         l.align = HorizontalAlign.JUSTIFY
         layouts.append(l)
@@ -90,7 +87,7 @@ def show_dialog(questions, title, confirm, cancel):
             bindings,
         ]),
         mouse_support=True,
-        style=get_theme_manager().get_current_theme().for_dialog(),
+        style=for_dialog(),
         full_screen=True)
 
     size = app.renderer.output.get_size()
@@ -129,7 +126,8 @@ def dialogus(
     questions, 
     title='Please fill the following form',
     confirm='Ok',
-    cancel='Cancel'):
+    cancel='Cancel',
+    theme='default'):
     """
     Show a dialog with inputs as defined in the questions parameter and returns
     a dictionary with the answers.
@@ -172,5 +170,6 @@ def dialogus(
             confirm='Done',
             cancel='Skip')
     """
+    set_theme(theme)
     validate_questions(questions)
     return show_dialog(questions, title, confirm, cancel)

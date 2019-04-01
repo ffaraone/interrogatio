@@ -13,25 +13,15 @@ from prompt_toolkit.shortcuts import print_formatted_text
 from prompt_toolkit.styles import Style
 from prompt_toolkit.widgets import Label, TextArea
 
-from ..core.constants import InputMode
-from ..core.styles import to_style_token
-from ..core.validation import ValidationContext
-from ..themes import get_theme_manager
-from ..validators import ValidationError
+from ..core.exceptions import ValidationError
 from ..widgets import SelectMany, SelectOne
-from .base import QHandler
+from .base import QHandler, register
 
 
-class ValueHandler(QHandler):
-   
-    ALIAS = 'input'
+class StringHandler(QHandler):
 
-
-    def __init__(self, *args, **kwargs):
-        super(ValueHandler, self).__init__(*args, **kwargs)
-        self.widget = TextArea(**self.get_widget_init_kwargs())
-        self.widget.buffer.cursor_position = len(self.widget.text)
-
+    def get_widget_class(self):
+        return TextArea
 
     def get_widget_init_kwargs(self):
         kwargs = dict(
@@ -42,24 +32,19 @@ class ValueHandler(QHandler):
             kwargs['text'] = self._question['default']
         return kwargs
 
-    def get_value(self):
-        return self.widget.text
-
     def get_layout(self):
         msg = '{}{}'.format(
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
-        # align = HorizontalAlign.LEFT
-        # if self._context.is_dialog:
-        #     align = HorizontalAlign.JUSTIFY
-
+        widget = self.get_widget()
+        widget.buffer.cursor_position = len(widget.text)
         return VSplit([
                 Label(
                     msg,
                     dont_extend_width=True,
                     style='class:input.question'),
-                self.widget
+                widget
             ], padding=1)
 
 
@@ -68,13 +53,19 @@ class ValueHandler(QHandler):
 
         @bindings.add(Keys.ControlC)
         def _ctrl_c(event):
-            get_app().exit(exception=KeyboardInterrupt)
+            get_app().exit(result=False)
 
         @bindings.add(Keys.Enter)
         def _enter(event):
-            get_app().exit(result=self.get_answer())
+            get_app().exit(result=True)
         
         return merge_key_bindings([load_key_bindings(), bindings])
+
+    def get_value(self):
+        return self.get_widget().text
+
+
+register('input', StringHandler)
 
 
 

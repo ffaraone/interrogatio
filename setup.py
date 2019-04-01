@@ -47,4 +47,5 @@ setup(
         'Topic :: Terminals'
     ],
     keywords='console input dialog curses prompt',
+    include_package_data=True
 )

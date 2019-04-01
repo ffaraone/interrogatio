@@ -4,33 +4,44 @@ import six
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.shortcuts import print_formatted_text
 
-from ..core.constants import InputMode
-from ..core.validation import ValidationContext
-from ..themes import get_theme_manager
-from ..validators import ValidationError
+from ..core.exceptions import AlreadyRegisteredError, ValidationError
 
 __all__ = [
-    'QHandler'
+    'QHandler',
+    'register',
+    'get_instance',
+    'get_registered'
 ]
 
 
-# class QContext:
-#     def __init__(self, question, questions, is_dialog=False):
-#         self._question = question
-#         self._questions = questions
-#         self._is_dialog = is_dialog
+class QHandlersRegistry(dict):
+    def register(self, alias, clazz):
+        if alias in self:
+            raise AlreadyRegisteredError('alias {} already exists'.format(
+                alias))
+        self[alias] = clazz
 
-#     @property
-#     def question(self):
-#         return self._question
+    def get_registered(self):
+        return list(self.keys())
+    
+    def get_instance(self, question):
+        qtype = question['type']
+        clazz = self[qtype]
+        return clazz(question)
 
-#     @property
-#     def questions(self):
-#         return self._questions
+_registry = QHandlersRegistry()
 
-#     @property
-#     def is_dialog(self):
-#         return self._is_dialog
+
+def register(alias, clazz):
+    _registry.register(alias, clazz)
+
+
+def get_instance(question):
+    return _registry.get_instance(question)
+
+
+def get_registered():
+    return _registry.get_registered()
 
 
 class QHandler(six.with_metaclass(abc.ABCMeta, object)):
@@ -38,7 +49,6 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     ABC for the different kinds of input handlers.
     """
 
-    widget_class = None
 
     def __init__(self, question):
         self._question = question
@@ -62,9 +72,16 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     def get_widget_init_kwargs(self):
         pass
 
+    @abc.abstractmethod
     def get_widget_class(self):
-        return self.widget_class
+        pass
 
+    def get_widget(self):
+        if not self._widget:
+            clazz = self.get_widget_class()
+            self._widget = clazz(**self.get_widget_init_kwargs())
+        return self._widget
+        
 
     @abc.abstractmethod
     def get_keybindings(self):
