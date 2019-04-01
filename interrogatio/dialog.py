@@ -77,8 +77,8 @@ def show_dialog(questions, title, confirm, cancel):
 
     # Key bindings.
     bindings = KeyBindings()
-    bindings.add('tab')(focus_next)
-    bindings.add('s-tab')(focus_previous)
+    # bindings.add('tab')(focus_next)
+    # bindings.add('s-tab')(focus_previous)
 
     app = Application(
         layout=Layout(dialog),
