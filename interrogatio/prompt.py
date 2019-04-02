@@ -20,9 +20,15 @@ def interrogatio(questions, theme='default'):
 
     :param questions: a list of questions.
     :type questions: list
+    :param theme: the name of the theme to use.
+    :type theme: string
 
     :return: a dictionary with the answers.
     :rtype: dict
+
+    :raise InvalidQuestionError: if there is an error in the question
+                                 definition.
+    :raise ThemeNotFoundError: if the specified theme does not exists.
 
     Usage:
 
@@ -41,7 +47,7 @@ def interrogatio(questions, theme='default'):
                 'message': 'What is your favorite pet'
             }
         ]
-        answers = interrogatio(questions)
+        answers = interrogatio(questions, theme='purple')
     """
     set_theme(theme)
     answers = {}

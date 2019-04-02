@@ -31,20 +31,51 @@ _registry = QHandlersRegistry()
 
 
 def register(alias, clazz):
+    """
+    Register a question handler to use with interrogatio.
+    Each question handler is identified by a unique alias.
+    This alias is used in question definition (type) to invoke a specific
+    handler.
+
+
+    :param alias: a unique alias to indentify a question handler.
+    :type alias: str
+
+    :param clazz: a QHandler concrete implementation.
+    :type clazz: class
+    """
     _registry.register(alias, clazz)
 
 
 def get_instance(question):
+    """
+    Returns an instance of a concrete subclass of QHandler initialized with
+    a question. The subclass of QHandler is identified by the ``type`` field
+    of the question.
+
+    :param question: a question to handle.
+    :type question: dict
+
+    :return: an instance of the corresponding QHandler
+    :rtype: QHandler subclass
+    """
     return _registry.get_instance(question)
 
 
 def get_registered():
+    """
+    Returns a list of registered QHandlers.
+
+    :return: list of aliases of the registered QHandlers.
+    :rtype: list
+    """
     return _registry.get_registered()
 
 
 class QHandler(six.with_metaclass(abc.ABCMeta, object)):
     """
-    ABC for the different kinds of input handlers.
+    ABC for question handlers.
+    Each question handler must subclass this class.
     """
 
     def __init__(self, question):
@@ -54,11 +85,27 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     @property
     def errors(self):
+        """
+        This property holds a list of validation error messages.
+        The list is filled after a call to the is_valid method.
+
+        :return: list of error messages.
+        :rtype: list
+        """
         return self._errors
 
     @abc.abstractmethod
     def get_layout(self):
-        pass
+        """
+        Returns the UI layout of the question. It must returns a
+        python-prompt-toolkit layout container.
+
+        Subclasses must implement this method.
+
+        :return: the UI layout of the question.
+        :rtype: :class:`~prompt_toolkit.layout.Layout`
+        """
+
 
     @abc.abstractmethod
     def get_value(self):
