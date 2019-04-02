@@ -33,23 +33,45 @@ _registry = ValidatorsRegistry()
 
 
 def register(alias, clazz):
+    """
+    Register a validator to use with interrogatio.
+    Each validator is identified by a unique alias.
+    This alias can be used in question definition to validater answers.
+
+
+    :param alias: a unique alias to indentify a validator.
+    :type alias: str
+
+    :param clazz: a Validator concrete implementation.
+    :type clazz: class
+    """
     _registry.register(alias, clazz)
 
 def get_registered():
+    """
+    Returns a list of registered Validators.
+
+    :return: list of aliases of the registered Validators.
+    :rtype: list
+    """
     return _registry.get_registered()
 
 def get_instance(v):
+    """
+    Returns an instance of a concrete subclass of Validator.
+
+    :param v: a validator definition object.
+    :type v: dict
+
+    :return: an instance of the corresponding Validator.
+    :rtype: Validator subclass
+    """
     return _registry.get_instance(v)
 
 
 class Validator(six.with_metaclass(abc.ABCMeta, object)):
     """
     Abstract class for validators.
-
-    .. note::
-        Subclasses must provide a ``ALIAS`` static member with the name
-        of the validator.
-        Validator aliases must be unique.
     """
     def __init__(self, message='invalid input'):
         self.message = message

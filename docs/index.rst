@@ -24,10 +24,10 @@ Questions can be rendered onto the terminal prompt or as curses dialogs.
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-   
+
    getting_started
    shell_command
-   input_handlers
+   question_handlers
    validators
    styling
    extending

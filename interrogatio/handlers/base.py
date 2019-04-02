@@ -109,20 +109,52 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractmethod
     def get_value(self):
-        pass
+        """
+        Returns the ``value`` part of the answer.
+
+        Subclasses must implement this method.
+
+        :return: the ``value`` part of the answer.
+        :rtype: str
+        """
 
     @abc.abstractmethod
     def get_widget_init_kwargs(self):
-        pass
+        """
+        Returns the keyword arguments needed to instantiate the widget.
+
+        Subclasses must implement this method.
+
+        :return: a dictionary containing the keyword arguments.
+        :rtype: dict
+        """
 
     def get_init_extra_args(self):
+        """
+        Returns extra arguments needed to instantiate a QHandler.
+        The extra arguments are represented as a dictionary within the
+        question object under the key ``extra_args``.
+
+        :return: a dictionary containing the initialization extra arguments.
+        :rtype: dict
+        """
         return self._question.get('extra_args', dict())
 
     @abc.abstractmethod
     def get_widget_class(self):
-        pass
+        """
+        Returns the widget class for this QHandler.
+
+        :return: a widget class.
+        :rtype: class
+        """
 
     def get_widget(self):
+        """
+        Returns the widget instance for this QHandler.
+        If the widget has not been already created, this method creates it
+        before returns.
+        """
         if not self._widget:
             clazz = self.get_widget_class()
             self._widget = clazz(**self.get_widget_init_kwargs())
@@ -130,17 +162,30 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
 
     @abc.abstractmethod
     def get_keybindings(self):
-        pass
+        """
+        Returns a KeyBindings object to add custom keybindings to this
+        QHandler.
+        """
 
     def get_answer(self):
+        """
+        Returns dictionary with the question variable as key and the answer
+        as the value.
+        """
         return {self._question['name']: self.get_value()}
 
     def get_variable_name(self):
+        """
+        Returns the name of the variable of this question.
+        """
         return self._question['name']
 
     def is_valid(self):
         """
-        This method will be called by the get_input method to apply validators.
+        Apply any speficied validator to the answer and return True if the
+        input is valid otherwise False.
+        If the answer isn't valid, it also set the errors property to a list
+        of error messages.
         """
         validators = self._question.get('validators', [])
         self._errors = []

@@ -23,7 +23,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'interrogatio = interrogatio.main:main'
+            'interrogatio = interrogatio.main:main_interrogatio',
+            'dialogus = interrogatio.main:main_dialogus'
         ]
     },
     author='Francesco Faraone',

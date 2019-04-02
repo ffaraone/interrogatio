@@ -1,7 +1,7 @@
 .. _input_handlers:
 
-Input handlers
-==============
+Question handlers
+=================
 
 interrogatio |release| has these built-in type of handlers:
 
