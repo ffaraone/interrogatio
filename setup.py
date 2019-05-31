@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='interrogatio',
-    version=__import__('interrogatio').get_version(),
+    version='1.0.0b2',
     description='A python library to prompt user for inputs in a terminal application',
     packages=find_packages(),
     install_requires=[
