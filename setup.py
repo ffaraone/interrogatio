@@ -6,10 +6,13 @@ setup(
     description='A python library to prompt user for inputs in a terminal application',
     packages=find_packages(),
     install_requires=[
-        'prompt-toolkit>=2.0.8', 
+        'prompt-toolkit>=2.0.8',
         'pygments>=2.3.1',
         'six>=1.12.0'
     ],
+    extras_require={
+        'test':  ['isort', 'flake8', 'ipdb', 'pytest', 'pytest-cov', 'pytest-runner'],
+    },
     author='Francesco Faraone',
     author_email='ffaraone@gmail.com',
     url='https://github.com/ffaraone/interrogatio',
