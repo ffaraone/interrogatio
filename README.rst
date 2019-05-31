@@ -45,14 +45,12 @@ Contributing
 
 If you want to contribute to the project, you can submit bugs, feature requests, translations or fork the github repository and submit your pull request.
 
+::
+
+    $ pip install -e '.[test]'
+    $ python setup.py test
+
 
 License
 -------
 interrogatio is released under the `BSD 3-Clause "New" or "Revised" License <https://opensource.org/licenses/BSD-3-Clause>`_.
-
-
-
-
-
-
-

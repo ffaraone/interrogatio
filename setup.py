@@ -7,9 +7,8 @@ with open(os.path.join(os.path.dirname(__file__), 'README.rst')) as f:
 
 setup(
     name='interrogatio',
-    version=__import__('interrogatio').get_version(),
-    description='A python library to prompt user '
-                'for inputs in a terminal application.',
+    version='1.0.0b2',
+    description='A python library to prompt user for inputs in a terminal application',
     long_description=long_description,
     packages=find_packages(),
     install_requires=[
@@ -20,6 +19,7 @@ setup(
     extras_require={
         'yml':  ['pyyaml>=5',],
         'zxcvbn': ['zxcvbn>=4.4.27'],
+        'test':  ['isort', 'flake8', 'ipdb', 'pytest', 'pytest-cov', 'pytest-runner'],
     },
     entry_points={
         'console_scripts': [
