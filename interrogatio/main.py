@@ -4,26 +4,25 @@ import sys
 import os
 import io
 
+from functools import partial
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
 from . import interrogatio, dialogus
 
 
 def _load_questions(args):
     questions = None
     with args.input as f:
-        if args.input_format == 'json':
-            questions = json.load(f)
-        else:
-            import yaml
-            questions = yaml.load(f, Loader=yaml.FullLoader)
-    return questions
+        return args.deserialize(f)
+
 
 def _write_answers(args, answers):
     with args.output as f:
-        if args.input_format == 'json':
-            json.dump(answers, f)
-        else:
-            import yaml
-            yaml.dump(answers, f)
+        args.serialize(answers, f)
 
 
 def main_dialogus():
@@ -84,18 +83,24 @@ def main_interrogatio():
                         '-t',
                         default='default')
 
+    if yaml:
+        choices = ['json', 'yaml']
+    else:
+        choices=['json']
 
-    try:
-        import yaml
-        parser.add_argument('--input_format',
-                            choices=['json', 'yml'],
-                            default='json')
-        parser.add_argument('--output_format',
-                            choices=['json', 'yml'],
-                            default='json')
-    except ImportError:
-        parser.set_defaults(input_format='json', output_format='json')
+    parser.add_argument('--input-format',
+                        choices=choices,
+                        default='json')
+    parser.add_argument('--output-format',
+                        choices=choices,
+                        default='json')
 
     args = parser.parse_args()
+    if args.input_format == 'yaml':
+        args.deserialize = partial(yaml.load, Loader=yaml.FullLoader)
+        args.serialize = yaml.dump
+    else:
+        args.deserialize = json.load
+        args.serialize = json.dump
     _write_answers(args, interrogatio(_load_questions(args),
                                       theme=args.theme))

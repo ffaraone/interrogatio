@@ -18,7 +18,7 @@ setup(
         'six>=1.12.0'
     ],
     extras_require={
-        'yml':  ['pyyaml>=5',],
+        'yaml':  ['pyyaml>=5',],
         'zxcvbn': ['zxcvbn>=4.4.27'],
         'test':  ['isort', 'flake8', 'ipdb', 'pytest', 'pytest-cov', 'pytest-runner'],
     },
