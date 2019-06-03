@@ -6,8 +6,10 @@ from functools import partial
 
 try:
     import yaml
+    FORMAT_CHOICES = ['json', 'yaml']
 except ImportError:
     yaml = None
+    FORMAT_CHOICES = ['json']
 
 from . import interrogatio, dialogus
 
@@ -41,19 +43,21 @@ def main_dialogus():
     parser.add_argument('--confirm')
     parser.add_argument('--cancel')
 
-    if yaml:
-        choices = ['json', 'yaml']
-    else:
-        choices = ['json']
-
     parser.add_argument('--input-format',
-                        choices=choices,
+                        choices=FORMAT_CHOICES,
                         default='json')
     parser.add_argument('--output-format',
-                        choices=choices,
+                        choices=FORMAT_CHOICES,
                         default='json')
 
     args = parser.parse_args()
+
+    if args.input_format == 'yaml':
+        args.deserialize = partial(yaml.load, Loader=yaml.FullLoader)
+        args.serialize = yaml.dump
+    else:
+        args.deserialize = json.load
+        args.serialize = json.dump
 
     kwargs = dict(
         theme=args.theme
@@ -82,24 +86,21 @@ def main_interrogatio():
                         '-t',
                         default='default')
 
-    if yaml:
-        choices = ['json', 'yaml']
-    else:
-        choices = ['json']
-
     parser.add_argument('--input-format',
-                        choices=choices,
+                        choices=FORMAT_CHOICES,
                         default='json')
     parser.add_argument('--output-format',
-                        choices=choices,
+                        choices=FORMAT_CHOICES,
                         default='json')
 
     args = parser.parse_args()
+
     if args.input_format == 'yaml':
         args.deserialize = partial(yaml.load, Loader=yaml.FullLoader)
         args.serialize = yaml.dump
     else:
         args.deserialize = json.load
         args.serialize = json.dump
+
     _write_answers(args, interrogatio(_load_questions(args),
                                       theme=args.theme))
