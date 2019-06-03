@@ -46,10 +46,10 @@ def main_dialogus():
     else:
         choices = ['json']
 
-    parser.add_argument('--input_format',
+    parser.add_argument('--input-format',
                         choices=choices,
                         default='json')
-    parser.add_argument('--output_format',
+    parser.add_argument('--output-format',
                         choices=choices,
                         default='json')
 
