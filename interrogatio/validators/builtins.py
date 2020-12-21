@@ -59,8 +59,12 @@ class RequiredValidator(Validator):
         )
 
     def validate(self, value):
-        if value.strip():
-            return
+        if isinstance(value, str):
+            if value.strip():
+                return
+        else:
+            if value:
+                return
         raise ValidationError(self.message)
 
 
