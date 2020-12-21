@@ -4,8 +4,9 @@ from prompt_toolkit.application.current import get_app
 from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.layout import HSplit, VSplit
-from prompt_toolkit.widgets import Label, TextArea, Button
+from prompt_toolkit.layout import HorizontalAlign, HSplit, VSplit
+from prompt_toolkit.layout.dimension import Dimension as D
+from prompt_toolkit.widgets import Label, TextArea, Button, Box
 
 from ..widgets import SelectMany, SelectOne
 from .base import QHandler, register
@@ -190,12 +191,13 @@ class SelectManyHandler(QHandler):
         widget = self.get_widget()
         btn_all = Button('All', widget.select_all)
         btn_none = Button('None', widget.select_none)
-        buttons = VSplit([btn_all, btn_none])
         return HSplit([
             Label(msg, style='class:selectmany.question'),
-            Label(''),
-            buttons,
-            Label(''),
+            Box(
+                body=VSplit([btn_all, btn_none], padding=1),
+                height=D(min=1, max=3, preferred=3),
+                padding_left=0,
+            ),
             self.get_widget()
         ])
 
