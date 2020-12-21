@@ -62,8 +62,8 @@ class RequiredValidator(Validator):
         if isinstance(value, str):
             if value.strip():
                 return
-        else:
-            if value:
+        elif isinstance(value, (list, tuple)):
+            if len(value) > 0:
                 return
         raise ValidationError(self.message)
 
