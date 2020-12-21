@@ -5,7 +5,7 @@ from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout import HSplit, VSplit
-from prompt_toolkit.widgets import Label, TextArea
+from prompt_toolkit.widgets import Label, TextArea, Button
 
 from ..widgets import SelectMany, SelectOne
 from .base import QHandler, register
@@ -187,9 +187,15 @@ class SelectManyHandler(QHandler):
             self._question['message'],
             self._question.get('question_mark', ' ?')
         )
-
+        widget = self.get_widget()
+        btn_all = Button('All', widget.select_all)
+        btn_none = Button('None', widget.select_none)
+        buttons = VSplit([btn_all, btn_none])
         return HSplit([
             Label(msg, style='class:selectmany.question'),
+            Label(''),
+            buttons,
+            Label(''),
             self.get_widget()
         ])
 

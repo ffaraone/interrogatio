@@ -4,6 +4,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
+from prompt_toolkit.layout.margins import ScrollbarMargin
 from prompt_toolkit.mouse_events import MouseEventType
 
 
@@ -80,7 +81,7 @@ class SelectOne(object):
         self.window = Window(
             content=self.control,
             style='class:radio-list',
-            right_margins=[],
+            right_margins=[ScrollbarMargin(display_arrows=True)],
             dont_extend_height=True)
 
     def _get_text_fragments(self, out_style):
@@ -208,8 +209,15 @@ class SelectMany(object):
         self.window = Window(
             content=self.control,
             style='class:checkbox-list',
-            right_margins=[],
+            right_margins=[ScrollbarMargin(display_arrows=True)],
             dont_extend_height=True)
+
+    def select_all(self):
+        for v in self.values:
+            self.checked.add(v[0])
+
+    def select_none(self):
+        self.checked.clear()
 
     def _get_text_fragments(self, out_style):
         def mouse_handler(mouse_event):

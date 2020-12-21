@@ -91,15 +91,16 @@ def show_dialog(questions, title, confirm, cancel):
     size = app.renderer.output.get_size()
     container = app.layout.container
     height = container.preferred_height(size.columns, size.rows).preferred
-    if height > size.rows:
-        message_dialog(
-            title='Too many questions',
-            text='Cannot render a {} rows dialog in a '
-                 '{} rows screen: too many questions!'.format(height,
-                                                              size.rows),
-            ok_text='Got it!'
-        )
-        return
+    # print(height, size.rows)
+    # if height > size.rows:
+    #     message_dialog(
+    #         title='Too many questions',
+    #         text='Cannot render a {} rows dialog in a '
+    #              '{} rows screen: too many questions!'.format(height,
+    #                                                           size.rows),
+    #         ok_text='Got it!'
+    #     )
+    #     return
 
     while True:
         validation_errors = []
