@@ -19,7 +19,7 @@ class StringHandler(QHandler):
 
     def get_widget_init_kwargs(self):
         kwargs = dict(
-            multiline=False,
+            multiline=self._question.get('multiline', False),
             style='class:input.answer'
         )
         if 'default' in self._question:
