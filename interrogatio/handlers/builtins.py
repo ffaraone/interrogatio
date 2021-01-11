@@ -8,7 +8,7 @@ from prompt_toolkit.layout import HorizontalAlign, HSplit, VSplit
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.widgets import Label, TextArea, Button, Box
 
-from ..widgets import SelectMany, SelectOne
+from ..widgets import SelectMany, SelectOne, Date, MaskedInput
 from .base import QHandler, register
 
 
@@ -364,3 +364,53 @@ class RePasswordHandler(QHandler):
         return not self.errors
 
 register('repassword', RePasswordHandler)
+
+
+class MaskedInputHandler(QHandler):
+
+    def get_widget_class(self):
+        return MaskedInput
+
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            style='class:input.answer',
+            mask=self._question['mask'],
+        )
+        if 'default' in self._question:
+            kwargs['text'] = self._question['default']
+        return kwargs
+
+    def get_layout(self):
+        msg = '{}{}'.format(
+            self._question['message'],
+            self._question.get('question_mark', ' ?')
+        )
+        widget = self.get_widget()
+        return VSplit(
+            [
+                Label(msg,
+                      dont_extend_width=True,
+                      style='class:input.question'),
+                widget
+            ],
+            padding=1)
+
+
+    def get_keybindings(self):
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(result=False)
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=True)
+
+        return bindings
+
+    def get_value(self):
+        return self.get_widget().value
+
+
+register('maskedinput', MaskedInputHandler)

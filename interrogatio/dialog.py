@@ -1,5 +1,5 @@
 from prompt_toolkit.application import Application
-from prompt_toolkit.application.current import get_app
+from prompt_toolkit.application.current import get_app, create_app_session, set_app
 from prompt_toolkit.formatted_text import FormattedText
 from prompt_toolkit.key_binding.bindings.focus import (focus_next,
                                                        focus_previous)
@@ -45,6 +45,51 @@ def show_error_dialog(messages):
 
     app.run()
 
+def show_wizard(questions, title, confirm, cancel):
+    with create_app_session() as session:
+        result = {}
+        for q in questions:
+            handler = get_instance(q)
+            layout = handler.get_layout()
+            layout.align = HorizontalAlign.JUSTIFY
+            
+            def ok_handler():
+                result.update(handler.get_answer())
+                get_app().exit(True)
+
+            def cancel_handler():   
+                get_app().exit(False)
+
+            dialog = Dialog(
+                title=title,
+                body=HSplit(
+                    [layout],
+                    padding=1
+                ),
+                buttons=[
+                    Button(text=cancel, handler=cancel_handler),
+                    Button(text=confirm, handler=ok_handler),
+                ],
+                with_background=True)                
+
+            bindings = KeyBindings()
+
+            app = Application(
+                layout=Layout(dialog),
+                key_bindings=merge_key_bindings([
+                    load_key_bindings(),
+                    bindings,
+                ]),
+                mouse_support=True,
+                style=for_dialog(),
+                full_screen=True)
+
+            with set_app(app):
+                if not app.run():
+                    return
+        
+        return result
+
 def show_dialog(questions, title, confirm, cancel):
 
     handlers = []
@@ -70,8 +115,8 @@ def show_dialog(questions, title, confirm, cancel):
             padding=1
         ),
         buttons=[
-            Button(text=confirm, handler=ok_handler),
             Button(text=cancel, handler=lambda: get_app().exit()),
+            Button(text=confirm, handler=ok_handler),
         ],
         with_background=True)
 
@@ -121,11 +166,14 @@ def show_dialog(questions, title, confirm, cancel):
 
         show_error_dialog(validation_errors)
 
-def dialogus(questions,
-             title='Please fill the following form',
-             confirm='Ok',
-             cancel='Cancel',
-             theme='default'):
+def dialogus(
+    questions,
+    title='Please fill the following form',
+    confirm='Ok',
+    cancel='Cancel',
+    theme='default',
+    wizard=True,
+):
     """
     Show a dialog with inputs as defined in the questions parameter and returns
     a dictionary with the answers.
@@ -170,4 +218,6 @@ def dialogus(questions,
     """
     set_theme(theme)
     validate_questions(questions)
+    if wizard:
+        return show_wizard(questions, title, confirm, cancel)
     return show_dialog(questions, title, confirm, cancel)

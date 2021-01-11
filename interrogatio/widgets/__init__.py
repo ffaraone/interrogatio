@@ -1,1 +1,1 @@
-from .base import SelectOne, SelectMany
+from .base import SelectOne, SelectMany, MaskedInput
