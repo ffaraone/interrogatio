@@ -1,6 +1,9 @@
 import collections
 import ipaddress
 import re
+
+from datetime import datetime
+
 from urllib.parse import urlsplit, urlunsplit
 
 from .base import Validator, register
@@ -19,7 +22,9 @@ __all__ = [
     'IPv4Validator',
     'RangeValidator',
     'MinValidator',
-    'MaxValidator'
+    'MaxValidator',
+    'DateTimeValidator',
+    'DateTimeRangeValidator',
 ]
 
 
@@ -64,6 +69,9 @@ class RequiredValidator(Validator):
                 return
         elif isinstance(value, (list, tuple)):
             if len(value) > 0:
+                return
+        elif isinstance(value, dict):
+            if all(value.values()):
                 return
         raise ValidationError(self.message)
 
@@ -386,3 +394,45 @@ class MaxValidator(Validator):
             raise ValidationError(message=self.message)
 
 register('max', MaxValidator)
+
+class DateTimeValidator(Validator):
+    def __init__(self, format_pattern='%Y-%m-%dT%H:%M:%S', message=None):
+        self.format_pattern = format_pattern
+        self.message = message or \
+            'this field is not a valid datetime'
+
+    def validate(self, value):
+        if not value:
+            return
+        try:
+            datetime.strptime(value, self.format_pattern)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+register('datetime', DateTimeValidator)
+
+
+class DateTimeRangeValidator(Validator):
+    def __init__(self, format_pattern='%Y-%m-%d', message=None):
+        self.format_pattern = format_pattern
+        self.message = message or \
+            'this field is not a valid datetime range'
+
+    def validate(self, value):
+        if not value:
+            return
+        d_from = None
+        d_to = None
+        try:
+            if value['from']:
+                d_from = datetime.strptime(value['from'], self.format_pattern)
+            if value['to']:
+                d_to = datetime.strptime(value['to'], self.format_pattern)
+        except ValueError:
+            raise ValidationError(message=self.message)
+
+        if d_from and d_to and d_from > d_to:
+            raise ValidationError(message=self.message)
+        
+
+register('datetimerange', DateTimeValidator)

@@ -1,4 +1,6 @@
 # pylint: disable=unused-argument
+import string
+
 from prompt_toolkit.application import get_app
 from prompt_toolkit.buffer import Buffer
 from prompt_toolkit.document import Document
@@ -282,7 +284,13 @@ class FixedLengthBuffer(Buffer):
     def __init__(self, **kwargs):
         self._max_length = kwargs.pop('max_length')
         self._focus_next = kwargs.pop('focus_next')
+        self._allowed_chars = kwargs.pop('allowed_chars')
         super().__init__(**kwargs)
+
+    def _is_input_allowed(self, data):
+        if not self._allowed_chars:
+            return True
+        return all([char in self._allowed_chars for char in data])
 
     def insert_text(
         self,
@@ -291,8 +299,9 @@ class FixedLengthBuffer(Buffer):
         move_cursor=True,
         fire_event=True,
     ):  
-        if len(self.document.text) <= self._max_length:
-            super().insert_text(data, overwrite, move_cursor, fire_event)
+        if len(self.document.text) + len(data) <= self._max_length:
+            if self._is_input_allowed(data):
+                super().insert_text(data, overwrite, move_cursor, fire_event)
         if self.cursor_position == self._max_length:
             self.cursor_position -= 1
             if self._focus_next:
@@ -309,6 +318,7 @@ class FixedLengthTextArea(TextArea):
         height=None,
         max_length=None,
         focus_next=True,
+        allowed_chars=None,
         style=None,
     ):
 
@@ -318,6 +328,7 @@ class FixedLengthTextArea(TextArea):
             multiline=False,
             max_length=max_length,
             focus_next=focus_next,
+            allowed_chars=allowed_chars,
             accept_handler=None,
         )
 
@@ -344,7 +355,15 @@ class FixedLengthTextArea(TextArea):
 
 class MaskedInput(VSplit):
 
-    def __init__(self, mask, placeholder='_', style=None, value=None, accept_handler=None):
+    def __init__(
+        self,
+        mask,
+        placeholder='_',
+        style=None,
+        value=None,
+        allowed_chars=None,
+        accept_handler=None,
+    ):
         self._mask = mask
         self._placeholder = placeholder
         self._accept_handler = accept_handler
@@ -362,23 +381,83 @@ class MaskedInput(VSplit):
                 self.accept_handler(self.value)
 
         size = 0
-        for char in self._mask:
+        for i in range(len(self._mask)):
+            char = self._mask[i]
             if char == placeholder:
                 size += 1
                 continue
+            not_latest_field = char in self._mask[i:]
             if size > 0:
-                widget = FixedLengthTextArea(width=size, max_length=size, style=style)
+                widget = FixedLengthTextArea(
+                    width=size,
+                    max_length=size,
+                    style=style,
+                    allowed_chars=allowed_chars,
+                    focus_next=not_latest_field,
+                )
                 self._components.append(widget)
                 size = 0
             self._components.append(Label(char, dont_extend_width=True))
 
         if size > 0:
-            widget = FixedLengthTextArea(width=size + 1, max_length=size, style=style)
+            widget = FixedLengthTextArea(
+                width=size,
+                max_length=size,
+                style=style,
+                focus_next=False,
+                allowed_chars=allowed_chars,
+            )
             self._components.append(widget)       
         self._components.append(Label(''))
 
         super().__init__(self._components, key_bindings=kb)
 
+    def _has_value(self):
+        values = ''.join([
+            cmp.text for cmp in self._components
+            if isinstance(cmp, FixedLengthTextArea)
+        ]).strip()
+        return bool(values)
+
     @property
     def value(self):
-        return ''.join([cmp.text for cmp in self._components])
+        if self._has_value():
+            return ''.join([cmp.text for cmp in self._components])
+        return None
+
+
+
+class DateRange(VSplit):
+
+    def __init__(self, from_label='From: ', to_label='till: ', style=None):
+
+
+        self._from = MaskedInput(mask='____-__-__', allowed_chars=string.digits, style=style)
+        self._to = MaskedInput(mask='____-__-__', allowed_chars=string.digits, style=style)
+
+        # Key bindings.
+        kb = KeyBindings()
+
+        @kb.add('enter')
+        def _(event):
+            if self.accept_handler:
+                self.accept_handler(self.value)
+
+        components = []
+        if from_label:
+            components.append(Label(from_label, dont_extend_width=True))
+        components.append(self._from)
+
+        if to_label:
+            components.append(Label(to_label, dont_extend_width=True))
+        
+        components.append(self._to)
+
+        super().__init__(components, key_bindings=kb)
+    
+    @property
+    def value(self):
+        return {
+            'from': self._from.value,
+            'to': self._to.value,
+        }

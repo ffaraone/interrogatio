@@ -45,51 +45,6 @@ def show_error_dialog(messages):
 
     app.run()
 
-def show_wizard(questions, title, confirm, cancel):
-    with create_app_session() as session:
-        result = {}
-        for q in questions:
-            handler = get_instance(q)
-            layout = handler.get_layout()
-            layout.align = HorizontalAlign.JUSTIFY
-            
-            def ok_handler():
-                result.update(handler.get_answer())
-                get_app().exit(True)
-
-            def cancel_handler():   
-                get_app().exit(False)
-
-            dialog = Dialog(
-                title=title,
-                body=HSplit(
-                    [layout],
-                    padding=1
-                ),
-                buttons=[
-                    Button(text=cancel, handler=cancel_handler),
-                    Button(text=confirm, handler=ok_handler),
-                ],
-                with_background=True)                
-
-            bindings = KeyBindings()
-
-            app = Application(
-                layout=Layout(dialog),
-                key_bindings=merge_key_bindings([
-                    load_key_bindings(),
-                    bindings,
-                ]),
-                mouse_support=True,
-                style=for_dialog(),
-                full_screen=True)
-
-            with set_app(app):
-                if not app.run():
-                    return
-        
-        return result
-
 def show_dialog(questions, title, confirm, cancel):
 
     handlers = []
@@ -172,7 +127,6 @@ def dialogus(
     confirm='Ok',
     cancel='Cancel',
     theme='default',
-    wizard=True,
 ):
     """
     Show a dialog with inputs as defined in the questions parameter and returns
@@ -218,6 +172,4 @@ def dialogus(
     """
     set_theme(theme)
     validate_questions(questions)
-    if wizard:
-        return show_wizard(questions, title, confirm, cancel)
     return show_dialog(questions, title, confirm, cancel)

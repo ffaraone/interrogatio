@@ -21,10 +21,6 @@ def _validate_question(q):
     if 'name' not in q:
         raise InvalidQuestionError('You must specify a name for the question')
 
-    if 'message' not in q:
-        raise InvalidQuestionError(
-            'You must specify a message for the question')
-
     if 'type' not in q:
         raise InvalidQuestionError('You must specify a question type')
 
