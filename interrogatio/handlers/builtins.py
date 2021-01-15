@@ -429,6 +429,7 @@ class MaskedInputHandler(QHandler):
 
     def get_layout(self):
         widget = self.get_widget()
+        vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
                 0, 
@@ -469,6 +470,62 @@ class MaskedInputHandler(QHandler):
 register('maskedinput', MaskedInputHandler)
 
 
+
+class DateHandler(QHandler):
+
+    def get_widget_class(self):
+        return MaskedInput
+
+    def get_widget_init_kwargs(self):
+        kwargs = dict(
+            style='class:input.answer',
+            mask='____-__-__',
+            allowed_chars=string.digits,
+        )
+        return kwargs
+
+    def get_layout(self):
+        widget = self.get_widget()
+        vsplit_components = [widget]
+        if 'message' in self._question and self._question['message']:
+            vsplit_components.insert(
+                0, 
+                Label(
+                    self._question['message'],
+                    dont_extend_width=True,
+                    style='class:input.question',
+                ),
+            )
+        hsplit_components = [VSplit(vsplit_components, padding=1)]
+        if 'description' in self._question and self._question['description']:
+            hsplit_components.insert(
+                0, 
+                Label(
+                    self._question['description'],
+                    style='class:input.question',
+                ),
+            )
+        return HSplit(hsplit_components, padding=1)
+
+    def get_keybindings(self):
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(result=False)
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=True)
+
+        return bindings
+
+    def get_value(self):
+        return self.get_widget().value
+
+
+register('date', DateHandler)
+
 class DateRangeHandler(QHandler):
 
     def get_widget_class(self):
@@ -478,6 +535,10 @@ class DateRangeHandler(QHandler):
         kwargs = dict(
             style='class:input.answer',
         )
+        if 'from_label' in self._question:
+            kwargs['from_label'] = self._question['from_label']
+        if 'to_label' in self._question:
+            kwargs['to_label'] = self._question['to_label']     
         return kwargs
 
     def get_layout(self):

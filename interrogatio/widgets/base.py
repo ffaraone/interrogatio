@@ -7,7 +7,7 @@ from prompt_toolkit.document import Document
 from prompt_toolkit.formatted_text import to_formatted_text
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.layout.containers import Window, VSplit
+from prompt_toolkit.layout.containers import Window, VSplit, HSplit
 from prompt_toolkit.layout.controls import FormattedTextControl, BufferControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.margins import ScrollbarMargin
@@ -427,10 +427,9 @@ class MaskedInput(VSplit):
 
 
 
-class DateRange(VSplit):
+class DateRange(HSplit):
 
-    def __init__(self, from_label='From: ', to_label='till: ', style=None):
-
+    def __init__(self, from_label='From: ', to_label='  to: ', style=None):
 
         self._from = MaskedInput(mask='____-__-__', allowed_chars=string.digits, style=style)
         self._to = MaskedInput(mask='____-__-__', allowed_chars=string.digits, style=style)
@@ -444,14 +443,24 @@ class DateRange(VSplit):
                 self.accept_handler(self.value)
 
         components = []
+
         if from_label:
-            components.append(Label(from_label, dont_extend_width=True))
-        components.append(self._from)
+            components.append(VSplit([
+                Label(from_label, dont_extend_width=True),
+                self._from,
+            ]))
+        else:
+            components.append(self._from)
 
         if to_label:
-            components.append(Label(to_label, dont_extend_width=True))
-        
-        components.append(self._to)
+            components.append(
+                VSplit([
+                    Label(to_label, dont_extend_width=True),
+                    self._to,
+                ])
+            )
+        else:
+            components.append(self._to)
 
         super().__init__(components, key_bindings=kb)
     
