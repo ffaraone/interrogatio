@@ -2,15 +2,14 @@
 import string
 
 from prompt_toolkit.application.current import get_app
-from prompt_toolkit.completion import PathCompleter
 from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
-from prompt_toolkit.layout import HorizontalAlign, HSplit, VSplit
+from prompt_toolkit.layout import HSplit, VSplit
 from prompt_toolkit.layout.dimension import Dimension as D
-from prompt_toolkit.widgets import Label, TextArea, Button, Box
+from prompt_toolkit.widgets import Box, Button, Label, TextArea
 
-from ..widgets import SelectMany, SelectOne, MaskedInput, DateRange
-from .base import QHandler, register
+from interrogatio.handlers.base import QHandler, register
+from interrogatio.widgets import DateRange, MaskedInput, SelectMany, SelectOne
 
 
 class StringHandler(QHandler):
@@ -21,7 +20,7 @@ class StringHandler(QHandler):
     def get_widget_init_kwargs(self):
         kwargs = dict(
             multiline=self._question.get('multiline', False),
-            style='class:input.answer'
+            style='class:input.answer',
         )
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
@@ -33,7 +32,7 @@ class StringHandler(QHandler):
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -43,14 +42,13 @@ class StringHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:input.question',
                 ),
             )
         return HSplit(hsplit_components, padding=1)
-
 
     def get_keybindings(self):
         bindings = KeyBindings()
@@ -72,7 +70,6 @@ class StringHandler(QHandler):
 register('input', StringHandler)
 
 
-
 class PasswordHandler(QHandler):
 
     def get_widget_class(self):
@@ -82,7 +79,7 @@ class PasswordHandler(QHandler):
         kwargs = dict(
             multiline=False,
             style='class:password.answer',
-            password=True
+            password=True,
         )
         if 'default' in self._question:
             kwargs['text'] = self._question['default']
@@ -92,17 +89,13 @@ class PasswordHandler(QHandler):
         return self.get_widget().text
 
     def get_layout(self):
-        msg = '{}{}'.format(
-            self._question['message'],
-            self._question.get('question_mark', ' ?')
-        )
         widget = self.get_widget()
         widget.buffer.cursor_position = len(widget.text)
 
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -112,14 +105,13 @@ class PasswordHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:password.question',
                 ),
             )
         return HSplit(hsplit_components, padding=1)
-
 
     def get_keybindings(self):
         bindings = KeyBindings()
@@ -133,6 +125,7 @@ class PasswordHandler(QHandler):
             get_app().exit(result=self.get_answer())
 
         return bindings
+
 
 register('password', PasswordHandler)
 
@@ -148,7 +141,7 @@ class SelectOneHandler(QHandler):
     def get_widget_init_kwargs(self):
         kwargs = dict(
             values=self._question['values'],
-            style='class:selectone.answer'
+            style='class:selectone.answer',
         )
         if 'default' in self._question:
             kwargs['default'] = self._question['default']
@@ -159,7 +152,7 @@ class SelectOneHandler(QHandler):
         vsplit_components = [self.get_widget()]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -169,14 +162,13 @@ class SelectOneHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:selectone.question',
                 ),
             )
         return HSplit(hsplit_components, padding=1)
-
 
     def get_keybindings(self):
 
@@ -193,15 +185,14 @@ class SelectOneHandler(QHandler):
 
         return bindings
 
+
 register('selectone', SelectOneHandler)
 
 
 class SelectManyHandler(QHandler):
 
-
     def get_widget_class(self):
         return SelectMany
-
 
     def get_value(self):
         return list(self.get_widget().checked)
@@ -209,7 +200,7 @@ class SelectManyHandler(QHandler):
     def get_widget_init_kwargs(self):
         kwargs = dict(
             values=self._question['values'],
-            style='class:selectmany.answer'
+            style='class:selectmany.answer',
         )
         if 'checked' in self._question:
             kwargs['checked'] = set(self._question['checked'])
@@ -223,7 +214,7 @@ class SelectManyHandler(QHandler):
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -242,7 +233,7 @@ class SelectManyHandler(QHandler):
         hsplit_components = [buttons, VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:selectone.question',
@@ -264,6 +255,7 @@ class SelectManyHandler(QHandler):
         self.get_widget().accept_handler = accept_handler
 
         return bindings
+
 
 register('selectmany', SelectManyHandler)
 
@@ -432,7 +424,7 @@ class MaskedInputHandler(QHandler):
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -442,7 +434,7 @@ class MaskedInputHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:input.question',
@@ -470,7 +462,6 @@ class MaskedInputHandler(QHandler):
 register('maskedinput', MaskedInputHandler)
 
 
-
 class DateHandler(QHandler):
 
     def get_widget_class(self):
@@ -489,7 +480,7 @@ class DateHandler(QHandler):
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -499,7 +490,7 @@ class DateHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:input.question',
@@ -526,6 +517,7 @@ class DateHandler(QHandler):
 
 register('date', DateHandler)
 
+
 class DateRangeHandler(QHandler):
 
     def get_widget_class(self):
@@ -538,7 +530,7 @@ class DateRangeHandler(QHandler):
         if 'from_label' in self._question:
             kwargs['from_label'] = self._question['from_label']
         if 'to_label' in self._question:
-            kwargs['to_label'] = self._question['to_label']     
+            kwargs['to_label'] = self._question['to_label']
         return kwargs
 
     def get_layout(self):
@@ -546,7 +538,7 @@ class DateRangeHandler(QHandler):
         vsplit_components = [widget]
         if 'message' in self._question and self._question['message']:
             vsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['message'],
                     dont_extend_width=True,
@@ -556,14 +548,13 @@ class DateRangeHandler(QHandler):
         hsplit_components = [VSplit(vsplit_components, padding=1)]
         if 'description' in self._question and self._question['description']:
             hsplit_components.insert(
-                0, 
+                0,
                 Label(
                     self._question['description'],
                     style='class:input.question',
                 ),
             )
         return HSplit(hsplit_components, padding=1)
-
 
     def get_keybindings(self):
         bindings = KeyBindings()

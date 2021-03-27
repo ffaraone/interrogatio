@@ -1,5 +1,6 @@
 import os
-from .base import Theme, register
+
+from interrogatio.base import Theme, register
 
 
 class DefaultTheme(Theme):
@@ -8,8 +9,9 @@ class DefaultTheme(Theme):
         self.load(os.path.join(
             os.path.dirname(__file__),
             'theme_files',
-            'default.json'
+            'default.json',
         ))
+
 
 register('default', DefaultTheme())
 
@@ -20,7 +22,8 @@ class PurpleTheme(Theme):
         self.load(os.path.join(
             os.path.dirname(__file__),
             'theme_files',
-            'purple.json'
+            'purple.json',
         ))
+
 
 register('purple', PurpleTheme())

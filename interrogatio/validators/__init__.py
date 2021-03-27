@@ -1,3 +1,8 @@
-from .base import (Validator, register, get_instance, get_registered)
+from interrogatio.validators.base import (  # noqa
+    Validator,
+    get_instance,
+    get_registered,
+    register,
+)
 
-from .builtins import *
+from interrogatio.validators.builtins import *  # noqa

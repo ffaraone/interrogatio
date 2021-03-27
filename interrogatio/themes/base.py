@@ -2,14 +2,17 @@ import json
 
 from prompt_toolkit.styles import Style, default_ui_style, merge_styles
 
-from ..core.exceptions import AlreadyRegisteredError, ThemeNotFoundError
+from interrogatio.core.exceptions import (
+    AlreadyRegisteredError,
+    ThemeNotFoundError,
+)
 
 __all__ = [
     'Theme',
     'register',
     'for_dialog',
     'for_prompt',
-    'set_theme'
+    'set_theme',
 ]
 
 
@@ -30,22 +33,26 @@ class Theme:
     def for_prompt(self):
         return merge_styles([
             default_ui_style(),
-            Style(list(self._prompt_styles.items()))
+            Style(list(self._prompt_styles.items())),
         ])
+
     def for_dialog(self):
         return merge_styles([
             default_ui_style(),
-            Style(list(self._dialog_styles.items()))
+            Style(list(self._dialog_styles.items())),
         ])
 
     def save(self, filename):
         with open(filename, 'w') as f:
-            json.dump({
-                'name': self._name,
-                'prompt': self._prompt_styles,
-                'dialog': self._dialog_styles
-            }, f, indent=2)
-
+            json.dump(
+                {
+                    'name': self._name,
+                    'prompt': self._prompt_styles,
+                    'dialog': self._dialog_styles,
+                },
+                f,
+                indent=2,
+            )
 
 
 class ThemeRegistry(object):
@@ -60,7 +67,6 @@ class ThemeRegistry(object):
             raise AlreadyRegisteredError(
                 'theme {} already registered'.format(alias))
         self._themes[alias] = theme
-
 
     def set_current(self, alias):
         if alias not in self._themes:
@@ -77,11 +83,14 @@ _registry = ThemeRegistry()
 def register(alias, theme):
     _registry.register(alias, theme)
 
+
 def for_dialog():
     return _registry.get_current().for_dialog()
 
+
 def for_prompt():
     return _registry.get_current().for_prompt()
+
 
 def set_theme(alias):
     _registry.set_current(alias)

@@ -1,1 +1,1 @@
-from .base import SelectOne, SelectMany, MaskedInput, DateRange
+from .base import DateRange, MaskedInput, SelectMany, SelectOne  # noqa

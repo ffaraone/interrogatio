@@ -16,7 +16,7 @@ def _validate_validator_object(obj):
         raise InvalidQuestionError('Validator arguments must be a dictionary')
 
 
-def _validate_question(q):
+def _validate_question(q):  # noqa: CCR001
 
     if 'name' not in q:
         raise InvalidQuestionError('You must specify a name for the question')
