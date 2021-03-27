@@ -1,6 +1,6 @@
 import os
 
-from interrogatio.base import Theme, register
+from interrogatio.themes.base import Theme, register
 
 
 class DefaultTheme(Theme):
