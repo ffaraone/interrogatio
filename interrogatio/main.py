@@ -1,7 +1,6 @@
 import argparse
 import json
 import sys
-
 from functools import partial
 
 try:
@@ -11,7 +10,8 @@ except ImportError:
     yaml = None
     FORMAT_CHOICES = ['json']
 
-from . import interrogatio, dialogus
+
+from interrogatio import dialogus, interrogatio
 
 
 def _load_questions(args):
@@ -59,9 +59,7 @@ def main_dialogus():
         args.deserialize = json.load
         args.serialize = json.dump
 
-    kwargs = dict(
-        theme=args.theme
-    )
+    kwargs = dict(theme=args.theme)
     if args.title:
         kwargs['title'] = args.title
     if args.confirm:

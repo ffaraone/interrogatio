@@ -1,2 +1,2 @@
-from .base import *
-from .builtins import DefaultTheme
+from interrogatio.themes.base import *  # noqa
+from interrogatio.themes.builtins import DefaultTheme  # noqa

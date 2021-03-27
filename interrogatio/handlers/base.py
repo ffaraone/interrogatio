@@ -1,22 +1,19 @@
-import abc
+from abc import ABCMeta, abstractmethod
 
-import six
-
-from ..core.exceptions import AlreadyRegisteredError, ValidationError
+from interrogatio.core.exceptions import AlreadyRegisteredError, ValidationError
 
 __all__ = [
     'QHandler',
     'register',
     'get_instance',
-    'get_registered'
+    'get_registered',
 ]
 
 
 class QHandlersRegistry(dict):
     def register(self, alias, clazz):
         if alias in self:
-            raise AlreadyRegisteredError('alias {} already exists'.format(
-                alias))
+            raise AlreadyRegisteredError(f'alias `{alias}` already exists.')
         self[alias] = clazz
 
     def get_registered(self):
@@ -26,6 +23,7 @@ class QHandlersRegistry(dict):
         qtype = question['type']
         clazz = self[qtype]
         return clazz(question)
+
 
 _registry = QHandlersRegistry()
 
@@ -72,7 +70,7 @@ def get_registered():
     return _registry.get_registered()
 
 
-class QHandler(six.with_metaclass(abc.ABCMeta, object)):
+class QHandler(metaclass=ABCMeta):
     """
     ABC for question handlers.
     Each question handler must subclass this class.
@@ -94,7 +92,7 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         """
         return self._errors
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_layout(self):
         """
         Returns the UI layout of the question. It must returns a
@@ -105,9 +103,11 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         :return: the UI layout of the question.
         :rtype: :class:`~prompt_toolkit.layout.Layout`
         """
+        raise NotImplementedError(
+            'Subclass must implements `get_layout` method.',
+        )
 
-
-    @abc.abstractmethod
+    @abstractmethod
     def get_value(self):
         """
         Returns the ``value`` part of the answer.
@@ -117,8 +117,11 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         :return: the ``value`` part of the answer.
         :rtype: str
         """
+        raise NotImplementedError(
+            'Subclass must implements `get_value` method.',
+        )
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_widget_init_kwargs(self):
         """
         Returns the keyword arguments needed to instantiate the widget.
@@ -128,6 +131,9 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         :return: a dictionary containing the keyword arguments.
         :rtype: dict
         """
+        raise NotImplementedError(
+            'Subclass must implements `get_widget_init_kwargs` method.',
+        )
 
     def get_init_extra_args(self):
         """
@@ -140,7 +146,7 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         """
         return self._question.get('extra_args', dict())
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_widget_class(self):
         """
         Returns the widget class for this QHandler.
@@ -148,6 +154,9 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
         :return: a widget class.
         :rtype: class
         """
+        raise NotImplementedError(
+            'Subclass must implements `get_widget_class` method.',
+        )
 
     def get_widget(self):
         """
@@ -160,12 +169,15 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
             self._widget = clazz(**self.get_widget_init_kwargs())
         return self._widget
 
-    @abc.abstractmethod
+    @abstractmethod
     def get_keybindings(self):
         """
         Returns a KeyBindings object to add custom keybindings to this
         QHandler.
         """
+        raise NotImplementedError(
+            'Subclass must implements `get_keybindings` method.',
+        )
 
     def get_answer(self):
         """
@@ -193,5 +205,5 @@ class QHandler(six.with_metaclass(abc.ABCMeta, object)):
             try:
                 validator.validate(self.get_value())
             except ValidationError as ve:
-                self._errors.append(ve.message)
+                self._errors.append(str(ve))
         return not self._errors

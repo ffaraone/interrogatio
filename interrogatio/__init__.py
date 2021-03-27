@@ -1,12 +1,16 @@
-import pkg_resources
+from pkg_resources import DistributionNotFound, get_distribution
 
-from .dialog import dialogus
-from .prompt import interrogatio
+from interrogatio.dialog import dialogus
+from interrogatio.prompt import interrogatio
 
 __all__ = ('dialogus', 'interrogatio')
 
-__version__ = pkg_resources.get_distribution('interrogatio').version
 
-__version_info__ = tuple(
-    [int(num) if num.isdigit() else
-     num for num in __version__.replace('-', '.', 1).split('.')])
+try:
+    __version__ = get_distribution('interrogatio').version
+except DistributionNotFound:  # pragma: no cover
+    __version__ = '0.0.0'
+
+
+def get_version():
+    return __version__

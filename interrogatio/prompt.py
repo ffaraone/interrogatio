@@ -1,17 +1,17 @@
 from prompt_toolkit.application import Application
 from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit.key_binding import KeyBindings, merge_key_bindings
+from prompt_toolkit.key_binding import merge_key_bindings
 from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.layout import HorizontalAlign, Layout
 from prompt_toolkit.shortcuts import print_formatted_text
 
-from .dialog import show_dialog
-from .handlers import get_instance
-from .themes import for_prompt, set_theme
-from .utils import validate_questions
-from .validators import Validator
+from interrogatio.handlers import get_instance
+from interrogatio.themes import for_prompt, set_theme
+from interrogatio.utils import validate_questions
+
 
 __all__ = ['interrogatio']
+
 
 def interrogatio(questions, theme='default'):
     """
@@ -54,8 +54,8 @@ def interrogatio(questions, theme='default'):
     validate_questions(questions)
     for q in questions:
         handler = get_instance(q)
-        l = handler.get_layout()
-        l.align = HorizontalAlign.LEFT
+        layout = handler.get_layout()
+        layout.align = HorizontalAlign.LEFT
 
         bindings = [load_key_bindings()]
 
@@ -65,9 +65,10 @@ def interrogatio(questions, theme='default'):
             bindings.append(handler_bindings)
 
         app = Application(
-            layout=Layout(l),
+            layout=Layout(layout),
             key_bindings=merge_key_bindings(bindings),
-            style=for_prompt())
+            style=for_prompt(),
+        )
 
         while True:
             app.run()
@@ -76,9 +77,7 @@ def interrogatio(questions, theme='default'):
                 break
             else:
                 print_formatted_text(
-                    FormattedText([
-                        ('class:error', handler.errors[0])
-                    ]),
-                    style=for_prompt()
+                    FormattedText([('class:error', handler.errors[0])]),
+                    style=for_prompt(),
                 )
     return answers

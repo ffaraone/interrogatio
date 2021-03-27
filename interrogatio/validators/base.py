@@ -1,15 +1,13 @@
-import abc
-import six
+from abc import ABCMeta, abstractmethod
 
-
-from ..core.exceptions import AlreadyRegisteredError
+from interrogatio.core.exceptions import AlreadyRegisteredError
 
 
 __all__ = [
     'Validator',
     'register',
     'get_registered',
-    'get_instance'
+    'get_instance',
 ]
 
 
@@ -29,6 +27,7 @@ class ValidatorsRegistry(dict):
             return clazz(**v['args'])
         return clazz()
 
+
 _registry = ValidatorsRegistry()
 
 
@@ -47,6 +46,7 @@ def register(alias, clazz):
     """
     _registry.register(alias, clazz)
 
+
 def get_registered():
     """
     Returns a list of registered Validators.
@@ -55,6 +55,7 @@ def get_registered():
     :rtype: list
     """
     return _registry.get_registered()
+
 
 def get_instance(v):
     """
@@ -69,14 +70,14 @@ def get_instance(v):
     return _registry.get_instance(v)
 
 
-class Validator(six.with_metaclass(abc.ABCMeta, object)):
+class Validator(metaclass=ABCMeta):
     """
     Abstract class for validators.
     """
     def __init__(self, message='invalid input'):
         self.message = message
 
-    @abc.abstractmethod
+    @abstractmethod
     def validate(self, value):
         """
         Abstract method.
