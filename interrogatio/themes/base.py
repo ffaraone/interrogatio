@@ -1,6 +1,6 @@
 import json
 
-from prompt_toolkit.styles import Style, default_ui_style, merge_styles
+from prompt_toolkit.styles import default_ui_style, merge_styles, Style
 
 from interrogatio.core.exceptions import (
     AlreadyRegisteredError,

@@ -14,6 +14,8 @@
 #
 import os
 import sys
+from datetime import datetime
+
 sys.path.insert(0, os.path.abspath('..'))
 
 # on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
@@ -21,7 +23,7 @@ sys.path.insert(0, os.path.abspath('..'))
 # -- Project information -----------------------------------------------------
 
 project = 'interrogatio'
-copyright = '2019, Francesco Faraone'
+copyright = '{}, Francesco Faraone.'.format(datetime.now().year)
 author = 'Francesco Faraone'
 
 # The short X.Y version

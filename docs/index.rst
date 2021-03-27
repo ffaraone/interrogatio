@@ -7,7 +7,7 @@ Welcome to interrogatio's documentation!
 ========================================
 
 
-A python library to prompt user for inputs in a terminal application.
+A python library to prompt users for inputs in a terminal application.
 
 
 What is interrogatio
@@ -18,7 +18,7 @@ interrogatio is a python 2/3 library based on the `python-prompt-toolkit
 <https://github.com/CITGuru/PyInquirer/>`_ that help CLI developers to ask users for inputs.
 
 
-Questions can be rendered onto the terminal prompt or as curses dialogs.
+Questions can be rendered onto the terminal prompt or as curses-like dialogs.
 
 
 .. toctree::
@@ -28,10 +28,6 @@ Questions can be rendered onto the terminal prompt or as curses dialogs.
    getting_started
    shell_command
    question_handlers
-   validators
-   styling
-   extending
-   reference
 
 
 Indices and tables

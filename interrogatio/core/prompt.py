@@ -5,9 +5,9 @@ from prompt_toolkit.key_binding.defaults import load_key_bindings
 from prompt_toolkit.layout import HorizontalAlign, Layout
 from prompt_toolkit.shortcuts import print_formatted_text
 
+from interrogatio.core.utils import validate_questions
 from interrogatio.handlers import get_instance
 from interrogatio.themes import for_prompt, set_theme
-from interrogatio.utils import validate_questions
 
 
 __all__ = ['interrogatio']
@@ -61,7 +61,7 @@ def interrogatio(questions, theme='default'):
 
         handler_bindings = handler.get_keybindings()
 
-        if handler_bindings:
+        if handler_bindings:  # pragma: no branch
             bindings.append(handler_bindings)
 
         app = Application(
@@ -71,7 +71,9 @@ def interrogatio(questions, theme='default'):
         )
 
         while True:
-            app.run()
+            result = app.run()
+            if not result:
+                return
             if handler.is_valid():
                 answers.update(handler.get_answer())
                 break

@@ -1,22 +1,21 @@
 [tool.poetry]
 name = "interrogatio"
 version = "0.0.0"
-description = "Prompting library for terminals"
+description = "Prompting library for terminals."
 authors = ["Francesco Faraone"]
 license = "BSD-3-Clause"
 packages = [
     { include = "interrogatio" },
 ]
-readme = "./README.rst"
+readme = "./README.md"
 homepage = "https://github.com/ffaraone/interrogatio"
+documentation = "https://interrogatio.readthedocs.io/en/latest/"
 repository = "https://github.com/ffaraone/interrogatio.git"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Operating System :: OS Independent",
     "Intended Audience :: Developers",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Topic :: Utilities",
@@ -25,8 +24,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-prompt-toolkit = "^3.0.18"
-zxcvbn = {version = "^4.4.28", extras = ["pyyaml"]}
+prompt-toolkit = "3.*"
+PyYAML = {version = ">=5", optional = true }
+validators = "^0.18.2"
+
+[tool.poetry.extras]
+yaml = ["PyYAML"]
 
 
 [tool.poetry.dev-dependencies]
@@ -42,6 +45,8 @@ flake8-commas = "~2.0"
 flake8-future-import = "~0.4"
 flake8-import-order = "~0.18"
 flake8-broken-line = "~0.3"
+Sphinx = "^1.8.5"
+sphinx-rtd-theme = "^1.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0", "setuptools"]
@@ -61,12 +66,8 @@ branch = true
 
 [tool.coverage.report]
 omit = [
-    "*/migrations/*",
-    "*/config/*",
-    "*/settings/*",
-    "*/manage.py",
-    "*/wsgi.py",
-    "*/urls.py"
+    "interrogatio/main.py",
+    "*/__init__.py",
 ]
 
 exclude_lines = [

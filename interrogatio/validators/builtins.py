@@ -1,10 +1,11 @@
-import ipaddress
 import re
 from datetime import datetime
-from urllib.parse import urlsplit, urlunsplit
+
+import validators
 
 from interrogatio.core.exceptions import ValidationError
-from interrogatio.validators.base import Validator, register
+from interrogatio.validators.base import Validator
+from interrogatio.validators.registry import register
 
 
 __all__ = [
@@ -25,30 +26,7 @@ __all__ = [
 ]
 
 
-def _validate_ipv4_address(value):
-    try:
-        ipaddress.IPv4Address(value)
-    except ValueError:
-        raise ValidationError('invalid IPv4 address')
-
-
-def _validate_ipv6_address(value):
-    try:
-        ipaddress.IPv6Address(value)
-    except ValueError:
-        raise ValidationError('invalid IPv6 address')
-
-
-def validate_ipv46_address(value):
-    try:
-        _validate_ipv4_address(value)
-    except ValidationError:
-        try:
-            _validate_ipv6_address(value)
-        except ValidationError:
-            raise ValidationError(message='invalid IPv4 or IPv6 address')
-
-
+@register('required')
 class RequiredValidator(Validator):
     def __init__(self, message=None):
         """
@@ -62,21 +40,11 @@ class RequiredValidator(Validator):
         )
 
     def validate(self, value):
-        if isinstance(value, str):
-            if value.strip():
-                return
-        elif isinstance(value, (list, tuple)):
-            if len(value) > 0:
-                return
-        elif isinstance(value, dict):
-            if all(value.values()):
-                return
-        raise ValidationError(self.message)
+        if not value:
+            raise ValidationError(self.message)
 
 
-register('required', RequiredValidator)
-
-
+@register('regex')
 class RegexValidator(Validator):
     def __init__(self, expr, message=None, inverse_match=None):
         """
@@ -104,172 +72,36 @@ class RegexValidator(Validator):
             raise ValidationError(self.message)
 
 
-register('regex', RegexValidator)
-
-
+@register('email')
 class EmailValidator(Validator):
-    user_regex = re.compile(
-        r"(^[-!#$%&'*+/=?^_`{}|~0-9A-Z]+(\.[-!#$%&'*+/=?^_`{}|~0-9A-Z]+)*\Z"
-        r'|^"([\001-\010\013\014\016-\037!#-\[\]-\177]|'
-        r'\\[\001-\011\013\014\016-\177])*"\Z)',
-        re.IGNORECASE)
-    domain_regex = re.compile(
-        r'((?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+)'
-        r'(?:[A-Z0-9-]{2,63}(?<!-))\Z',
-        re.IGNORECASE)
-    literal_regex = re.compile(
-        r'\[([A-f0-9:\.]+)\]\Z',
-        re.IGNORECASE)
-    domain_whitelist = ['localhost']
 
-    def __init__(self, whitelist=None, message=None):
+    def __init__(self, message=None):
         """
         Initialise the ``email`` validator.
-
-        :param whitelist: an optiona whitelist of domain names to be
-                          considered valid.
-        :type whitelist: list
         :param message: the error message in case that validation fails.
         :type message: str
         """
         super(EmailValidator, self).__init__(
             message=message or 'this field must be an email address',
         )
-        if whitelist is not None:
-            self.domain_whitelist = whitelist
 
     def validate(self, value):
-        if not value or '@' not in value:
+        if value and validators.email(value) is not True:
             raise ValidationError(self.message)
 
-        user_part, domain_part = value.rsplit('@', 1)
 
-        if not self.user_regex.match(user_part):
-            raise ValidationError(message=self.message)
-
-        if (
-            domain_part not in self.domain_whitelist
-            and not self.validate_domain_part(domain_part)
-        ):
-            # Try for possible IDN domain-part
-            try:
-                domain_part = domain_part.encode('idna').decode('ascii')
-            except UnicodeError:
-                pass
-            else:
-                if self.validate_domain_part(domain_part):
-                    return
-            raise ValidationError(self.message)
-
-    def validate_domain_part(self, domain_part):
-        if self.domain_regex.match(domain_part):
-            return True
-
-        literal_match = self.literal_regex.match(domain_part)
-        if literal_match:
-            ip_address = literal_match.group(1)
-            try:
-                validate_ipv46_address(ip_address)
-                return True
-            except ValidationError:
-                pass
-        return False
-
-
-register('email', EmailValidator)
-
-
+@register('url')
 class URLValidator(Validator):
-    ul = '\u00a1-\uffff'  # unicode letters range (must not be a raw string)
 
-    # IP patterns
-    ipv4_re = (r'(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)'
-               r'(?:\.(?:25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}')
-    ipv6_re = r'\[[0-9a-f:\.]+\]'  # (simple regex, validated later)
+    def __init__(self, message=None):
+        super().__init__(message=message or 'this field must be an url')
 
-    # Host patterns
-    hostname_re = (r'[a-z' + ul + r'0-9]'
-                   r'(?:[a-z' + ul + r'0-9-]{0,61}[a-z' + ul + r'0-9])?')
-    # Max length for domain name labels is 63 characters per RFC 1034 sec. 3.1
-    domain_re = r'(?:\.(?!-)[a-z' + ul + r'0-9-]{1,63}(?<!-))*'
-    tld_re = (
-        r'\.'                                # dot
-        r'(?!-)'                             # can't start with a dash
-        r'(?:[a-z' + ul + '-]{2,63}'         # domain label
-        r'|xn--[a-z0-9]{1,59})'              # or punycode label
-        r'(?<!-)'                            # can't end with a dash
-        r'\.?'                               # may have a trailing dot
-    )
-    host_re = '(' + hostname_re + domain_re + tld_re + '|localhost)'
-
-    regex = re.compile(
-        r'^(?:[a-z0-9\.\-\+]*)://'  # scheme is validated separately
-        r'(?:[^\s:@/]+(?::[^\s:@/]*)?@)?'  # user:pass authentication
-        r'(?:' + ipv4_re + '|' + ipv6_re + '|' + host_re + ')'
-        r'(?::\d{2,5})?'  # port
-        r'(?:[/?#][^\s]*)?'  # resource path
-        r'\Z', re.IGNORECASE)
-    schemes = ['http', 'https', 'ftp', 'ftps']
-    message = 'the URL is invalid'
-
-    def __init__(self, schemes=None, **kwargs):
-        """
-        Initialise the ``url`` validator.
-
-        :param schemes: an optional list of url schemes
-        :type schemes: list
-        :param message: the error message in case that validation fails.
-        :type message: str
-        """
-        super().__init__(**kwargs)
-        if schemes is not None:
-            self.schemes = schemes
-
-    def validate(self, value):  # noqa: CCR001
-        scheme = value.split('://')[0].lower()
-        if scheme not in self.schemes:
-            raise ValidationError(message=self.message)
-
-        # Then check full URL
-        try:
-            super().validate(value)
-        except ValidationError as e:
-            # Trivial case failed. Try for possible IDN domain
-            if value:
-                try:
-                    scheme, netloc, path, query, fragment = urlsplit(value)
-                except ValueError:  # for example, "Invalid IPv6 URL"
-                    raise ValidationError(message=self.message)
-                try:
-                    netloc = netloc.encode('idna').decode('ascii')
-                except UnicodeError:  # invalid domain part
-                    raise e
-                url = urlunsplit((scheme, netloc, path, query, fragment))
-                super().validate(url)
-            else:
-                raise
-        else:
-            # Now verify IPv6 in the netloc part
-            host_match = re.search(r'^\[(.+)\](?::\d{2,5})?$',
-                                   urlsplit(value).netloc)
-            if host_match:
-                potential_ip = host_match.groups()[0]
-                try:
-                    _validate_ipv6_address(potential_ip)
-                except ValidationError:
-                    raise ValidationError(message=self.message)
-
-        # The maximum length of a full host name is 253 characters per RFC 1034
-        # section 3.1. It's defined to be 255 bytes or less, but this includes
-        # one byte for the length of the name and one byte for the trailing dot
-        # that's used to indicate absolute names in DNS.
-        if len(urlsplit(value).netloc) > 253:
-            raise ValidationError(message=self.message)
+    def validate(self, value):
+        if value and validators.url(value) is not True:
+            raise ValidationError(self.message)
 
 
-register('url', URLValidator)
-
-
+@register('min-length')
 class MinLengthValidator(Validator):
     def __init__(self, min_length, message=None):
         """
@@ -289,13 +121,17 @@ class MinLengthValidator(Validator):
         )
 
     def validate(self, value):
-        if len(value) < self.min_length:
+        try:
+            if (
+                value
+                and validators.length(value, min=self.min_length) is not True
+            ):
+                raise ValidationError(message=self.message)
+        except (TypeError, AssertionError):
             raise ValidationError(message=self.message)
 
 
-register('min-length', MinLengthValidator)
-
-
+@register('max-length')
 class MaxLengthValidator(Validator):
     def __init__(self, max_length, message=None):
         """
@@ -314,13 +150,17 @@ class MaxLengthValidator(Validator):
         )
 
     def validate(self, value):
-        if len(value) > self.max_length:
+        try:
+            if (
+                value
+                and validators.length(value, max=self.max_length) is not True
+            ):
+                raise ValidationError(message=self.message)
+        except (TypeError, AssertionError):
             raise ValidationError(message=self.message)
 
 
-register('max-length', MaxLengthValidator)
-
-
+@register('number')
 class NumberValidator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be a number'
@@ -328,13 +168,11 @@ class NumberValidator(Validator):
     def validate(self, value):
         try:
             float(value)
-        except ValueError:
+        except (ValueError, TypeError):
             raise ValidationError(message=self.message)
 
 
-register('number', NumberValidator)
-
-
+@register('integer')
 class IntegerValidator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be an integer'
@@ -342,109 +180,114 @@ class IntegerValidator(Validator):
     def validate(self, value):
         try:
             int(value)
-        except ValueError:
+        except (ValueError, TypeError):
+            raise ValidationError(message=self.message)
+
+        if int(value) != value:
             raise ValidationError(message=self.message)
 
 
-register('integer', IntegerValidator)
-
-
+@register('ipv4')
 class IPv4Validator(Validator):
     def __init__(self, message=None):
         self.message = message or 'this field must be an IPv4 address'
 
     def validate(self, value):
-        try:
-            ipaddress.IPv4Address(value)
-        except ValueError:
+        if value and validators.ipv4(value) is not True:
             raise ValidationError(message=self.message)
 
 
-register('ipv4', IPv4Validator)
-
-
+@register('range')
 class RangeValidator(Validator):
     def __init__(self, min=None, max=None, message=None):
-        self.min = float(min)
-        self.max = float(max)
+        self.min = min
+        self.max = max
         self.message = message or (
             f'this field must be a number between {min} and {max}'
         )
 
     def validate(self, value):
         try:
-            value = float(value)
-            if value < self.min or value > self.max:
+            if (
+                value is not None and value != ''
+                and validators.between(
+                    value,
+                    min=self.min,
+                    max=self.max,
+                ) is not True
+            ):
                 raise ValidationError(message=self.message)
-        except ValueError:
+        except (TypeError, AssertionError):
             raise ValidationError(message=self.message)
 
 
-register('range', RangeValidator)
-
-
+@register('min')
 class MinValidator(Validator):
     def __init__(self, min=None, message=None):
-        self.min = float(min)
+        self.min = min
         self.message = (
             message or f'this field must be greater or equal to {min}'
         )
 
     def validate(self, value):
         try:
-            value = float(value)
-            if value < self.min:
+            if (
+                value is not None and value != ''
+                and validators.between(
+                    value,
+                    min=self.min,
+                ) is not True
+            ):
                 raise ValidationError(message=self.message)
-        except ValueError:
+        except (TypeError, AssertionError):
             raise ValidationError(message=self.message)
 
 
-register('min', MinValidator)
-
-
+@register('max')
 class MaxValidator(Validator):
     def __init__(self, max=None, message=None):
-        self.max = float(max)
+        self.max = max
         self.message = (
             message or f'this field must be smaller or equal to {max}'
         )
 
     def validate(self, value):
         try:
-            value = float(value)
-            if value > self.max:
+            if (
+                value is not None and value != ''
+                and validators.between(
+                    value,
+                    max=self.max,
+                ) is not True
+            ):
                 raise ValidationError(message=self.message)
-        except ValueError:
+        except (TypeError, AssertionError):
             raise ValidationError(message=self.message)
 
 
-register('max', MaxValidator)
-
-
+@register('datetime')
 class DateTimeValidator(Validator):
     def __init__(self, format_pattern='%Y-%m-%dT%H:%M:%S', message=None):
         self.format_pattern = format_pattern
         self.message = message or 'this field is not a valid datetime'
 
     def validate(self, value):
-        if not value:
+        if value is None or value == '':
             return
         try:
             datetime.strptime(value, self.format_pattern)
-        except ValueError:
+        except (TypeError, ValueError):
             raise ValidationError(message=self.message)
 
 
-register('datetime', DateTimeValidator)
-
-
+@register('datetimerange')
 class DateTimeRangeValidator(Validator):
     def __init__(self, format_pattern='%Y-%m-%d', message=None):
         self.format_pattern = format_pattern
         self.message = message or 'this field is not a valid datetime range'
 
     def validate(self, value):
-        if not value:
+        if value is None or value == '':
             return
         d_from = None
         d_to = None
@@ -453,11 +296,9 @@ class DateTimeRangeValidator(Validator):
                 d_from = datetime.strptime(value['from'], self.format_pattern)
             if value['to']:
                 d_to = datetime.strptime(value['to'], self.format_pattern)
-        except ValueError:
+        except (TypeError, ValueError):
             raise ValidationError(message=self.message)
 
-        if d_from and d_to and d_from > d_to:
-            raise ValidationError(message=self.message)
-
-
-register('datetimerange', DateTimeValidator)
+        if d_from and d_to:
+            if d_from > d_to:
+                raise ValidationError(message=self.message)

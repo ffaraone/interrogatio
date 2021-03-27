@@ -1,7 +1,7 @@
 from pkg_resources import DistributionNotFound, get_distribution
 
-from interrogatio.dialog import dialogus
-from interrogatio.prompt import interrogatio
+from interrogatio.core.dialog import dialogus
+from interrogatio.core.prompt import interrogatio
 
 __all__ = ('dialogus', 'interrogatio')
 

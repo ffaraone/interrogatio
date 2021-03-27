@@ -1,73 +1,14 @@
 from abc import ABCMeta, abstractmethod
 
-from interrogatio.core.exceptions import AlreadyRegisteredError, ValidationError
+from prompt_toolkit.application.current import get_app
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
+
+from interrogatio.core.exceptions import ValidationError
 
 __all__ = [
     'QHandler',
-    'register',
-    'get_instance',
-    'get_registered',
 ]
-
-
-class QHandlersRegistry(dict):
-    def register(self, alias, clazz):
-        if alias in self:
-            raise AlreadyRegisteredError(f'alias `{alias}` already exists.')
-        self[alias] = clazz
-
-    def get_registered(self):
-        return list(self.keys())
-
-    def get_instance(self, question):
-        qtype = question['type']
-        clazz = self[qtype]
-        return clazz(question)
-
-
-_registry = QHandlersRegistry()
-
-
-def register(alias, clazz):
-    """
-    Register a question handler to use with interrogatio.
-    Each question handler is identified by a unique alias.
-    This alias is used in question definition (type) to invoke a specific
-    handler.
-
-
-    :param alias: a unique alias to indentify a question handler.
-    :type alias: str
-
-    :param clazz: a QHandler concrete implementation.
-    :type clazz: class
-    """
-    _registry.register(alias, clazz)
-
-
-def get_instance(question):
-    """
-    Returns an instance of a concrete subclass of QHandler initialized with
-    a question. The subclass of QHandler is identified by the ``type`` field
-    of the question.
-
-    :param question: a question to handle.
-    :type question: dict
-
-    :return: an instance of the corresponding QHandler
-    :rtype: QHandler subclass
-    """
-    return _registry.get_instance(question)
-
-
-def get_registered():
-    """
-    Returns a list of registered QHandlers.
-
-    :return: list of aliases of the registered QHandlers.
-    :rtype: list
-    """
-    return _registry.get_registered()
 
 
 class QHandler(metaclass=ABCMeta):
@@ -121,6 +62,9 @@ class QHandler(metaclass=ABCMeta):
             'Subclass must implements `get_value` method.',
         )
 
+    def get_formatted_value(self):
+        return self.get_value()
+
     @abstractmethod
     def get_widget_init_kwargs(self):
         """
@@ -169,15 +113,22 @@ class QHandler(metaclass=ABCMeta):
             self._widget = clazz(**self.get_widget_init_kwargs())
         return self._widget
 
-    @abstractmethod
     def get_keybindings(self):
         """
         Returns a KeyBindings object to add custom keybindings to this
         QHandler.
         """
-        raise NotImplementedError(
-            'Subclass must implements `get_keybindings` method.',
-        )
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(result=False)
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=True)
+
+        return bindings
 
     def get_answer(self):
         """

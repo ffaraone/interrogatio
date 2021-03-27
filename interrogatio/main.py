@@ -24,31 +24,76 @@ def _write_answers(args, answers):
         args.serialize(answers, f)
 
 
+def _add_common_arguments(parser):
+    parser.add_argument(
+        '--input',
+        '-i',
+        type=argparse.FileType('r'),
+        required=True,
+        help='Input file with questions',
+    )
+    parser.add_argument(
+        '--output',
+        '-o',
+        type=argparse.FileType('w'),
+        default=sys.stdout,
+        help='Output file to write answers to (Default: STDOUT)',
+    )
+    if len(FORMAT_CHOICES) > 1:
+        parser.add_argument(
+            '--input-format',
+            choices=FORMAT_CHOICES,
+            default='json',
+            help='Questions file format (Default: json)',
+        )
+        parser.add_argument(
+            '--output-format',
+            choices=FORMAT_CHOICES,
+            default='json',
+            help='Answers file format (Default: json)',
+        )
+    parser.add_argument(
+        '--theme',
+        '-t',
+        default='default',
+        help='Name of the UI theme to use (Default: default)',
+    )
+
+
 def main_dialogus():
-    parser = argparse.ArgumentParser(description='dialogus')
-    parser.add_argument('--input',
-                        '-i',
-                        type=argparse.FileType('r'),
-                        required=True)
-    parser.add_argument('--output',
-                        '-o',
-                        type=argparse.FileType('w'),
-                        default=sys.stdout)
+    parser = argparse.ArgumentParser(
+        description='Show a wizard dialog to prompt user for questions.',
+    )
 
-    parser.add_argument('--theme',
-                        '-t',
-                        default='default')
+    _add_common_arguments(parser)
 
-    parser.add_argument('--title')
-    parser.add_argument('--confirm')
-    parser.add_argument('--cancel')
+    parser.add_argument(
+        '--title',
+        help='Title of the dialog',
+    )
+    parser.add_argument(
+        '--intro',
+        help='Specify the text of the introduction step (Default: no intro)',
+    )
+    parser.add_argument(
+        '--summary',
+        action='store_true',
+        help=(
+            'Show a summary with answers as the '
+            'latest step (Default: no summary)'
+        ),
+    )
 
-    parser.add_argument('--input-format',
-                        choices=FORMAT_CHOICES,
-                        default='json')
-    parser.add_argument('--output-format',
-                        choices=FORMAT_CHOICES,
-                        default='json')
+    for button in ('previous', 'next', 'cancel', 'finish'):
+        cap_btn = button.capitalize()
+        parser.add_argument(
+            f'--{button}',
+            default=cap_btn,
+            help=(
+                f'Customize the text of the "{button}" '
+                f'button (Default: {cap_btn})'
+            ),
+        )
 
     args = parser.parse_args()
 
@@ -59,37 +104,24 @@ def main_dialogus():
         args.deserialize = json.load
         args.serialize = json.dump
 
-    kwargs = dict(theme=args.theme)
-    if args.title:
-        kwargs['title'] = args.title
-    if args.confirm:
-        kwargs['confirm'] = args.confirm
-    if args.cancel:
-        kwargs['cancel'] = args.cancel
+    kwargs = {
+        'intro': args.intro,
+        'summary': args.summary,
+        'title': args.title,
+        'previous_text': args.previous,
+        'next_text': args.next,
+        'cancel_text': args.cancel,
+        'finish_text': args.finish,
+    }
+
     _write_answers(args, dialogus(_load_questions(args), **kwargs))
 
 
 def main_interrogatio():
-    parser = argparse.ArgumentParser(description='interrogatio')
-    parser.add_argument('--input',
-                        '-i',
-                        type=argparse.FileType('r'),
-                        required=True)
-    parser.add_argument('--output',
-                        '-o',
-                        type=argparse.FileType('w'),
-                        default=sys.stdout)
-
-    parser.add_argument('--theme',
-                        '-t',
-                        default='default')
-
-    parser.add_argument('--input-format',
-                        choices=FORMAT_CHOICES,
-                        default='json')
-    parser.add_argument('--output-format',
-                        choices=FORMAT_CHOICES,
-                        default='json')
+    parser = argparse.ArgumentParser(
+        description='Prompt user for questions.',
+    )
+    _add_common_arguments(parser)
 
     args = parser.parse_args()
 
@@ -100,5 +132,7 @@ def main_interrogatio():
         args.deserialize = json.load
         args.serialize = json.dump
 
-    _write_answers(args, interrogatio(_load_questions(args),
-                                      theme=args.theme))
+    _write_answers(
+        args,
+        interrogatio(_load_questions(args), theme=args.theme),
+    )

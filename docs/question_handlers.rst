@@ -53,3 +53,18 @@ of the tuple is the value and the second one is the label.
 This input handler return a list with the chosen values.
 
 
+maskedinput
+-----------
+
+The ``maskedinput`` handler allow the user to enter an input given a mask.
+
+date
+----
+
+The ``date`` handler allow the user to enter a date.
+
+
+daterange
+---------
+
+The ``daterange`` handler allow the user to enter a range of dates.

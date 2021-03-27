@@ -1,2 +1,0 @@
-Customize look and feel
-=======================

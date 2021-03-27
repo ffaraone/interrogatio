@@ -1,126 +1,41 @@
-import pytest
-
-from interrogatio.core.exceptions import AlreadyRegisteredError
-from interrogatio.handlers.base import (
-    QHandlersRegistry,
-    get_instance,
-    get_registered,
-    register,
-)
+from interrogatio.validators import RequiredValidator
 
 
-def test_registry_register():
-    reg = QHandlersRegistry()
-
-    class TestClass:
-        pass
-
-    reg.register('alias', TestClass)
-
-    assert 'alias' in reg
-    assert issubclass(reg['alias'], TestClass)
+def test_qhandler_errors(test_handler):
+    t = test_handler({})
+    t._errors = ['a', 'b', 'c']
+    assert t.errors == ['a', 'b', 'c']
 
 
-def test_registry_register_already_registered():
-    reg = QHandlersRegistry()
-
-    class TestClass:
-        pass
-
-    reg.register('alias', TestClass)
-    with pytest.raises(AlreadyRegisteredError) as cv:
-        reg.register('alias', TestClass)
-
-    assert str(cv.value) == 'alias `alias` already exists.'
+def test_qhandler_get_init_extra_args(test_handler):
+    t = test_handler({'extra_args': {'a': 0, 'b': '1'}})
+    assert t.get_init_extra_args() == {'a': 0, 'b': '1'}
 
 
-def test_registry_get_registered():
-    reg = QHandlersRegistry()
-
-    registered = reg.get_registered()
-
-    assert isinstance(registered, list)
-    assert len(registered) == 0
-
-    class TestClass:
-        pass
-
-    reg.register('alias', TestClass)
-
-    registered = reg.get_registered()
-
-    assert isinstance(registered, list)
-    assert len(registered) == 1
-    assert registered[0] == 'alias'
+def test_qhandler_get_answer(mocker, test_handler):
+    t = test_handler({'name': 'test_field'})
+    t.get_value = mocker.MagicMock(return_value='test_value')
+    assert t.get_answer() == {'test_field': 'test_value'}
 
 
-def test_registry_get_instance():
-    reg = QHandlersRegistry()
-
-    class TestClass:
-        def __init__(self, question):
-            self.question = question
-
-    reg.register('test', TestClass)
-
-    question = {'type': 'test'}
-
-    instance = reg.get_instance(question)
-
-    assert isinstance(instance, TestClass)
-    assert instance.question == question
+def test_qhandler_get_variable_name(test_handler):
+    t = test_handler({'name': 'test_field'})
+    assert t.get_variable_name() == 'test_field'
 
 
-def test_register(registry):
-    class TestClass:
-        pass
-
-    register('alias', TestClass)
-
-    assert 'alias' in registry
-    assert issubclass(registry['alias'], TestClass)
-
-
-def test_register_already_registered(registry):
-    class TestClass:
-        pass
-
-    register('alias', TestClass)
-    with pytest.raises(AlreadyRegisteredError) as cv:
-        register('alias', TestClass)
-
-    assert str(cv.value) == 'alias `alias` already exists.'
+def test_qhandler_is_valid_valid(mocker, test_handler):
+    t = test_handler({
+        'name': 'test_field',
+        'validators': [RequiredValidator()],
+    })
+    t.get_value = mocker.MagicMock(return_value='value')
+    assert t.is_valid() is True
 
 
-def test_get_registered(registry):
-    registered = get_registered()
-
-    assert isinstance(registered, list)
-    assert len(registered) == 0
-
-    class TestClass:
-        pass
-
-    register('alias', TestClass)
-
-    registered = get_registered()
-
-    assert isinstance(registered, list)
-    assert len(registered) == 1
-    assert registered[0] == 'alias'
-
-
-def test_get_instance(registry):
-
-    class TestClass:
-        def __init__(self, question):
-            self.question = question
-
-    register('test', TestClass)
-
-    question = {'type': 'test'}
-
-    instance = get_instance(question)
-
-    assert isinstance(instance, TestClass)
-    assert instance.question == question
+def test_qhandler_is_valid_invalid(mocker, test_handler):
+    t = test_handler({
+        'name': 'test_field',
+        'validators': [RequiredValidator()],
+    })
+    t.get_value = mocker.MagicMock(return_value='')
+    assert t.is_valid() is False

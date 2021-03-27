@@ -1,4 +1,3 @@
-# pylint: disable=unused-argument
 import string
 
 from prompt_toolkit.application import get_app
@@ -11,15 +10,15 @@ from prompt_toolkit.layout.containers import HSplit, VSplit, Window
 from prompt_toolkit.layout.controls import BufferControl, FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.layout.margins import ScrollbarMargin
-from prompt_toolkit.widgets import Label, TextArea
 from prompt_toolkit.mouse_events import MouseEventType
+from prompt_toolkit.widgets import Label, TextArea
 
 
 class SelectOne(object):
     def __init__(self, values=None, default=None,
                  accept_handler=None, style=''):
         assert isinstance(values, list)
-        assert all(isinstance(i, tuple) and len(i) == 2
+        assert all(isinstance(i, (tuple, list)) and len(i) == 2
                    for i in values)
 
         self.values = values or []
@@ -65,11 +64,6 @@ class SelectOne(object):
         def _(event):
             self.current_value = self.values[self._selected_index][0]
 
-        @kb.add('enter')
-        def _(event):
-            if self.accept_handler:
-                self.accept_handler(self.current_value)
-
         @kb.add(Keys.Any)
         def _(event):
             # We first check values after the selected value, then all values.
@@ -90,7 +84,7 @@ class SelectOne(object):
             right_margins=[ScrollbarMargin(display_arrows=True)],
             dont_extend_height=True)
 
-    def _get_text_fragments(self, out_style):
+    def _get_text_fragments(self, out_style):  # pragma: no cover
         def mouse_handler(mouse_event):
             """
             Set `_selected_index` and `current_value` according to the y
@@ -141,7 +135,7 @@ class SelectMany(object):
     def __init__(self, values=None, checked=None, default=None,
                  accept_handler=None, style=''):
         assert isinstance(values, list)
-        assert all(isinstance(i, tuple) and len(i) == 2
+        assert all(isinstance(i, (tuple, list)) and len(i) == 2
                    for i in values)
 
         self.values = values
@@ -183,11 +177,6 @@ class SelectMany(object):
                 self.checked.remove(self.values[self._selected_index][0])
             else:
                 self.checked.add(self.values[self._selected_index][0])
-
-        @kb.add('enter')
-        def _(event):
-            if self.accept_handler:
-                self.accept_handler(list(self.checked))
 
         @kb.add(Keys.Any)
         def _(event):
@@ -248,7 +237,7 @@ class SelectMany(object):
             result.append(('', '\n'))
         return result
 
-    def _get_text_fragments(self, out_style):
+    def _get_text_fragments(self, out_style):  # pragma: no cover
         def mouse_handler(mouse_event):
             """
             Set `_selected_index` and `current_value` according to the y
@@ -276,8 +265,8 @@ class SelectMany(object):
 class FixedLengthBuffer(Buffer):
     def __init__(self, **kwargs):
         self._max_length = kwargs.pop('max_length')
-        self._focus_next = kwargs.pop('focus_next')
         self._allowed_chars = kwargs.pop('allowed_chars')
+        self._widget = kwargs.pop('widget')
         super().__init__(**kwargs)
 
     def _is_input_allowed(self, data):
@@ -297,8 +286,14 @@ class FixedLengthBuffer(Buffer):
                 super().insert_text(data, overwrite, move_cursor, fire_event)
         if self.cursor_position == self._max_length:
             self.cursor_position -= 1
-            if self._focus_next:
-                get_app().layout.focus_next()
+            self._widget.go_next(self)
+
+    def delete_before_cursor(self, count=1):
+        if self.cursor_position == 0:
+            self._widget.go_previous(self)
+        if self.cursor_position == self._max_length - 1:
+            self.cursor_right()
+        return super().delete_before_cursor(count=count)
 
 
 class FixedLengthTextArea(TextArea):
@@ -309,8 +304,8 @@ class FixedLengthTextArea(TextArea):
         width=None,
         height=None,
         max_length=None,
-        focus_next=True,
         allowed_chars=None,
+        widget=None,
         style=None,
     ):
 
@@ -318,7 +313,7 @@ class FixedLengthTextArea(TextArea):
             document=Document(text, 0),
             multiline=False,
             max_length=max_length,
-            focus_next=focus_next,
+            widget=widget,
             allowed_chars=allowed_chars,
             accept_handler=None,
         )
@@ -357,16 +352,8 @@ class MaskedInput(VSplit):
         self._value = value
         self.accept_handler = accept_handler
 
-        self.current_position = 0
         self._components = []
-
-        # Key bindings.
-        kb = KeyBindings()
-
-        @kb.add('enter')
-        def _(event):
-            if self.accept_handler:
-                self.accept_handler(self.value)
+        self._fields = []
 
         size = 0
         for i in range(len(self._mask)):
@@ -374,16 +361,16 @@ class MaskedInput(VSplit):
             if char == placeholder:
                 size += 1
                 continue
-            not_latest_field = char in self._mask[i:]
             if size > 0:
                 widget = FixedLengthTextArea(
                     width=size,
                     max_length=size,
                     style=style,
                     allowed_chars=allowed_chars,
-                    focus_next=not_latest_field,
+                    widget=self,
                 )
                 self._components.append(widget)
+                self._fields.append(widget)
                 size = 0
             self._components.append(Label(char, dont_extend_width=True))
 
@@ -392,13 +379,27 @@ class MaskedInput(VSplit):
                 width=size,
                 max_length=size,
                 style=style,
-                focus_next=False,
+                widget=self,
                 allowed_chars=allowed_chars,
             )
             self._components.append(widget)
+            self._fields.append(widget)
         self._components.append(Label(''))
 
-        super().__init__(self._components, key_bindings=kb)
+        super().__init__(self._components)
+
+    def go_previous(self, component):
+        if self._fields[0].buffer == component:
+            return
+        get_app().layout.focus_previous()
+        current = get_app().layout.current_buffer
+        current.cursor_right()
+        current.delete_before_cursor()
+
+    def go_next(self, component):
+        if self._fields[-1].buffer == component:
+            return
+        get_app().layout.focus_next()
 
     def _has_value(self):
         values = ''.join([
@@ -431,16 +432,6 @@ class DateRange(HSplit):
             mask='____-__-__', allowed_chars=string.digits, style=style,
         )
 
-        self.accept_handler = accept_handler
-
-        # Key bindings.
-        kb = KeyBindings()
-
-        @kb.add('enter')
-        def _(event):
-            if self.accept_handler:
-                self.accept_handler(self.value)
-
         components = []
 
         if from_label:
@@ -461,7 +452,7 @@ class DateRange(HSplit):
         else:
             components.append(self._to)
 
-        super().__init__(components, key_bindings=kb)
+        super().__init__(components)
 
     @property
     def value(self):

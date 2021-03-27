@@ -1,6 +1,5 @@
-from .core.exceptions import InvalidQuestionError
-from . import validators
-from . import handlers
+from interrogatio import handlers, validators
+from interrogatio.core.exceptions import InvalidQuestionError
 
 
 def _validate_validator_object(obj):
