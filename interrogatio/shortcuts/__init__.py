@@ -1,1 +1,1 @@
-from .dialogs import *
+from interrogatio.shortcuts.dialogs import *  # noqa

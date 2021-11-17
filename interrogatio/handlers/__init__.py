@@ -1,9 +1,5 @@
-from .base import get_handlers_registry, Mode
-from ..validators import ValidationContext
-from .cmdline import ValueHandler, PasswordHandler, SelectOneHandler, SelectManyHandler
-
-
-get_handlers_registry().register(ValueHandler)
-get_handlers_registry().register(PasswordHandler)
-get_handlers_registry().register(SelectOneHandler)
-get_handlers_registry().register(SelectManyHandler)
+from interrogatio.handlers.base import QHandler  # noqa
+from interrogatio.handlers.registry import (  # noqa
+    register, get_instance, get_registered,
+)
+from interrogatio.handlers.builtins import *  # noqa

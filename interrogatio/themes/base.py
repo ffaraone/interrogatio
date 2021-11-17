@@ -1,76 +1,96 @@
-from prompt_toolkit.styles import Style, default_ui_style, merge_styles
+import json
 
-from ..enums import Mode
-from .styles import (ValueStyle, ErrorStyle, InputStyle, PasswordStyle,
-                     Rule, SelectOneStyle, SelectManyStyle, DialogStyle)
+from prompt_toolkit.styles import default_ui_style, merge_styles, Style
+
+from interrogatio.core.exceptions import (
+    AlreadyRegisteredError,
+    ThemeNotFoundError,
+)
 
 __all__ = [
     'Theme',
-    'DefaultTheme',
-    'get_theme_manager'
+    'register',
+    'for_dialog',
+    'for_prompt',
+    'set_theme',
 ]
 
 
-class Theme(object):
+class Theme:
 
     def __init__(self):
-        self.rules = set()
-        self.dialog_style = None
+        self._prompt_styles = dict()
+        self._dialog_styles = dict()
+        self._name = ''
 
+    def load(self, filename):
+        with open(filename, 'r') as f:
+            tmp = json.load(f)
+            self._name = tmp['name']
+            self._prompt_styles = tmp['prompt']
+            self._dialog_styles = tmp['dialog']
 
-    def set_component_style(self, component_style):
-        assert isinstance(component_style, InputStyle)
-        self.rules.add(component_style)
-
-    def set_dialog_style(self, dialog_style):
-        self.dialog_style = dialog_style
-
-    def to_style(self):
-        styles = []
-        for component in self.rules:
-            styles.extend(component.to_style())
-
-        if self.dialog_style:
-            styles.extend(self.dialog_style.to_style())
-
+    def for_prompt(self):
         return merge_styles([
             default_ui_style(),
-            Style(styles)
+            Style(list(self._prompt_styles.items())),
         ])
-        
 
-class DefaultTheme(Theme):
+    def for_dialog(self):
+        return merge_styles([
+            default_ui_style(),
+            Style(list(self._dialog_styles.items())),
+        ])
+
+    def save(self, filename):
+        with open(filename, 'w') as f:
+            json.dump(
+                {
+                    'name': self._name,
+                    'prompt': self._prompt_styles,
+                    'dialog': self._dialog_styles,
+                },
+                f,
+                indent=2,
+            )
+
+
+class ThemeRegistry(object):
+
     def __init__(self):
-        super(DefaultTheme, self).__init__()
-        self.set_component_style(ErrorStyle(Mode.PROMPT))
-        self.set_component_style(ErrorStyle(Mode.DIALOG))
-        self.set_component_style(ValueStyle(Mode.PROMPT))
-        self.set_component_style(ValueStyle(Mode.DIALOG))
-        self.set_component_style(PasswordStyle(Mode.PROMPT))
-        self.set_component_style(PasswordStyle(Mode.DIALOG))
-        self.set_component_style(SelectOneStyle(Mode.PROMPT))
-        self.set_component_style(SelectOneStyle(Mode.DIALOG))
-        self.set_component_style(SelectManyStyle(Mode.PROMPT))
-        self.set_component_style(SelectManyStyle(Mode.DIALOG))
-        self.set_dialog_style(DialogStyle())
+        self._themes = {}
+        self._current_theme = 'default'
 
-
-class ThemeManager(object):
-
-    def __init__(self, current_theme):
-        self._current_theme = current_theme
-
-    def set_current_theme(self, theme):
+    def register(self, alias, theme):
         assert isinstance(theme, Theme)
-        self._current_theme = theme
+        if alias in self._themes:
+            raise AlreadyRegisteredError(
+                'theme {} already registered'.format(alias))
+        self._themes[alias] = theme
 
-    def get_current_theme(self):
-        return self._current_theme
+    def set_current(self, alias):
+        if alias not in self._themes:
+            raise ThemeNotFoundError('theme {} not registered'.format(alias))
+        self._current_theme = alias
 
-    def get_current_style(self):
-        return self.get_current_theme().to_style()
+    def get_current(self):
+        return self._themes[self._current_theme]
 
-manager = ThemeManager(DefaultTheme())
 
-def get_theme_manager():
-    return manager
+_registry = ThemeRegistry()
+
+
+def register(alias, theme):
+    _registry.register(alias, theme)
+
+
+def for_dialog():
+    return _registry.get_current().for_dialog()
+
+
+def for_prompt():
+    return _registry.get_current().for_prompt()
+
+
+def set_theme(alias):
+    _registry.set_current(alias)

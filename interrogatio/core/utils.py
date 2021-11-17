@@ -1,33 +1,30 @@
+from interrogatio import handlers, validators
+from interrogatio.core.exceptions import InvalidQuestionError
 
-from ..handlers import get_handlers_registry
-from ..validators import Validator, get_validators_registry
 
-class InvalidQuestionError(Exception):
-    pass
-
-def validate_validator_object(obj):
+def _validate_validator_object(obj):
     if 'name' not in obj:
-        raise InvalidQuestionError('You must specify a name for the validator')    
-    
-    if obj['name'] not in get_validators_registry():
-        raise InvalidQuestionError('Validator {} does not exists'.format(obj['name']))
-    
+        raise InvalidQuestionError(
+            'You must specify a name for the validator')
+
+    if obj['name'] not in validators.get_registered():
+        raise InvalidQuestionError(
+            'Validator {} does not exists'.format(obj['name']))
+
     if 'args' in obj and not isinstance(obj['args'], dict):
-        raise InvalidQuestionError('Validator arguments must be a dictionary')    
-    
-def validate_question(q):
+        raise InvalidQuestionError('Validator arguments must be a dictionary')
+
+
+def _validate_question(q):  # noqa: CCR001
 
     if 'name' not in q:
         raise InvalidQuestionError('You must specify a name for the question')
 
-    if 'message' not in q:
-        raise InvalidQuestionError('You must specify a message for the question')
-    
     if 'type' not in q:
         raise InvalidQuestionError('You must specify a question type')
 
     q_type = q['type']
-    if q_type not in get_handlers_registry().get_registered():
+    if q_type not in handlers.get_registered():
         raise InvalidQuestionError('Unsupported question type: {}'.format(
             q_type))
 
@@ -48,23 +45,29 @@ def validate_question(q):
                                        ' tuples.')
         if len(first_value) != 2:
             raise InvalidQuestionError('Every choice must be a tuple'
-                                       ' (value, label)')            
+                                       ' (value, label)')
 
     if 'validators' in q:
         if not isinstance(q['validators'], (list, tuple)):
-            raise InvalidQuestionError('Validators must be a list or tuple') 
+            raise InvalidQuestionError('Validators must be a list or tuple')
 
-        validators = []
+        validator_instances = []
         for v in q['validators']:
-            if not isinstance(v, (Validator, dict)):
-                raise InvalidQuestionError('Validators must be a list of  '
+            if not isinstance(v, (validators.Validator, dict)):
+                raise InvalidQuestionError(
+                    'Validators must be a list of  '
                     'interrogatio.validators.Validator'
                     ' instances or a list of validator objects')
 
             if isinstance(v, dict):
-                validate_validator_object(v)
-                v = get_validators_registry().get_instance(v)
-                validators.append(v)
+                _validate_validator_object(v)
+                v = validators.get_instance(v)
+                validator_instances.append(v)
             else:
-                validators.append(v)
-        q['validators'] = validators
+                validator_instances.append(v)
+        q['validators'] = validator_instances
+
+
+def validate_questions(questions):
+    for q in questions:
+        _validate_question(q)

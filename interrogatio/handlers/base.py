@@ -1,93 +1,160 @@
-import abc
+from abc import ABCMeta, abstractmethod
 
-import six
-from prompt_toolkit.formatted_text import FormattedText
-from prompt_toolkit.shortcuts import print_formatted_text
+from prompt_toolkit.application.current import get_app
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
 
-from ..themes import get_theme_manager
-from ..enums import Mode
-from ..validators import ValidationError, ValidationContext
-
+from interrogatio.core.exceptions import ValidationError
 
 __all__ = [
-    'get_handlers_registry',
-    'Handler'
+    'QHandler',
 ]
 
 
-class Handler(six.with_metaclass(abc.ABCMeta, object)):
+class QHandler(metaclass=ABCMeta):
+    """
+    ABC for question handlers.
+    Each question handler must subclass this class.
+    """
 
-    def __init__(self, question, context, mode):
+    def __init__(self, question):
         self._question = question
-        self._context = context
-        self._mode = mode
+        self._widget = None
+        self._errors = []
 
-    @abc.abstractmethod
+    @property
+    def errors(self):
+        """
+        This property holds a list of validation error messages.
+        The list is filled after a call to the is_valid method.
+
+        :return: list of error messages.
+        :rtype: list
+        """
+        return self._errors
+
+    @abstractmethod
     def get_layout(self):
-        pass
+        """
+        Returns the UI layout of the question. It must returns a
+        python-prompt-toolkit layout container.
 
-    @abc.abstractmethod
-    def get_app(self):
-        pass
+        Subclasses must implement this method.
 
-    @abc.abstractmethod
+        :return: the UI layout of the question.
+        :rtype: :class:`~prompt_toolkit.layout.Layout`
+        """
+        raise NotImplementedError(
+            'Subclass must implements `get_layout` method.',
+        )
+
+    @abstractmethod
     def get_value(self):
-        pass
+        """
+        Returns the ``value`` part of the answer.
+
+        Subclasses must implement this method.
+
+        :return: the ``value`` part of the answer.
+        :rtype: str
+        """
+        raise NotImplementedError(
+            'Subclass must implements `get_value` method.',
+        )
+
+    def get_formatted_value(self):
+        return self.get_value()
+
+    @abstractmethod
+    def get_widget_init_kwargs(self):
+        """
+        Returns the keyword arguments needed to instantiate the widget.
+
+        Subclasses must implement this method.
+
+        :return: a dictionary containing the keyword arguments.
+        :rtype: dict
+        """
+        raise NotImplementedError(
+            'Subclass must implements `get_widget_init_kwargs` method.',
+        )
+
+    def get_init_extra_args(self):
+        """
+        Returns extra arguments needed to instantiate a QHandler.
+        The extra arguments are represented as a dictionary within the
+        question object under the key ``extra_args``.
+
+        :return: a dictionary containing the initialization extra arguments.
+        :rtype: dict
+        """
+        return self._question.get('extra_args', dict())
+
+    @abstractmethod
+    def get_widget_class(self):
+        """
+        Returns the widget class for this QHandler.
+
+        :return: a widget class.
+        :rtype: class
+        """
+        raise NotImplementedError(
+            'Subclass must implements `get_widget_class` method.',
+        )
+
+    def get_widget(self):
+        """
+        Returns the widget instance for this QHandler.
+        If the widget has not been already created, this method creates it
+        before returns.
+        """
+        if not self._widget:
+            clazz = self.get_widget_class()
+            self._widget = clazz(**self.get_widget_init_kwargs())
+        return self._widget
+
+    def get_keybindings(self):
+        """
+        Returns a KeyBindings object to add custom keybindings to this
+        QHandler.
+        """
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.ControlC)
+        def _ctrl_c(event):
+            get_app().exit(result=False)
+
+        @bindings.add(Keys.Enter)
+        def _enter(event):
+            get_app().exit(result=True)
+
+        return bindings
 
     def get_answer(self):
+        """
+        Returns dictionary with the question variable as key and the answer
+        as the value.
+        """
         return {self._question['name']: self.get_value()}
 
     def get_variable_name(self):
+        """
+        Returns the name of the variable of this question.
+        """
         return self._question['name']
 
-    @abc.abstractmethod
-    def get_kwargs(self):
-        pass
-
-    def apply_validators(self):
+    def is_valid(self):
+        """
+        Apply any speficied validator to the answer and return True if the
+        input is valid otherwise False.
+        If the answer isn't valid, it also set the errors property to a list
+        of error messages.
+        """
         validators = self._question.get('validators', [])
-        error_messages = []
+        self._errors = []
         for validator in validators:
             try:
-                validator.validate(self.get_value(), self._context)
+                validator.validate(self.get_value())
             except ValidationError as ve:
-                error_messages.append(ve.message)
-                if self._mode == Mode.PROMPT:
-                    print_formatted_text(
-                        FormattedText([
-                            ('class:prompt.error', ve.message)
-                        ]),
-                        style=get_theme_manager().get_current_style()
-                    )
-        return error_messages
-
-    def get_input(self):
-        while True:
-            answer = self.get_app().run()
-            if not self.apply_validators():
-                return answer
-
-
-
-class Registry(dict):
-    def register(self, clazz):
-        self[clazz.ALIAS] = clazz
-    
-    def is_registered(self, alias):
-        return alias in self
-    
-    def get_registered(self):
-        return list(self.keys())
-
-    def get_handler(self, question, questions, answers, mode):
-        qtype = question['type']
-        clazz = self[qtype]
-        return clazz(
-            question,
-            ValidationContext(questions, answers),
-            mode=mode)
-
-registry = Registry()
-
-def get_handlers_registry():
-    return registry
+                self._errors.append(str(ve))
+        return not self._errors

@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "interrogatio"
+version = "0.0.0"
+description = "Prompting library for terminals."
+authors = ["Francesco Faraone"]
+license = "BSD-3-Clause"
+packages = [
+    { include = "interrogatio" },
+]
+readme = "./README.md"
+homepage = "https://github.com/ffaraone/interrogatio"
+documentation = "https://interrogatio.readthedocs.io/en/latest/"
+repository = "https://github.com/ffaraone/interrogatio.git"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Utilities",
+    "Topic :: Software Development :: Libraries",
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+prompt-toolkit = "3.*"
+PyYAML = {version = ">=5", optional = true }
+validators = "^0.18.2"
+
+[tool.poetry.extras]
+yaml = ["PyYAML"]
+
+
+[tool.poetry.dev-dependencies]
+ipython = "^7.21.0"
+pytest = "^6.1.2"
+pytest-cov = "^2.10.1"
+pytest-mock = "^3.3.1"
+coverage = {extras = ["toml"], version = "^5.3"}
+flake8 = "~3.8"
+flake8-bugbear = "~20"
+flake8-cognitive-complexity = "^0.1"
+flake8-commas = "~2.0"
+flake8-future-import = "~0.4"
+flake8-import-order = "~0.18"
+flake8-broken-line = "~0.3"
+Sphinx = "^1.8.5"
+sphinx-rtd-theme = "^1.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0", "setuptools"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+interrogatio = 'interrogatio.main:main_interrogatio'
+dialogus = 'interrogatio.main:main_dialogus'
+
+[tool.pytest.ini_options]
+testpaths = "tests"
+log_cli = true
+addopts = "--cov=interrogatio --cov-report=term-missing:skip-covered --cov-report=html --cov-report=xml"
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+omit = [
+    "interrogatio/main.py",
+    "*/__init__.py",
+]
+
+exclude_lines = [
+    "pragma: no cover",
+    "def __str__",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]

@@ -1,9 +1,15 @@
-from .core import interrogatio
-from .enums import Mode
+from pkg_resources import DistributionNotFound, get_distribution
 
-__version__ = '1.0.0b2'
+from interrogatio.core.dialog import dialogus
+from interrogatio.core.prompt import interrogatio
 
-__version_info__ = tuple([int(num) if num.isdigit() else num for num in __version__.replace('-', '.', 1).split('.')])
+__all__ = ('dialogus', 'interrogatio')
+
+
+try:
+    __version__ = get_distribution('interrogatio').version
+except DistributionNotFound:  # pragma: no cover
+    __version__ = '0.0.0'
 
 
 def get_version():
