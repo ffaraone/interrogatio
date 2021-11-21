@@ -54,6 +54,7 @@ def interrogatio(questions, theme='default'):
     validate_questions(questions)
     for q in questions:
         handler = get_instance(q)
+        handler.set_context(answers)
         layout = handler.get_layout()
         layout.align = HorizontalAlign.LEFT
 
@@ -74,7 +75,7 @@ def interrogatio(questions, theme='default'):
             result = app.run()
             if not result:
                 return
-            if handler.is_valid():
+            if handler.is_valid(answers):
                 answers.update(handler.get_answer())
                 break
             else:

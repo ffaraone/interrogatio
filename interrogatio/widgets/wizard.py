@@ -1,3 +1,5 @@
+import string
+
 from prompt_toolkit.application import get_app
 from prompt_toolkit.filters import has_focus
 from prompt_toolkit.formatted_text import FormattedText, HTML, to_formatted_text
@@ -24,6 +26,7 @@ class WizardDialog:
     ):
         self.title = title
         self.handlers = handlers
+        self.answers = {}
         self.intro = intro
         self.summary = summary
         self.steps = []
@@ -131,17 +134,22 @@ class WizardDialog:
         steps_labels = []
         for idx, step in enumerate(self.steps, start=1):
             label = f'{idx}. {step["label"]}'
-            if self.current_step_idx == idx - 1:
-                label = f'<magenta><b>{label}</b></magenta>'
             steps_labels.append(
                 Window(
                     FormattedTextControl(
-                        to_formatted_text(HTML(label)),
+                        to_formatted_text(
+                            label,
+                            style=(
+                                'class:dialog.step.current'
+                                if self.current_step_idx == idx - 1
+                                else 'class:dialog.step'
+                            ),
+                        ),
                     ),
                     height=1,
                 ),
             )
-        return HSplit(steps_labels, width=20)
+        return HSplit(steps_labels, width=33)
 
     def get_status(self):
         if self.error_messages:
@@ -154,13 +162,31 @@ class WizardDialog:
         return Label('')
 
     def get_summary(self):
-        text = '\n'.join(
-            [
-                f'<b>{handler.get_variable_name().capitalize()}:'
-                f' </b>{handler.get_formatted_value()}'
+        if isinstance(self.summary, bool):
+            text = '\n'.join(
+                [
+                    f'<b>{handler.get_variable_name().capitalize()}:'
+                    f' </b>{handler.get_formatted_value()}'
+                    for handler in self.handlers
+                ],
+            )
+        elif callable(self.summary):
+            data = {
+                handler.get_variable_name(): {
+                    'question': handler.get_question(),
+                    'value': handler.get_value(),
+                    'formatted_value': handler.get_formatted_value(),
+                }
                 for handler in self.handlers
-            ],
-        )
+            }
+            text = self.summary(data)
+        else:
+            text = string.Template(self.summary).safe_substitute(
+                {
+                    handler.get_variable_name(): handler.get_formatted_value()
+                    for handler in self.handlers
+                },
+            )
         return Window(
             FormattedTextControl(to_formatted_text(HTML(text))),
             wrap_lines=True,
@@ -196,7 +222,7 @@ class WizardDialog:
             self.steps.append(
                 {
                     'layout': layout,
-                    'label': handler.get_variable_name().capitalize(),
+                    'label': handler.get_label(),
                     'handler': handler,
                 },
             )
@@ -243,8 +269,14 @@ class WizardDialog:
     def next(self):
         if self.validate():
             if self.current_step_idx < len(self.steps) - 1:
+                handler = self.current_step['handler']
+                if handler:
+                    self.answers.update(handler.get_answer())
                 self.current_step_idx += 1
                 self.current_step = self.steps[self.current_step_idx]
+                handler = self.current_step['handler']
+                if handler:
+                    handler.set_context(self.answers)
                 if not self.summary or self.current_step != self.steps[-1]:
                     get_app().layout.focus(self.current_step['layout'])
             else:
@@ -255,7 +287,7 @@ class WizardDialog:
     def validate(self):
         step = self.steps[self.current_step_idx]
         handler = step['handler']
-        if handler and not handler.is_valid():
+        if handler and not handler.is_valid(self.answers):
             self.error_messages = ','.join(handler.errors)
 
             return False

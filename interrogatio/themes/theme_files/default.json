@@ -29,6 +29,8 @@
       "dialog frame.label": "magenta bold",
       "dialog shadow": "bg:#000088",
       "dialog.body shadow": "bg:#aaaaaa",
+      "dialog.step": "bg:#ffffff",
+      "dialog.step.current": "bg:#ffffff magenta bold",
       "button": "",
       "button.arrow": "bold",
       "button.focused": "bg:#aa0000 #ffffff",

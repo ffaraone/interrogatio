@@ -15,37 +15,39 @@ from prompt_toolkit.widgets import Label, TextArea
 
 
 class SelectOne(object):
-    def __init__(self, values=None, default=None,
-                 accept_handler=None, style=''):
-        assert isinstance(values, list)
-        assert all(isinstance(i, (tuple, list)) and len(i) == 2
-                   for i in values)
+    def __init__(  # noqa: CCR001
+        self, values=None, default=None,
+        accept_handler=None, style='',
+    ):
 
         self.values = values or []
-        self.current_value = values[0][0]
+        self.current_value = (
+            values[0][0] if values and not callable(values) else None
+        )
         self._selected_index = 0
         self.accept_handler = accept_handler
-
-        for i in range(len(self.values)):
-            if self.values[i][0] == default:
-                self._selected_index = i
-                self.current_value = self.values[i][0]
-                break
-
+        if default:
+            self.value = default
         # Key bindings.
         kb = KeyBindings()
 
         @kb.add('up')
         def _(event):
+            if not self.values:
+                return
             self._selected_index = max(0, self._selected_index - 1)
 
         @kb.add('down')
         def _(event):
+            if not self.values:
+                return
             self._selected_index = min(
                 len(self.values) - 1, self._selected_index + 1)
 
         @kb.add('pageup')
         def _(event):
+            if not self.values:
+                return
             w = event.app.layout.current_window
             self._selected_index = max(
                 0,
@@ -54,6 +56,8 @@ class SelectOne(object):
 
         @kb.add('pagedown')
         def _(event):
+            if not self.values:
+                return
             w = event.app.layout.current_window
             self._selected_index = min(
                 len(self.values) - 1,
@@ -62,10 +66,14 @@ class SelectOne(object):
 
         @kb.add(' ')
         def _(event):
+            if not self.values:
+                return
             self.current_value = self.values[self._selected_index][0]
 
         @kb.add(Keys.Any)
         def _(event):
+            if not self.values:
+                return
             # We first check values after the selected value, then all values.
             for value in self.values[self._selected_index + 1:] + self.values:
                 if value[1].startswith(event.data):
@@ -83,6 +91,18 @@ class SelectOne(object):
             style='class:radio-list',
             right_margins=[ScrollbarMargin(display_arrows=True)],
             dont_extend_height=True)
+
+    @property
+    def value(self):
+        return self.current_value
+
+    @value.setter
+    def value(self, value):
+        for i in range(len(self.values)):
+            if self.values[i][0] == value:
+                self._selected_index = i
+                self.current_value = self.values[i][0]
+                break
 
     def _get_text_fragments(self, out_style):  # pragma: no cover
         def mouse_handler(mouse_event):
@@ -124,7 +144,8 @@ class SelectOne(object):
         for i, fragment in enumerate(result):
             result[i] = (fragment[0], fragment[1], mouse_handler)
 
-        result.pop()  # Remove last newline.
+        if result:
+            result.pop()  # Remove last newline.
         return result
 
     def __pt_container__(self):
@@ -132,31 +153,38 @@ class SelectOne(object):
 
 
 class SelectMany(object):
-    def __init__(self, values=None, checked=None, default=None,
-                 accept_handler=None, style=''):
-        assert isinstance(values, list)
-        assert all(isinstance(i, (tuple, list)) and len(i) == 2
-                   for i in values)
+    def __init__(  # noqa: CCR001
+        self, values=None, default=None,
+        accept_handler=None, style='',
+    ):
 
         self.values = values
-        self.checked = checked or set()
+        self.checked = None
         self._selected_index = 0
         self.accept_handler = accept_handler
+
+        self.value = default or set()
 
         # Key bindings.
         kb = KeyBindings()
 
         @kb.add('up')
         def _(event):
+            if not self.values:
+                return
             self._selected_index = max(0, self._selected_index - 1)
 
         @kb.add('down')
         def _(event):
+            if not self.values:
+                return
             self._selected_index = min(
                 len(self.values) - 1, self._selected_index + 1)
 
         @kb.add('pageup')
         def _(event):
+            if not self.values:
+                return
             w = event.app.layout.current_window
             self._selected_index = max(
                 0,
@@ -165,6 +193,8 @@ class SelectMany(object):
 
         @kb.add('pagedown')
         def _(event):
+            if not self.values:
+                return
             w = event.app.layout.current_window
             self._selected_index = min(
                 len(self.values) - 1,
@@ -173,6 +203,8 @@ class SelectMany(object):
 
         @kb.add(' ')
         def _(event):
+            if not self.values:
+                return
             if self.values[self._selected_index][0] in self.checked:
                 self.checked.remove(self.values[self._selected_index][0])
             else:
@@ -180,6 +212,8 @@ class SelectMany(object):
 
         @kb.add(Keys.Any)
         def _(event):
+            if not self.values:
+                return
             # We first check values after the selected value, then all values.
             for value in self.values[self._selected_index + 1:] + self.values:
                 if value[1].startswith(event.data):
@@ -197,6 +231,17 @@ class SelectMany(object):
             style='class:checkbox-list',
             right_margins=[ScrollbarMargin(display_arrows=True)],
             dont_extend_height=True)
+
+        if default:
+            self.value = default
+
+    @property
+    def value(self):
+        return list(self.checked)
+
+    @value.setter
+    def value(self, value):
+        self.checked = set(value)
 
     def select_all(self):
         for v in self.values:
@@ -309,6 +354,8 @@ class FixedLengthTextArea(TextArea):
         style=None,
     ):
 
+        self.max_length = max_length
+
         self.buffer = FixedLengthBuffer(
             document=Document(text, 0),
             multiline=False,
@@ -342,15 +389,11 @@ class MaskedInput(VSplit):
         mask,
         placeholder='_',
         style=None,
-        value=None,
+        default=None,
         allowed_chars=None,
-        accept_handler=None,
     ):
         self._mask = mask
         self._placeholder = placeholder
-
-        self._value = value
-        self.accept_handler = accept_handler
 
         self._components = []
         self._fields = []
@@ -385,6 +428,8 @@ class MaskedInput(VSplit):
             self._components.append(widget)
             self._fields.append(widget)
         self._components.append(Label(''))
+        if default:
+            self.value = default
 
         super().__init__(self._components)
 
@@ -408,11 +453,26 @@ class MaskedInput(VSplit):
         ]).strip()
         return bool(values)
 
-    @property
-    def value(self):
+    def _build_value(self):
         if self._has_value():
             return ''.join([cmp.text for cmp in self._components])
         return None
+
+    @property
+    def value(self):
+        return self._build_value()
+
+    @value.setter
+    def value(self, val):
+        if len(val) != len(self._mask):
+            raise ValueError('Invalid value length')
+        pos = 0
+        non_mask_chars = self._mask.replace(self._placeholder, '')
+        for char in non_mask_chars:
+            val = val.replace(char, '')
+        for field in self._fields:
+            field.text = val[pos:pos + field.max_length]
+            pos += field.max_length
 
 
 class DateRange(HSplit):
@@ -421,7 +481,6 @@ class DateRange(HSplit):
         self,
         from_label='From: ',
         to_label='  to: ',
-        accept_handler=None,
         style=None,
     ):
 
@@ -460,3 +519,11 @@ class DateRange(HSplit):
             'from': self._from.value,
             'to': self._to.value,
         }
+
+    @value.setter
+    def value(self, val):
+        if 'from' in val:
+            self._from.value = val['from']
+
+        if 'to' in val:
+            self._to.value = val['to']
