@@ -483,7 +483,7 @@ dev = ["pre-commit", "tox", "pytest-asyncio"]
 name = "pytz"
 version = "2021.3"
 description = "World timezone definitions, modern and historical"
-category = "dev"
+category = "main"
 optional = false
 python-versions = "*"
 
@@ -658,7 +658,7 @@ yaml = ["PyYAML"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "ee8c3c39bb9b3091d8dab6cf5869b27f0f29f14e3eb33352aab91dfde51b75da"
+content-hash = "01e9e0542dacd74038aea72ce849388665134fde4757bc3752b8863a87074130"
 
 [metadata.files]
 alabaster = [

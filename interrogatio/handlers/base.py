@@ -48,6 +48,9 @@ class QHandler(metaclass=ABCMeta):
             'Subclass must implements `get_layout` method.',
         )
 
+    def get_question(self):
+        return self._question
+
     @abstractmethod
     def get_value(self):
         """
@@ -88,7 +91,7 @@ class QHandler(metaclass=ABCMeta):
         :return: a dictionary containing the initialization extra arguments.
         :rtype: dict
         """
-        return self._question.get('extra_args', dict())
+        return self.get_question().get('extra_args', dict())
 
     @abstractmethod
     def get_widget_class(self):
@@ -130,12 +133,15 @@ class QHandler(metaclass=ABCMeta):
 
         return bindings
 
+    def to_python(self):
+        return self.get_value()
+
     def get_answer(self):
         """
         Returns dictionary with the question variable as key and the answer
         as the value.
         """
-        return {self._question['name']: self.get_value()}
+        return {self.get_question()['name']: self.to_python()}
 
     def get_variable_name(self):
         """
@@ -143,7 +149,15 @@ class QHandler(metaclass=ABCMeta):
         """
         return self._question['name']
 
-    def is_valid(self):
+    def get_label(self):
+        """
+        Returns the label of the variable of this question.
+        """
+        return self._question.get(
+            'label', self.get_variable_name().capitalize(),
+        )
+
+    def is_valid(self, context=None):
         """
         Apply any speficied validator to the answer and return True if the
         input is valid otherwise False.
@@ -154,7 +168,7 @@ class QHandler(metaclass=ABCMeta):
         self._errors = []
         for validator in validators:
             try:
-                validator.validate(self.get_value())
+                validator.validate(self.get_value(), context=context)
             except ValidationError as ve:
                 self._errors.append(str(ve))
         return not self._errors

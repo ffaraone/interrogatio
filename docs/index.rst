@@ -13,7 +13,7 @@ A python library to prompt users for inputs in a terminal application.
 What is interrogatio
 ********************
 
-interrogatio is a python 2/3 library based on the `python-prompt-toolkit
+interrogatio is a python 3.8+ library based on the `python-prompt-toolkit
 <https://github.com/prompt-toolkit/python-prompt-toolkit>`_ and inspired by `PyInquirer
 <https://github.com/CITGuru/PyInquirer/>`_ that help CLI developers to ask users for inputs.
 

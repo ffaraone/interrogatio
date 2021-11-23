@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from interrogatio.core.prompt import interrogatio
 
 
@@ -345,7 +347,7 @@ def test_selectmany_handler_with_checked(mock_input):
                 ('second', 'Second'),
                 ('third', 'Third'),
             ],
-            'checked': {'first', 'third'},
+            'default': {'first', 'third'},
         },
     ]
 
@@ -567,7 +569,7 @@ def test_date_handler(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == '2020-01-01'
+    assert answers['question'] == datetime(2020, 1, 1, tzinfo=timezone.utc)
 
 
 def test_date_handler_go_previous(mock_input):
@@ -586,7 +588,7 @@ def test_date_handler_go_previous(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == '2020-02-01'
+    assert answers['question'] == datetime(2020, 2, 1, tzinfo=timezone.utc)
 
 
 def test_date_handler_go_previous_beginning(mock_input):
@@ -605,7 +607,7 @@ def test_date_handler_go_previous_beginning(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == '2022-07-06'
+    assert answers['question'] == datetime(2022, 7, 6, tzinfo=timezone.utc)
 
 
 def test_date_handler_no_value(mock_input):
@@ -656,7 +658,7 @@ def test_date_handler_exceed_length(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == '2020-01-01'
+    assert answers['question'] == datetime(2020, 1, 1, tzinfo=timezone.utc)
 
 
 def test_daterange_handler(mock_input):
@@ -673,4 +675,7 @@ def test_daterange_handler(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == {'from': '2020-01-01', 'to': '2021-01-01'}
+    assert answers['question'] == {
+        'from': datetime(2020, 1, 1, tzinfo=timezone.utc),
+        'to': datetime(2021, 1, 1, tzinfo=timezone.utc),
+    }

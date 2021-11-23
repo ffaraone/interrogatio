@@ -14,7 +14,7 @@ class Validator(metaclass=ABCMeta):
         self.message = message
 
     @abstractmethod
-    def validate(self, value):
+    def validate(self, value, context=None):
         """
         Abstract method.
         Subclasses must implement this method with the validation logic.

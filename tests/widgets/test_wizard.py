@@ -89,9 +89,10 @@ def test_wizard_get_steps_label():
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
     steps_lables = wz.get_steps_labels()
-    assert 'class:magenta,b' == steps_lables.children[0].content.text[0][0]
+    class_current = steps_lables.children[0].content.text[0][0]
+    assert 'class:dialog.step.current ' == class_current
     assert '1. Question1' == steps_lables.children[0].content.text[0][1]
-    assert '' == steps_lables.children[1].content.text[0][0]
+    assert 'class:dialog.step ' == steps_lables.children[1].content.text[0][0]
     assert '2. Question2' == steps_lables.children[1].content.text[0][1]
 
 
