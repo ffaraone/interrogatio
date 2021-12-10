@@ -28,6 +28,7 @@ prompt-toolkit = "3.*"
 PyYAML = {version = ">=5", optional = true }
 validators = "^0.18.2"
 pytz = "^2021.3"
+tzlocal = "^4.1"
 
 [tool.poetry.extras]
 yaml = ["PyYAML"]

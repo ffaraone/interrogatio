@@ -11,6 +11,7 @@ from prompt_toolkit.layout.containers import Window
 from prompt_toolkit.layout.controls import FormattedTextControl
 from prompt_toolkit.layout.dimension import Dimension as D
 from prompt_toolkit.widgets import Box, Button, Label, TextArea
+from tzlocal import get_localzone_name
 
 from interrogatio.handlers.base import QHandler
 from interrogatio.handlers.registry import register
@@ -439,9 +440,7 @@ class DateHandler(QHandler):
         if 'timezone' in question:
             tzinfo = pytz.timezone(question['timezone'])
         else:
-            tzinfo = pytz.timezone(
-                str(datetime.now(pytz.utc).astimezone().tzinfo),
-            )
+            tzinfo = pytz.timezone(get_localzone_name())
 
         year, month, day = value.split('-')
         return tzinfo.localize(
