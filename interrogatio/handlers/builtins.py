@@ -541,9 +541,7 @@ class DateRangeHandler(QHandler):
         if 'timezone' in question:
             tzinfo = pytz.timezone(question['timezone'])
         else:
-            tzinfo = pytz.timezone(
-                str(datetime.now().astimezone().tzinfo),
-            )
+            tzinfo = pytz.timezone(get_localzone_name())
 
         from_date = None
         to_date = None
