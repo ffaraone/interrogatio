@@ -59,12 +59,12 @@ def test_handler():
 
 @pytest.fixture
 def mock_input():
-    pipe_input = create_pipe_input()
-    try:
-        with create_app_session(
-            input=pipe_input,
-            output=DummyOutput(),
-        ):
-            yield pipe_input
-    finally:
-        pipe_input.close()
+    with create_pipe_input() as pipe_input:
+        try:
+            with create_app_session(
+                input=pipe_input,
+                output=DummyOutput(),
+            ):
+                yield pipe_input
+        finally:
+            pipe_input.close()
