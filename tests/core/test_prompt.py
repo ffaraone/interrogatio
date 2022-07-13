@@ -569,7 +569,12 @@ def test_date_handler(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == datetime(2020, 1, 1, tzinfo=timezone.utc)
+    assert answers['question'] == datetime(
+        2020,
+        1,
+        1,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_date_handler_go_previous(mock_input):
@@ -588,7 +593,12 @@ def test_date_handler_go_previous(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == datetime(2020, 2, 1, tzinfo=timezone.utc)
+    assert answers['question'] == datetime(
+        2020,
+        2,
+        1,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_date_handler_go_previous_beginning(mock_input):
@@ -607,7 +617,12 @@ def test_date_handler_go_previous_beginning(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == datetime(2022, 7, 6, tzinfo=timezone.utc)
+    assert answers['question'] == datetime(
+        2022,
+        7,
+        6,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_date_handler_no_value(mock_input):
@@ -658,7 +673,12 @@ def test_date_handler_exceed_length(mock_input):
     answers = interrogatio(questions)
 
     assert 'question' in answers
-    assert answers['question'] == datetime(2020, 1, 1, tzinfo=timezone.utc)
+    assert answers['question'] == datetime(
+        2020,
+        1,
+        1,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_daterange_handler(mock_input):
@@ -673,7 +693,6 @@ def test_daterange_handler(mock_input):
 
     mock_input.send_text('20200101\t20210101' + chr(13))
     answers = interrogatio(questions)
-
     assert 'question' in answers
     assert answers['question'] == {
         'from': datetime(2020, 1, 1, tzinfo=timezone.utc),
