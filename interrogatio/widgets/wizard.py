@@ -130,6 +130,18 @@ class WizardDialog:
             f'{self.title} - {self.current_step_idx + 1} of {len(self.steps)}'
         )
 
+    def _get_step_style(self, idx):
+        if idx == self.current_step_idx:
+            return 'class:dialog.step.current'
+
+        if (
+                self.steps[idx].get('handler')
+                and self.steps[idx]['handler'].is_disabled(context=self.answers)
+        ):
+            return 'class:dialog.step.disabled'
+
+        return 'class:dialog.step'
+
     def get_steps_labels(self):
         steps_labels = []
         for idx, step in enumerate(self.steps, start=1):
@@ -139,11 +151,7 @@ class WizardDialog:
                     FormattedTextControl(
                         to_formatted_text(
                             label,
-                            style=(
-                                'class:dialog.step.current'
-                                if self.current_step_idx == idx - 1
-                                else 'class:dialog.step'
-                            ),
+                            style=self._get_step_style(idx - 1),
                         ),
                     ),
                     height=1,
@@ -276,6 +284,8 @@ class WizardDialog:
                 self.current_step = self.steps[self.current_step_idx]
                 handler = self.current_step['handler']
                 if handler:
+                    if handler.is_disabled(context=self.answers):
+                        return self.next()
                     handler.set_context(self.answers)
                 if not self.summary or self.current_step != self.steps[-1]:
                     get_app().layout.focus(self.current_step['layout'])
@@ -287,9 +297,8 @@ class WizardDialog:
     def validate(self):
         step = self.steps[self.current_step_idx]
         handler = step['handler']
-        if handler and not handler.is_valid(self.answers):
+        if handler and not handler.is_valid(self.answers) and not handler.is_disabled():
             self.error_messages = ','.join(handler.errors)
-
             return False
         self.error_messages = ''
         return True
