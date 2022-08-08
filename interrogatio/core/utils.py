@@ -74,7 +74,9 @@ def _validate_question(q):  # noqa: CCR001
 
     if 'disabled' in q:
         if not (isinstance(q['disabled'], bool) or callable(q['disabled'])):
-            raise InvalidQuestionError('Disabled flag must be a boolean or callable.')
+            raise InvalidQuestionError(
+                'Disabled flag must be a boolean or callable.',
+            )
 
 
 def validate_questions(questions):

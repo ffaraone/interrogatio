@@ -270,11 +270,14 @@ class WizardDialog:
             self.error_messages = ''
             self.current_step_idx -= 1
             self.current_step = self.steps[self.current_step_idx]
+            handler = self.current_step['handler']
+            if handler and handler.is_disabled(self.answers):
+                return self.previous()
             get_app().layout.focus(self.current_step['layout'])
 
         self.set_buttons_labels()
 
-    def next(self):
+    def next(self):  # noqa: CCR001
         if self.validate():
             if self.current_step_idx < len(self.steps) - 1:
                 handler = self.current_step['handler']
@@ -297,7 +300,11 @@ class WizardDialog:
     def validate(self):
         step = self.steps[self.current_step_idx]
         handler = step['handler']
-        if handler and not handler.is_valid(self.answers) and not handler.is_disabled():
+        if (
+                handler
+                and not handler.is_valid(self.answers)
+                and not handler.is_disabled()
+        ):
             self.error_messages = ','.join(handler.errors)
             return False
         self.error_messages = ''

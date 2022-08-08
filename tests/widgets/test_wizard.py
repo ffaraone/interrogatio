@@ -18,11 +18,19 @@ def test_wizard_init_default():
             'message': 'message',
             'description': 'description',
             'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
         },
     ]
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
-    assert len(wz.steps) == 2
+    assert len(wz.steps) == 3
 
 
 def test_wizard_init_intro_summary():
@@ -164,17 +172,27 @@ def test_wizard_next(mocker):
             'message': 'message',
             'description': 'description',
             'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': False,
         },
     ]
     handlers = [get_instance(q) for q in questions]
     mocked_validate = mocker.patch.object(WizardDialog, 'validate')
     wz = WizardDialog('title', handlers)
     wz.next()  # noqa: B305
-    assert wz.current_step_idx == 1
-    assert wz.current_step == wz.steps[1]
+    assert wz.current_step_idx == 2
+    assert wz.current_step == wz.steps[2]
     assert len(wz.buttons) == 3
     assert wz.previous_btn in wz.buttons
-    mocked_validate.assert_called_once()
+    mocked_validate.assert_called()
+    mocked_validate.call_count == 2
 
 
 def test_wizard_previous(mocker):
@@ -190,6 +208,14 @@ def test_wizard_previous(mocker):
         },
         {
             'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
             'type': 'input',
             'message': 'message',
             'description': 'description',
