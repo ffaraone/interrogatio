@@ -39,7 +39,8 @@ def show_dialog(
         return
     answers = {}
     for handler in handlers:
-        answers.update(handler.get_answer())
+        if not handler.is_disabled(answers):
+            answers.update(handler.get_answer())
     return answers
 
 
