@@ -21,6 +21,7 @@ class QHandler(metaclass=ABCMeta):
         self._question = question
         self._widget = None
         self._errors = []
+        self.disabled = True
 
     @property
     def errors(self):
@@ -164,9 +165,11 @@ class QHandler(metaclass=ABCMeta):
         """
         disabled = self._question.get('disabled', False)
         if callable(disabled):
-            return disabled(context)
+            self.disabled = disabled(context)
         else:
-            return disabled
+            self.disabled = disabled
+
+        return self.disabled
 
     def is_valid(self, context=None):
         """

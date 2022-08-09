@@ -195,6 +195,45 @@ def test_wizard_next(mocker):
     mocked_validate.call_count == 2
 
 
+def test_wizard_next_with_disabled(mocker):
+    mocked_app = mocker.MagicMock()
+    mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
+    questions = [
+        {
+            'name': 'question1',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+    ]
+    handlers = [get_instance(q) for q in questions]
+    mocked_validate = mocker.patch.object(WizardDialog, 'validate')
+    wz = WizardDialog('title', handlers)
+    wz.next()  # noqa: B305
+    assert wz.current_step_idx == 1
+    assert wz.current_step == wz.steps[1]
+    assert len(wz.buttons) == 3
+    assert wz.previous_btn in wz.buttons
+    assert wz.next_btn.text == wz.label_finish
+    mocked_validate.assert_called_once()
+
+
 def test_wizard_previous(mocker):
     mocked_app = mocker.MagicMock()
     mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)

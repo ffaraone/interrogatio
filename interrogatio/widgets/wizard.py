@@ -249,6 +249,18 @@ class WizardDialog:
                 },
             )
 
+    def enabled_steps_left(self):
+        idx = self.current_step_idx + 1
+        while idx <= len(self.steps) - 1:
+            next_step = self.steps[idx]
+            next_handler = next_step['handler']
+            if next_handler:
+                if not next_handler.disabled:
+                    return True
+            idx += 1
+
+        return False
+
     def set_buttons_labels(self):
         if len(self.steps) == 1:
             return
@@ -257,8 +269,10 @@ class WizardDialog:
             return
         if self.current_step_idx == len(self.steps) - 1:
             self.next_btn.text = self.label_finish
-        else:
+        elif self.enabled_steps_left():
             self.next_btn.text = self.label_next
+        else:
+            self.next_btn.text = self.label_finish
 
         self.buttons = [self.next_btn, self.previous_btn, self.cancel_btn]
 
