@@ -18,11 +18,19 @@ def test_wizard_init_default():
             'message': 'message',
             'description': 'description',
             'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
         },
     ]
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
-    assert len(wz.steps) == 2
+    assert len(wz.steps) == 3
 
 
 def test_wizard_init_intro_summary():
@@ -85,6 +93,13 @@ def test_wizard_get_steps_label():
             'description': 'description',
             'validators': [{'name': 'required'}],
         },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'disabled': True,
+        },
     ]
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
@@ -94,6 +109,8 @@ def test_wizard_get_steps_label():
     assert '1. Question1' == steps_lables.children[0].content.text[0][1]
     assert 'class:dialog.step ' == steps_lables.children[1].content.text[0][0]
     assert '2. Question2' == steps_lables.children[1].content.text[0][1]
+    assert 'disabled' in steps_lables.children[2].content.text[0][0]
+    assert '3. Question3' == steps_lables.children[2].content.text[0][1]
 
 
 def test_wizard_get_status():
@@ -148,6 +165,49 @@ def test_wizard_cancel(mocker):
 
 
 def test_wizard_next(mocker):
+    def always_true(context):
+        return True
+
+    mocked_app = mocker.MagicMock()
+    mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
+    questions = [
+        {
+            'name': 'question1',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': always_true,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': False,
+        },
+    ]
+    handlers = [get_instance(q) for q in questions]
+    mocked_validate = mocker.patch.object(WizardDialog, 'validate')
+    wz = WizardDialog('title', handlers)
+    wz.next()  # noqa: B305
+    assert wz.current_step_idx == 2
+    assert wz.current_step == wz.steps[2]
+    assert len(wz.buttons) == 3
+    assert wz.previous_btn in wz.buttons
+    assert wz.next_btn.text == wz.label_finish
+    assert mocked_validate.call_count == 2
+
+
+def test_wizard_next_with_disabled(mocker):
     mocked_app = mocker.MagicMock()
     mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
     questions = [
@@ -165,6 +225,14 @@ def test_wizard_next(mocker):
             'description': 'description',
             'validators': [{'name': 'required'}],
         },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
     ]
     handlers = [get_instance(q) for q in questions]
     mocked_validate = mocker.patch.object(WizardDialog, 'validate')
@@ -174,6 +242,7 @@ def test_wizard_next(mocker):
     assert wz.current_step == wz.steps[1]
     assert len(wz.buttons) == 3
     assert wz.previous_btn in wz.buttons
+    assert wz.next_btn.text == wz.label_finish
     mocked_validate.assert_called_once()
 
 
@@ -190,6 +259,21 @@ def test_wizard_previous(mocker):
         },
         {
             'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question4',
             'type': 'input',
             'message': 'message',
             'description': 'description',

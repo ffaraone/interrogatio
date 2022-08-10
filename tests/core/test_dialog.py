@@ -33,9 +33,13 @@ def test_show_dialog(mocker):
     )
     mocked_handler = mocker.MagicMock()
     mocked_handler.get_answer.return_value = {'question': 'answer'}
+    mocked_handler.is_disabled.return_value = False
+
+    mocked_disabled_handler = mocker.MagicMock()
+    mocked_disabled_handler.is_disabled.return_value = True
     mocker.patch(
         'interrogatio.core.dialog.get_instance',
-        return_value=mocked_handler,
+        side_effect=[mocked_handler, mocked_disabled_handler],
     )
     mocked_app = mocker.MagicMock()
     mocked_app.run.return_value = True
@@ -56,7 +60,7 @@ def test_show_dialog(mocker):
         return_value=mocked_layout,
     )
 
-    args = ([{'name': 'question1'}], 'title')
+    args = ([{'name': 'question'}, {'name': 'disabled_question'}], 'title')
     kwargs = {
         'intro': 'intro',
         'summary': True,
@@ -70,7 +74,7 @@ def test_show_dialog(mocker):
 
     mocked_wz_cls.assert_called_once_with(
         'title',
-        [mocked_handler],
+        [mocked_handler, mocked_disabled_handler],
         **kwargs,
     )
     mocked_layout_cls.assert_called_once_with(mocked_wz)

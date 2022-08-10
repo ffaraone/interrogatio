@@ -54,6 +54,8 @@ def interrogatio(questions, theme='default'):
     validate_questions(questions)
     for q in questions:
         handler = get_instance(q)
+        if handler.is_disabled(context=answers):
+            continue
         handler.set_context(answers)
         layout = handler.get_layout()
         layout.align = HorizontalAlign.LEFT

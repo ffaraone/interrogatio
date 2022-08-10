@@ -31,6 +31,7 @@
       "dialog.body shadow": "bg:magenta",
       "dialog.step": "",
       "dialog.step.current": "magenta bold",
+      "dialog.step.disabled": "grey",
       "button": "white",
       "button.arrow": "bold",
       "button.focused": "bg:magenta white",

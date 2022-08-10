@@ -130,6 +130,18 @@ class WizardDialog:
             f'{self.title} - {self.current_step_idx + 1} of {len(self.steps)}'
         )
 
+    def _get_step_style(self, idx):
+        if idx == self.current_step_idx:
+            return 'class:dialog.step.current'
+
+        if (
+                self.steps[idx].get('handler')
+                and self.steps[idx]['handler'].is_disabled(context=self.answers)
+        ):
+            return 'class:dialog.step.disabled'
+
+        return 'class:dialog.step'
+
     def get_steps_labels(self):
         steps_labels = []
         for idx, step in enumerate(self.steps, start=1):
@@ -139,11 +151,7 @@ class WizardDialog:
                     FormattedTextControl(
                         to_formatted_text(
                             label,
-                            style=(
-                                'class:dialog.step.current'
-                                if self.current_step_idx == idx - 1
-                                else 'class:dialog.step'
-                            ),
+                            style=self._get_step_style(idx - 1),
                         ),
                     ),
                     height=1,
@@ -241,13 +249,30 @@ class WizardDialog:
                 },
             )
 
+    def _check_no_next_steps(self):
+        idx = self.current_step_idx + 1
+        while idx <= len(self.steps) - 1:
+            next_step = self.steps[idx]
+            next_handler = next_step['handler']
+            if next_handler:
+                if not next_handler.is_disabled(self.answers):
+                    return False
+            idx += 1
+
+        return True
+
     def set_buttons_labels(self):
         if len(self.steps) == 1:
             return
+
         if self.current_step_idx == 0:
             self.buttons = [self.next_btn, self.cancel_btn]
             return
-        if self.current_step_idx == len(self.steps) - 1:
+
+        if (
+                self.current_step_idx == len(self.steps) - 1
+                or self._check_no_next_steps()
+        ):
             self.next_btn.text = self.label_finish
         else:
             self.next_btn.text = self.label_next
@@ -262,11 +287,14 @@ class WizardDialog:
             self.error_messages = ''
             self.current_step_idx -= 1
             self.current_step = self.steps[self.current_step_idx]
+            handler = self.current_step['handler']
+            if handler and handler.is_disabled(self.answers):
+                return self.previous()
             get_app().layout.focus(self.current_step['layout'])
 
         self.set_buttons_labels()
 
-    def next(self):
+    def next(self):  # noqa: CCR001
         if self.validate():
             if self.current_step_idx < len(self.steps) - 1:
                 handler = self.current_step['handler']
@@ -276,6 +304,8 @@ class WizardDialog:
                 self.current_step = self.steps[self.current_step_idx]
                 handler = self.current_step['handler']
                 if handler:
+                    if handler.is_disabled(context=self.answers):
+                        return self.next()  # noqa: B305
                     handler.set_context(self.answers)
                 if not self.summary or self.current_step != self.steps[-1]:
                     get_app().layout.focus(self.current_step['layout'])
@@ -287,9 +317,12 @@ class WizardDialog:
     def validate(self):
         step = self.steps[self.current_step_idx]
         handler = step['handler']
-        if handler and not handler.is_valid(self.answers):
+        if (
+                handler
+                and not handler.is_valid(self.answers)
+                and not handler.is_disabled(self.answers)
+        ):
             self.error_messages = ','.join(handler.errors)
-
             return False
         self.error_messages = ''
         return True

@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 
+import pytest
+
+from interrogatio.core.exceptions import InvalidQuestionError
 from interrogatio.core.prompt import interrogatio
 
 
@@ -649,6 +652,7 @@ def test_date_handler_invalid_char(mock_input):
             'type': 'date',
             'message': 'message',
             'description': 'description',
+            'disabled': False,
         },
     ]
 
@@ -698,3 +702,39 @@ def test_daterange_handler(mock_input):
         'from': datetime(2020, 1, 1, tzinfo=timezone.utc),
         'to': datetime(2021, 1, 1, tzinfo=timezone.utc),
     }
+
+
+def test_disabled_handler(mock_input):
+    questions = [
+        {
+            'name': 'question',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'disabled': True,
+        },
+    ]
+
+    mock_input.send_text('this is the answer\n')
+    answers = interrogatio(questions)
+
+    assert len(answers) == 0
+
+
+def test_disabled_handler_invalid(mock_input):
+    questions = [
+        {
+            'name': 'question',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'disabled': 'not callable or boolean',
+        },
+    ]
+
+    mock_input.send_text('this is the answer\n')
+
+    with pytest.raises(InvalidQuestionError) as cv:
+        interrogatio(questions)
+
+    assert str(cv.value) == 'Disabled flag must be a boolean or callable.'

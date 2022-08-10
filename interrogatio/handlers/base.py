@@ -157,6 +157,17 @@ class QHandler(metaclass=ABCMeta):
             'label', self.get_variable_name().capitalize(),
         )
 
+    def is_disabled(self, context=None):
+        """
+        If disabled flag specified, it is evaluated if needed and returned.
+        By default, all questions are enabled.
+        """
+        disabled = self._question.get('disabled', False)
+        if callable(disabled):
+            return disabled(context)
+        else:
+            return disabled
+
     def is_valid(self, context=None):
         """
         Apply any speficied validator to the answer and return True if the
