@@ -191,8 +191,7 @@ def test_wizard_next(mocker):
     assert wz.current_step == wz.steps[2]
     assert len(wz.buttons) == 3
     assert wz.previous_btn in wz.buttons
-    mocked_validate.assert_called()
-    mocked_validate.call_count == 2
+    assert mocked_validate.call_count == 2
 
 
 def test_wizard_next_with_disabled(mocker):

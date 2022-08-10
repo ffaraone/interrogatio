@@ -249,30 +249,33 @@ class WizardDialog:
                 },
             )
 
-    def enabled_steps_left(self):
+    def _check_no_next_steps(self):
         idx = self.current_step_idx + 1
         while idx <= len(self.steps) - 1:
             next_step = self.steps[idx]
             next_handler = next_step['handler']
             if next_handler:
                 if not next_handler.disabled:
-                    return True
+                    return False
             idx += 1
 
-        return False
+        return True
 
     def set_buttons_labels(self):
         if len(self.steps) == 1:
             return
+
         if self.current_step_idx == 0:
             self.buttons = [self.next_btn, self.cancel_btn]
             return
-        if self.current_step_idx == len(self.steps) - 1:
+
+        if (
+                self.current_step_idx == len(self.steps) - 1
+                or self._check_no_next_steps()
+        ):
             self.next_btn.text = self.label_finish
-        elif self.enabled_steps_left():
-            self.next_btn.text = self.label_next
         else:
-            self.next_btn.text = self.label_finish
+            self.next_btn.text = self.label_next
 
         self.buttons = [self.next_btn, self.previous_btn, self.cancel_btn]
 
@@ -302,7 +305,7 @@ class WizardDialog:
                 handler = self.current_step['handler']
                 if handler:
                     if handler.is_disabled(context=self.answers):
-                        return self.next()
+                        return self.next()  # noqa: B305
                     handler.set_context(self.answers)
                 if not self.summary or self.current_step != self.steps[-1]:
                     get_app().layout.focus(self.current_step['layout'])
@@ -317,7 +320,7 @@ class WizardDialog:
         if (
                 handler
                 and not handler.is_valid(self.answers)
-                and not handler.is_disabled()
+                and not handler.is_disabled(self.answers)
         ):
             self.error_messages = ','.join(handler.errors)
             return False
