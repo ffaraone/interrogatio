@@ -93,6 +93,13 @@ def test_wizard_get_steps_label():
             'description': 'description',
             'validators': [{'name': 'required'}],
         },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'disabled': True,
+        },
     ]
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
@@ -102,6 +109,8 @@ def test_wizard_get_steps_label():
     assert '1. Question1' == steps_lables.children[0].content.text[0][1]
     assert 'class:dialog.step ' == steps_lables.children[1].content.text[0][0]
     assert '2. Question2' == steps_lables.children[1].content.text[0][1]
+    assert 'class:dialog.step.disabled ' == steps_lables.children[2].content.text[0][0]
+    assert '3. Question3' == steps_lables.children[2].content.text[0][1]
 
 
 def test_wizard_get_status():
@@ -156,6 +165,9 @@ def test_wizard_cancel(mocker):
 
 
 def test_wizard_next(mocker):
+    def always_true(context):
+        return True
+
     mocked_app = mocker.MagicMock()
     mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
     questions = [
@@ -172,7 +184,7 @@ def test_wizard_next(mocker):
             'message': 'message',
             'description': 'description',
             'validators': [{'name': 'required'}],
-            'disabled': True,
+            'disabled': always_true,
         },
         {
             'name': 'question3',
@@ -191,6 +203,7 @@ def test_wizard_next(mocker):
     assert wz.current_step == wz.steps[2]
     assert len(wz.buttons) == 3
     assert wz.previous_btn in wz.buttons
+    assert wz.next_btn.text == wz.label_finish
     assert mocked_validate.call_count == 2
 
 
@@ -254,6 +267,13 @@ def test_wizard_previous(mocker):
         },
         {
             'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question4',
             'type': 'input',
             'message': 'message',
             'description': 'description',

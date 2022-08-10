@@ -255,7 +255,7 @@ class WizardDialog:
             next_step = self.steps[idx]
             next_handler = next_step['handler']
             if next_handler:
-                if not next_handler.disabled:
+                if not next_handler.is_disabled(self.answers):
                     return False
             idx += 1
 
