@@ -109,7 +109,7 @@ def test_wizard_get_steps_label():
     assert '1. Question1' == steps_lables.children[0].content.text[0][1]
     assert 'class:dialog.step ' == steps_lables.children[1].content.text[0][0]
     assert '2. Question2' == steps_lables.children[1].content.text[0][1]
-    assert 'class:dialog.step.disabled ' == steps_lables.children[2].content.text[0][0]
+    assert 'disabled' in steps_lables.children[2].content.text[0][0]
     assert '3. Question3' == steps_lables.children[2].content.text[0][1]
 
 
