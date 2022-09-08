@@ -38,18 +38,20 @@ def _validate_question(q):  # noqa: CCR001
         values = q['values']
         if values:
             if not isinstance(values, (list, tuple)):
-                raise InvalidQuestionError(
-                    'Choices must be a list or tuple of tuples.',
-                )
-            first_value = values[0]
-            if not isinstance(first_value, (list, tuple)):
-                raise InvalidQuestionError(
-                    'Choices must be a list or tuple of tuples.',
-                )
-            if len(first_value) != 2:
-                raise InvalidQuestionError(
-                    'Every choice must be a tuple (value, label).',
-                )
+                if not callable(values):
+                    raise InvalidQuestionError(
+                        'Choices must be a list, tuple of tuples or callable.',
+                    )
+            else:
+                first_value = values[0]
+                if not isinstance(first_value, (list, tuple)):
+                    raise InvalidQuestionError(
+                        'Choices must be a list or tuple of tuples.',
+                    )
+                if len(first_value) != 2:
+                    raise InvalidQuestionError(
+                        'Every choice must be a tuple (value, label).',
+                    )
 
     if 'validators' in q:
         if not isinstance(q['validators'], (list, tuple)):
