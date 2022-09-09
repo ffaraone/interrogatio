@@ -298,7 +298,11 @@ class SelectManyHandler(QHandler):
         values = self.get_value()
         if not values:
             return ''
-        options = {t[0]: t[1] for t in self._question['values']}
+
+        if callable(self._question['values']):
+            options = {t[0]: t[1] for t in self.get_widget().values}
+        else:
+            options = {t[0]: t[1] for t in self._question['values']}
 
         formatted_values = []
 
