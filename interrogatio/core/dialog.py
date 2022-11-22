@@ -15,6 +15,7 @@ def show_dialog(
     title,
     intro=None,
     summary=False,
+    fast_forward=False,
     next_text='Next',
     previous_text='Previous',
     cancel_text='Cancel',
@@ -25,7 +26,7 @@ def show_dialog(
         layout=Layout(
             WizardDialog(
                 title, handlers,
-                intro=intro, summary=summary,
+                intro=intro, summary=summary, fast_forward=fast_forward,
                 next_text=next_text, previous_text=previous_text,
                 cancel_text=cancel_text, finish_text=finish_text,
             ),
@@ -49,6 +50,7 @@ def dialogus(
     title,
     intro=None,
     summary=False,
+    fast_forward=False,
     next_text='Next',
     previous_text='Previous',
     cancel_text='Cancel',
@@ -105,6 +107,7 @@ def dialogus(
         title,
         intro=intro,
         summary=summary,
+        fast_forward=fast_forward,
         next_text=next_text,
         previous_text=previous_text,
         cancel_text=cancel_text,

@@ -23,6 +23,7 @@ class WizardDialog:
         self, title, handlers, intro=None, summary=False,
         next_text='Next', previous_text='Previous',
         cancel_text='Cancel', finish_text='Finish',
+        fast_forward=False,
     ):
         self.title = title
         self.handlers = handlers
@@ -54,6 +55,9 @@ class WizardDialog:
         )
 
         self.buttons = [self.next_btn, self.cancel_btn]
+
+        if fast_forward:
+            self.fast_forward()
 
         self.buttons_kb = KeyBindings()
         first_selected = has_focus(self.buttons[0])
@@ -254,9 +258,8 @@ class WizardDialog:
         while idx <= len(self.steps) - 1:
             next_step = self.steps[idx]
             next_handler = next_step['handler']
-            if next_handler:
-                if not next_handler.is_disabled(self.answers):
-                    return False
+            if next_handler and not next_handler.is_disabled(self.answers):
+                return False
             idx += 1
 
         return True
@@ -266,12 +269,13 @@ class WizardDialog:
             return
 
         if self.current_step_idx == 0:
+            self.next_btn.text = self.label_next
             self.buttons = [self.next_btn, self.cancel_btn]
             return
 
         if (
-                self.current_step_idx == len(self.steps) - 1
-                or self._check_no_next_steps()
+            self.current_step_idx == len(self.steps) - 1
+            or (self._check_no_next_steps() and not self.summary)
         ):
             self.next_btn.text = self.label_finish
         else:
@@ -312,6 +316,21 @@ class WizardDialog:
             else:
                 get_app().exit(result=True)
 
+        self.set_buttons_labels()
+
+    def fast_forward(self):
+        while self.current_step_idx < len(self.steps) - 1:
+            if self.validate():
+                step = self.steps[self.current_step_idx]
+                handler = step['handler']
+                if handler and not handler.is_disabled(self.answers):
+                    self.answers.update(handler.get_answer())
+                    handler.set_context(self.answers)
+                self.current_step_idx += 1
+            else:
+                break
+
+        self.current_step = self.steps[self.current_step_idx]
         self.set_buttons_labels()
 
     def validate(self):

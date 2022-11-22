@@ -12,6 +12,7 @@ def test_dialogus(mocker):
     kwargs = {
         'intro': 'intro',
         'summary': True,
+        'fast_forward': False,
         'next_text': 'next_text',
         'previous_text': 'previous_text',
         'cancel_text': 'cancel_text',
@@ -64,6 +65,7 @@ def test_show_dialog(mocker):
     kwargs = {
         'intro': 'intro',
         'summary': True,
+        'fast_forward': False,
         'next_text': 'next_text',
         'previous_text': 'previous_text',
         'cancel_text': 'cancel_text',
