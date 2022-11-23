@@ -491,3 +491,78 @@ def test_wizard_get_buttons_container(mocker):
     handlers = [get_instance(q) for q in questions]
     wz = WizardDialog('title', handlers)
     assert wz.get_buttons_container() is not None
+
+
+def test_wizard_fast_forward(mocker):
+    mocked_app = mocker.MagicMock()
+    mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
+    questions = [
+        {
+            'name': 'question1',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'default': 'value',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'default': 'value',
+            'validators': [{'name': 'required'}],
+        },
+    ]
+    handlers = [get_instance(q) for q in questions]
+    mocker.patch.object(WizardDialog, 'validate')
+    wz = WizardDialog('title', handlers, fast_forward=True)
+    assert wz.current_step_idx == 2
+    assert wz.current_step == wz.steps[-1]
+
+
+def test_wizard_fast_forward_with_error(mocker):
+    mocked_app = mocker.MagicMock()
+    mocker.patch('interrogatio.widgets.wizard.get_app', return_value=mocked_app)
+    questions = [
+        {
+            'name': 'question1',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'default': 'value',
+            'validators': [{'name': 'required'}],
+        },
+        {
+            'name': 'question2',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+            'disabled': True,
+        },
+        {
+            'name': 'question3',
+            'type': 'input',
+            'message': 'message',
+            'description': 'description',
+            'validators': [{'name': 'required'}],
+        },
+    ]
+    handlers = [get_instance(q) for q in questions]
+    mocker.patch.object(
+        WizardDialog,
+        'validate',
+        side_effect=[True, True, False],
+    )
+    wz = WizardDialog('title', handlers, summary=True, fast_forward=True)
+    assert wz.current_step_idx == 2
+    assert wz.current_step == wz.steps[2]
