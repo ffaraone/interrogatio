@@ -71,6 +71,7 @@ def interrogatio(questions, theme='default'):
             layout=Layout(layout),
             key_bindings=merge_key_bindings(bindings),
             style=for_prompt(),
+            mouse_support=False,
         )
 
         while True:
