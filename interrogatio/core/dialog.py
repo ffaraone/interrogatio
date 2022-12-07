@@ -31,7 +31,7 @@ def show_dialog(
                 cancel_text=cancel_text, finish_text=finish_text,
             ),
         ),
-        mouse_support=True,
+        mouse_support=False,
         style=for_dialog(),
         full_screen=True,
     )
