@@ -82,7 +82,7 @@ def test_show_dialog(mocker):
     mocked_layout_cls.assert_called_once_with(mocked_wz)
     mocked_app_cls.assert_called_once_with(
         layout=mocked_layout,
-        mouse_support=True,
+        mouse_support=False,
         style='a style',
         full_screen=True,
     )
