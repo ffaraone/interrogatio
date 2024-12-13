@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10']
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-         python-version: ['3.8', '3.9', '3.10']
+         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -61,7 +61,7 @@ jobs:
         echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
     - name: Linting
       run: |
-        poetry run flake8
+        poetry run ruff check .
     - name: Testing
       run: |
         poetry run pytest

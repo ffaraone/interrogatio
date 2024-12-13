@@ -19,8 +19,8 @@ from interrogatio.widgets import DateRange, MaskedInput, SelectMany, SelectOne
 
 
 @pytest.mark.parametrize(
-    ('handler', 'expected_widget'),
-    (
+    ("handler", "expected_widget"),
+    [
         (StringHandler, TextArea),
         (PasswordHandler, TextArea),
         (SelectOneHandler, SelectOne),
@@ -28,7 +28,7 @@ from interrogatio.widgets import DateRange, MaskedInput, SelectMany, SelectOne
         (MaskedInputHandler, MaskedInput),
         (DateHandler, MaskedInput),
         (DateRangeHandler, DateRange),
-    ),
+    ],
 )
 def test_handler_get_widget_class(handler, expected_widget):
     s = handler({})
@@ -36,11 +36,11 @@ def test_handler_get_widget_class(handler, expected_widget):
 
 
 @pytest.mark.parametrize(
-    ('handler', 'expected_widget'),
-    (
+    ("handler", "expected_widget"),
+    [
         (StringHandler, TextArea),
         (PasswordHandler, TextArea),
-    ),
+    ],
 )
 def test_handler_get_widget(handler, expected_widget):
     question = {}
@@ -49,33 +49,33 @@ def test_handler_get_widget(handler, expected_widget):
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_layout_cursor_position(handler):
     question = {}
     s = handler(question)
     widget = s.get_widget()
-    widget.text = 'this is the text'
+    widget.text = "this is the text"
     s.get_layout()
     assert widget.buffer.cursor_position == len(widget.text)
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_layout(handler):
     question = {}
     s = handler(question)
     widget = s.get_widget()
-    widget.text = 'This is the widget text'
+    widget.text = "This is the widget text"
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
     assert len(layout.children) == 1
@@ -85,21 +85,21 @@ def test_textarea_handler_get_layout(handler):
     assert layout.children[0].padding == 1
     input_ctrl = layout.children[0].children[0]
     assert isinstance(input_ctrl, Window)
-    assert input_ctrl.content.buffer.text == 'This is the widget text'
+    assert input_ctrl.content.buffer.text == "This is the widget text"
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_layout_with_msg(handler):
-    question = {'message': 'this is a message'}
+    question = {"message": "this is a message"}
     s = handler(question)
     widget = s.get_widget()
-    widget.text = 'This is the widget text'
+    widget.text = "This is the widget text"
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
     assert len(layout.children) == 1
@@ -109,44 +109,44 @@ def test_textarea_handler_get_layout_with_msg(handler):
     assert layout.children[0].padding == 1
     label_ctrl = layout.children[0].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[0].children[1]
-    assert input_ctrl.content.buffer.text == 'This is the widget text'
+    assert input_ctrl.content.buffer.text == "This is the widget text"
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_layout_with_description(handler):
-    question = {'description': 'this is a description'}
+    question = {"description": "this is a description"}
     s = handler(question)
     widget = s.get_widget()
-    widget.text = 'This is the widget text'
+    widget.text = "This is the widget text"
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
     assert len(layout.children) == 2
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[1], VSplit)
     assert len(layout.children[1].children) == 1
     assert layout.children[1].padding == 1
     input_ctrl = layout.children[1].children[0]
-    assert input_ctrl.content.buffer.text == 'This is the widget text'
+    assert input_ctrl.content.buffer.text == "This is the widget text"
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_keybindings(handler):
     s = handler({})
@@ -157,37 +157,37 @@ def test_textarea_handler_get_keybindings(handler):
 
 
 @pytest.mark.parametrize(
-    'handler',
-    (
+    "handler",
+    [
         StringHandler,
         PasswordHandler,
-    ),
+    ],
 )
 def test_textarea_handler_get_value(mocker, handler):
     s = handler({})
     widget_mock = mocker.MagicMock()
-    widget_mock.text = 'Test text'
+    widget_mock.text = "Test text"
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
 
-    assert s.get_value() == 'Test text'
+    assert s.get_value() == "Test text"
 
 
 @pytest.mark.parametrize(
-    ('question', 'expected'),
-    (
+    ("question", "expected"),
+    [
         (
-            {'default': 'default_text'},
+            {"default": "default_text"},
             {
-                'multiline': False,
-                'text': 'default_text',
-                'style': 'class:input.answer',
+                "multiline": False,
+                "text": "default_text",
+                "style": "class:input.answer",
             },
         ),
         (
-            {'multiline': True},
-            {'multiline': True, 'style': 'class:input.answer'},
+            {"multiline": True},
+            {"multiline": True, "style": "class:input.answer"},
         ),
-    ),
+    ],
 )
 def test_string_handler_get_widget_init_kwargs(question, expected):
     s = StringHandler(question)
@@ -195,26 +195,26 @@ def test_string_handler_get_widget_init_kwargs(question, expected):
 
 
 @pytest.mark.parametrize(
-    ('question', 'expected'),
-    (
+    ("question", "expected"),
+    [
         (
-            {'default': 'default_text'},
+            {"default": "default_text"},
             {
-                'text': 'default_text',
-                'style': 'class:password.answer',
-                'password': True,
-                'multiline': False,
+                "text": "default_text",
+                "style": "class:password.answer",
+                "password": True,
+                "multiline": False,
             },
         ),
         (
             {},
             {
-                'multiline': False,
-                'style': 'class:password.answer',
-                'password': True,
+                "multiline": False,
+                "style": "class:password.answer",
+                "password": True,
             },
         ),
-    ),
+    ],
 )
 def test_password_handler_get_widget_init_kwargs(question, expected):
     s = PasswordHandler(question)
@@ -222,7 +222,7 @@ def test_password_handler_get_widget_init_kwargs(question, expected):
 
 
 def test_selectone_handler_get_layout():
-    question = {'values': [('a', 'A')]}
+    question = {"values": [("a", "A")]}
     s = SelectOneHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -236,7 +236,7 @@ def test_selectone_handler_get_layout():
 
 
 def test_selectone_handler_get_layout_with_msg():
-    question = {'message': 'this is a message', 'values': [('a', 'A')]}
+    question = {"message": "this is a message", "values": [("a", "A")]}
     s = SelectOneHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -247,13 +247,13 @@ def test_selectone_handler_get_layout_with_msg():
     assert layout.children[0].padding == 1
     label_ctrl = layout.children[0].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[0].children[1]
     assert isinstance(input_ctrl, Window)
 
 
 def test_selectone_handler_get_layout_with_description():
-    question = {'description': 'this is a description', 'values': [('a', 'A')]}
+    question = {"description": "this is a description", "values": [("a", "A")]}
     s = SelectOneHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -261,7 +261,7 @@ def test_selectone_handler_get_layout_with_description():
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[1], VSplit)
     assert len(layout.children[1].children) == 1
@@ -271,24 +271,24 @@ def test_selectone_handler_get_layout_with_description():
 
 
 @pytest.mark.parametrize(
-    ('question', 'expected'),
-    (
+    ("question", "expected"),
+    [
         (
-            {'default': 'default_value', 'values': [('a', 'A')]},
+            {"default": "default_value", "values": [("a", "A")]},
             {
-                'style': 'class:selectone.answer',
-                'values': [('a', 'A')],
-                'default': 'default_value',
+                "style": "class:selectone.answer",
+                "values": [("a", "A")],
+                "default": "default_value",
             },
         ),
         (
-            {'values': [('a', 'A')]},
+            {"values": [("a", "A")]},
             {
-                'style': 'class:selectone.answer',
-                'values': [('a', 'A')],
+                "style": "class:selectone.answer",
+                "values": [("a", "A")],
             },
         ),
-    ),
+    ],
 )
 def test_selectone_handler_get_widget_init_kwargs(question, expected):
     s = SelectOneHandler(question)
@@ -296,7 +296,7 @@ def test_selectone_handler_get_widget_init_kwargs(question, expected):
 
 
 def test_selectone_handler_get_keybindings():
-    s = SelectOneHandler({'values': [('a', 'A')]})
+    s = SelectOneHandler({"values": [("a", "A")]})
     kb = s.get_keybindings()
     assert isinstance(kb, KeyBindings)
     assert kb.get_bindings_for_keys(Keys.ControlC) is not None
@@ -305,13 +305,13 @@ def test_selectone_handler_get_keybindings():
 def test_selectone_handler_get_value(mocker):
     s = SelectOneHandler({})
     widget_mock = mocker.MagicMock()
-    widget_mock.current_value = 'Test text'
+    widget_mock.current_value = "Test text"
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
-    assert s.get_value() == 'Test text'
+    assert s.get_value() == "Test text"
 
 
 def test_selectmany_handler_get_layout():
-    question = {'values': [('a', 'A')]}
+    question = {"values": [("a", "A")]}
     s = SelectManyHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -325,7 +325,7 @@ def test_selectmany_handler_get_layout():
 
 
 def test_selectmany_handler_get_layout_with_msg():
-    question = {'message': 'this is a message', 'values': [('a', 'A')]}
+    question = {"message": "this is a message", "values": [("a", "A")]}
     s = SelectManyHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -336,13 +336,13 @@ def test_selectmany_handler_get_layout_with_msg():
     assert layout.children[1].padding == 1
     label_ctrl = layout.children[1].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[1].children[1]
     assert isinstance(input_ctrl, Window)
 
 
 def test_selectmany_handler_get_layout_with_description():
-    question = {'description': 'this is a description', 'values': [('a', 'A')]}
+    question = {"description": "this is a description", "values": [("a", "A")]}
     s = SelectManyHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -350,7 +350,7 @@ def test_selectmany_handler_get_layout_with_description():
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[2], VSplit)
     assert len(layout.children[2].children) == 1
@@ -360,28 +360,27 @@ def test_selectmany_handler_get_layout_with_description():
 
 
 @pytest.mark.parametrize(
-    ('question', 'expected'),
-    (
+    ("question", "expected"),
+    [
         (
             {
-                'default': ['a'],
-                'values': [('a', 'A')],
+                "default": ["a"],
+                "values": [("a", "A")],
             },
             {
-                'default': ['a'],
-                'style': 'class:selectmany.answer',
-                'values': [('a', 'A')],
-
+                "default": ["a"],
+                "style": "class:selectmany.answer",
+                "values": [("a", "A")],
             },
         ),
         (
-            {'values': [('a', 'A')]},
+            {"values": [("a", "A")]},
             {
-                'style': 'class:selectmany.answer',
-                'values': [('a', 'A')],
+                "style": "class:selectmany.answer",
+                "values": [("a", "A")],
             },
         ),
-    ),
+    ],
 )
 def test_selectmany_handler_get_widget_init_kwargs(question, expected):
     s = SelectManyHandler(question)
@@ -389,7 +388,7 @@ def test_selectmany_handler_get_widget_init_kwargs(question, expected):
 
 
 def test_selectmany_handler_get_keybindings():
-    s = SelectManyHandler({'values': [('a', 'A')]})
+    s = SelectManyHandler({"values": [("a", "A")]})
     kb = s.get_keybindings()
     assert isinstance(kb, KeyBindings)
     assert kb.get_bindings_for_keys(Keys.ControlC) is not None
@@ -398,13 +397,13 @@ def test_selectmany_handler_get_keybindings():
 def test_selectmany_handler_get_value(mocker):
     s = SelectManyHandler({})
     widget_mock = mocker.MagicMock()
-    widget_mock.value = ['a']
+    widget_mock.value = ["a"]
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
-    assert s.get_value() == ['a']
+    assert s.get_value() == ["a"]
 
 
 def test_maskedinput_handler_get_layout():
-    question = {'mask': '____-____'}
+    question = {"mask": "____-____"}
     s = MaskedInputHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -418,7 +417,7 @@ def test_maskedinput_handler_get_layout():
 
 
 def test_maskedinput_handler_get_layout_with_msg():
-    question = {'mask': '____-____', 'message': 'this is a message'}
+    question = {"mask": "____-____", "message": "this is a message"}
     s = MaskedInputHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -429,13 +428,13 @@ def test_maskedinput_handler_get_layout_with_msg():
     assert layout.children[0].padding == 1
     label_ctrl = layout.children[0].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[0].children[1]
     assert isinstance(input_ctrl, MaskedInput)
 
 
 def test_maskedinput_handler_get_layout_with_description():
-    question = {'mask': '____-____', 'description': 'this is a description'}
+    question = {"mask": "____-____", "description": "this is a description"}
     s = MaskedInputHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -443,7 +442,7 @@ def test_maskedinput_handler_get_layout_with_description():
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[1], VSplit)
     assert len(layout.children[1].children) == 1
@@ -453,26 +452,26 @@ def test_maskedinput_handler_get_layout_with_description():
 
 
 def test_maskedinput_handler_get_widget_init_kwargs():
-    s = MaskedInputHandler({'mask': '____-____'})
+    s = MaskedInputHandler({"mask": "____-____"})
     assert s.get_widget_init_kwargs() == {
-        'mask': '____-____',
-        'style': 'class:input.answer',
+        "mask": "____-____",
+        "style": "class:input.answer",
     }
 
 
 def test_maskedinput_handler_get_keybindings():
-    s = MaskedInputHandler({'mask': '____-____'})
+    s = MaskedInputHandler({"mask": "____-____"})
     kb = s.get_keybindings()
     assert isinstance(kb, KeyBindings)
     assert kb.get_bindings_for_keys(Keys.ControlC) is not None
 
 
 def test_maskedinput_handler_get_value(mocker):
-    s = MaskedInputHandler({'mask': '____-____'})
+    s = MaskedInputHandler({"mask": "____-____"})
     widget_mock = mocker.MagicMock()
-    widget_mock.value = 'value'
+    widget_mock.value = "value"
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
-    assert s.get_value() == 'value'
+    assert s.get_value() == "value"
 
 
 def test_date_handler_get_layout():
@@ -490,7 +489,7 @@ def test_date_handler_get_layout():
 
 
 def test_date_handler_get_layout_with_msg():
-    question = {'message': 'this is a message'}
+    question = {"message": "this is a message"}
     s = DateHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -501,13 +500,13 @@ def test_date_handler_get_layout_with_msg():
     assert layout.children[0].padding == 1
     label_ctrl = layout.children[0].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[0].children[1]
     assert isinstance(input_ctrl, MaskedInput)
 
 
 def test_date_handler_get_layout_with_description():
-    question = {'description': 'this is a description'}
+    question = {"description": "this is a description"}
     s = DateHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -515,7 +514,7 @@ def test_date_handler_get_layout_with_description():
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[1], VSplit)
     assert len(layout.children[1].children) == 1
@@ -527,9 +526,9 @@ def test_date_handler_get_layout_with_description():
 def test_date_handler_get_widget_init_kwargs():
     s = DateHandler({})
     assert s.get_widget_init_kwargs() == {
-        'mask': '____-__-__',
-        'style': 'class:input.answer',
-        'allowed_chars': string.digits,
+        "mask": "____-__-__",
+        "style": "class:input.answer",
+        "allowed_chars": string.digits,
     }
 
 
@@ -544,9 +543,9 @@ def test_date_handler_get_keybindings():
 def test_date_handler_get_value(mocker):
     s = DateHandler({})
     widget_mock = mocker.MagicMock()
-    widget_mock.value = 'value'
+    widget_mock.value = "value"
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
-    assert s.get_value() == 'value'
+    assert s.get_value() == "value"
 
 
 def test_daterange_handler_get_layout():
@@ -564,7 +563,7 @@ def test_daterange_handler_get_layout():
 
 
 def test_daterange_handler_get_layout_with_msg():
-    question = {'message': 'this is a message'}
+    question = {"message": "this is a message"}
     s = DateRangeHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -575,13 +574,13 @@ def test_daterange_handler_get_layout_with_msg():
     assert layout.children[0].padding == 1
     label_ctrl = layout.children[0].children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text() == 'this is a message'
+    assert label_ctrl.content.text() == "this is a message"
     input_ctrl = layout.children[0].children[1]
     assert isinstance(input_ctrl, DateRange)
 
 
 def test_daterange_handler_get_layout_with_description():
-    question = {'description': 'this is a description'}
+    question = {"description": "this is a description"}
     s = DateRangeHandler(question)
     layout = s.get_layout()
     assert isinstance(layout, HSplit)
@@ -589,7 +588,7 @@ def test_daterange_handler_get_layout_with_description():
     assert layout.padding == 1
     label_ctrl = layout.children[0]
     assert isinstance(label_ctrl, Window)
-    assert label_ctrl.content.text[0][1] == 'this is a description'
+    assert label_ctrl.content.text[0][1] == "this is a description"
 
     assert isinstance(layout.children[1], VSplit)
     assert len(layout.children[1].children) == 1
@@ -599,27 +598,26 @@ def test_daterange_handler_get_layout_with_description():
 
 
 @pytest.mark.parametrize(
-    ('question', 'expected'),
-    (
+    ("question", "expected"),
+    [
         (
             {
-                'from_label': 'From',
-                'to_label': 'To',
+                "from_label": "From",
+                "to_label": "To",
             },
             {
-                'style': 'class:input.answer',
-                'from_label': 'From',
-                'to_label': 'To',
-
+                "style": "class:input.answer",
+                "from_label": "From",
+                "to_label": "To",
             },
         ),
         (
             {},
             {
-                'style': 'class:input.answer',
+                "style": "class:input.answer",
             },
         ),
-    ),
+    ],
 )
 def test_daterange_handler_get_widget_init_kwargs(question, expected):
     s = DateRangeHandler(question)
@@ -637,6 +635,6 @@ def test_daterange_handler_get_keybindings():
 def test_daterange_handler_get_value(mocker):
     s = DateRangeHandler({})
     widget_mock = mocker.MagicMock()
-    widget_mock.value = 'value'
+    widget_mock.value = "value"
     s.get_widget = mocker.MagicMock(return_value=widget_mock)
-    assert s.get_value() == 'value'
+    assert s.get_value() == "value"

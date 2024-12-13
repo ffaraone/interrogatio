@@ -3,7 +3,10 @@ import pytest
 from interrogatio.core.exceptions import AlreadyRegisteredError
 from interrogatio.handlers.base import QHandler
 from interrogatio.handlers.registry import (
-    get_instance, get_registered, QHandlersRegistry, register,
+    QHandlersRegistry,
+    get_instance,
+    get_registered,
+    register,
 )
 
 
@@ -13,10 +16,10 @@ def test_registry_register():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
 
-    assert 'alias' in reg
-    assert issubclass(reg['alias'], TestClass)
+    assert "alias" in reg
+    assert issubclass(reg["alias"], TestClass)
 
 
 def test_registry_register_already_registered():
@@ -25,11 +28,11 @@ def test_registry_register_already_registered():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
     with pytest.raises(AlreadyRegisteredError) as cv:
-        reg.register('alias', TestClass)
+        reg.register("alias", TestClass)
 
-    assert str(cv.value) == 'alias `alias` already exists.'
+    assert str(cv.value) == "alias `alias` already exists."
 
 
 def test_registry_get_registered():
@@ -43,13 +46,13 @@ def test_registry_get_registered():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
 
     registered = reg.get_registered()
 
     assert isinstance(registered, list)
     assert len(registered) == 1
-    assert registered[0] == 'alias'
+    assert registered[0] == "alias"
 
 
 def test_registry_get_instance():
@@ -59,9 +62,9 @@ def test_registry_get_instance():
         def __init__(self, question):
             self.question = question
 
-    reg.register('test', TestClass)
+    reg.register("test", TestClass)
 
-    question = {'type': 'test'}
+    question = {"type": "test"}
 
     instance = reg.get_instance(question)
 
@@ -70,27 +73,26 @@ def test_registry_get_instance():
 
 
 def test_register(handlers_registry):
-
-    @register('alias')
+    @register("alias")
     class TestClass(QHandler):
         pass
 
-    assert 'alias' in handlers_registry
-    assert issubclass(handlers_registry['alias'], TestClass)
+    assert "alias" in handlers_registry
+    assert issubclass(handlers_registry["alias"], TestClass)
 
 
 def test_register_already_registered(handlers_registry):
-
-    @register('alias')
+    @register("alias")
     class TestClass(QHandler):
         pass
 
     with pytest.raises(AlreadyRegisteredError) as cv:
-        @register('alias')
+
+        @register("alias")
         class TestClass2(QHandler):
             pass
 
-    assert str(cv.value) == 'The handler `alias` is already registered.'
+    assert str(cv.value) == "The handler `alias` is already registered."
 
 
 def test_get_registered(handlers_registry):
@@ -99,7 +101,7 @@ def test_get_registered(handlers_registry):
     assert isinstance(registered, list)
     assert len(registered) == 0
 
-    @register('alias')
+    @register("alias")
     class TestClass(QHandler):
         pass
 
@@ -107,12 +109,11 @@ def test_get_registered(handlers_registry):
 
     assert isinstance(registered, list)
     assert len(registered) == 1
-    assert registered[0] == 'alias'
+    assert registered[0] == "alias"
 
 
 def test_get_instance(handlers_registry):
-
-    @register('test')
+    @register("test")
     class TestClass(QHandler):
         def __init__(self, question):
             self.question = question
@@ -129,7 +130,7 @@ def test_get_instance(handlers_registry):
         def get_widget_class(self):
             pass
 
-    question = {'type': 'test'}
+    question = {"type": "test"}
 
     instance = get_instance(question)
 

@@ -3,10 +3,10 @@ import pytest
 from interrogatio.core.exceptions import AlreadyRegisteredError
 from interrogatio.validators.base import Validator
 from interrogatio.validators.registry import (
+    ValidatorsRegistry,
     get_instance,
     get_registered,
     register,
-    ValidatorsRegistry,
 )
 
 
@@ -16,10 +16,10 @@ def test_registry_register():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
 
-    assert 'alias' in reg
-    assert issubclass(reg['alias'], TestClass)
+    assert "alias" in reg
+    assert issubclass(reg["alias"], TestClass)
 
 
 def test_registry_register_already_registered():
@@ -28,11 +28,11 @@ def test_registry_register_already_registered():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
     with pytest.raises(AlreadyRegisteredError) as cv:
-        reg.register('alias', TestClass)
+        reg.register("alias", TestClass)
 
-    assert str(cv.value) == 'validator `alias` already exists.'
+    assert str(cv.value) == "validator `alias` already exists."
 
 
 def test_registry_get_registered():
@@ -46,13 +46,13 @@ def test_registry_get_registered():
     class TestClass:
         pass
 
-    reg.register('alias', TestClass)
+    reg.register("alias", TestClass)
 
     registered = reg.get_registered()
 
     assert isinstance(registered, list)
     assert len(registered) == 1
-    assert registered[0] == 'alias'
+    assert registered[0] == "alias"
 
 
 def test_registry_get_instance():
@@ -65,9 +65,9 @@ def test_registry_get_instance():
         def validate(self, value):
             pass
 
-    reg.register('test', TestClass)
+    reg.register("test", TestClass)
 
-    validator = {'name': 'test'}
+    validator = {"name": "test"}
 
     instance = reg.get_instance(validator)
 
@@ -75,30 +75,29 @@ def test_registry_get_instance():
 
 
 def test_register(validators_registry):
-
-    @register('alias')
+    @register("alias")
     class TestClass(Validator):
         def validate(self, value):
             pass
 
-    assert 'alias' in validators_registry
-    assert issubclass(validators_registry['alias'], TestClass)
+    assert "alias" in validators_registry
+    assert issubclass(validators_registry["alias"], TestClass)
 
 
 def test_register_already_registered(validators_registry):
-
-    @register('alias')
+    @register("alias")
     class TestClass(Validator):
         def validate(self, value):
             pass
 
     with pytest.raises(AlreadyRegisteredError) as cv:
-        @register('alias')
+
+        @register("alias")
         class TestClass2(Validator):
             def validate(self, value):
                 pass
 
-    assert str(cv.value) == 'The validator `alias` is already registered.'
+    assert str(cv.value) == "The validator `alias` is already registered."
 
 
 def test_get_registered(validators_registry):
@@ -107,7 +106,7 @@ def test_get_registered(validators_registry):
     assert isinstance(registered, list)
     assert len(registered) == 0
 
-    @register('alias')
+    @register("alias")
     class TestClass(Validator):
         def validate(self, value):
             pass
@@ -116,13 +115,12 @@ def test_get_registered(validators_registry):
 
     assert isinstance(registered, list)
     assert len(registered) == 1
-    assert registered[0] == 'alias'
+    assert registered[0] == "alias"
 
 
-@pytest.mark.parametrize('args', ({}, {'message': 'message'}))
+@pytest.mark.parametrize("args", [{}, {"message": "message"}])
 def test_get_instance(validators_registry, args):
-
-    @register('test')
+    @register("test")
     class TestClass(Validator):
         def __init__(self, message=None):
             self.message = message
@@ -130,7 +128,7 @@ def test_get_instance(validators_registry, args):
         def validate(self, value):
             pass
 
-    validator = {'name': 'test', 'args': args}
+    validator = {"name": "test", "args": args}
     instance = get_instance(validator)
 
     assert isinstance(instance, TestClass)

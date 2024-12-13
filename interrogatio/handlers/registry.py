@@ -5,14 +5,14 @@ from interrogatio.handlers.base import QHandler
 class QHandlersRegistry(dict):
     def register(self, alias, clazz):
         if alias in self:
-            raise AlreadyRegisteredError(f'alias `{alias}` already exists.')
+            raise AlreadyRegisteredError(f"alias `{alias}` already exists.")
         self[alias] = clazz
 
     def get_registered(self):
         return list(self.keys())
 
     def get_instance(self, question):
-        qtype = question['type']
+        qtype = question["type"]
         clazz = self[qtype]
         return clazz(question)
 
@@ -52,16 +52,17 @@ def get_registered():
 def register(name):
     if name in get_registry().get_registered():
         raise AlreadyRegisteredError(
-            f'The handler `{name}` is already registered.',
+            f"The handler `{name}` is already registered.",
         )
 
     def _wrapper(cls):
         if not issubclass(cls, QHandler):
             raise ValueError(
-                'The provided class must be a subclass of QHandler.',
+                "The provided class must be a subclass of QHandler.",
             )
 
         get_registry().register(name, cls)
 
         return cls
+
     return _wrapper
