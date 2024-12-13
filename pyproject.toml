@@ -59,6 +59,7 @@ addopts = "--cov=interrogatio --cov-report=term-missing:skip-covered --cov-repor
 
 [tool.coverage.run]
 branch = true
+relative_files = true
 
 [tool.coverage.report]
 omit = [

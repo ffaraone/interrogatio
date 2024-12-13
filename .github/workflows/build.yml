@@ -65,9 +65,15 @@ jobs:
     - name: Testing
       run: |
         poetry run pytest
-    - name: Publish coverage
-      uses: codecov/codecov-action@v1
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@v4
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
       with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-        verbose: true
+        pollingTimeoutSec: 600
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
