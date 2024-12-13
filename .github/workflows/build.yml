@@ -30,7 +30,7 @@ jobs:
         echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
     - name: Linting
       run: |
-        poetry run flake8
+        poetry run ruff check .
     - name: Testing
       run: |
         poetry run pytest
