@@ -27,19 +27,24 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-        echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
     - name: Linting
       run: |
         poetry run ruff check .
     - name: Testing
       run: |
         poetry run pytest
-    - name: Publish coverage
-      uses: codecov/codecov-action@v1
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@v4
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+    - name: SonarQube Quality Gate check
+      id: sonarqube-quality-gate-check
+      uses: sonarsource/sonarqube-quality-gate-action@master
       with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
-        verbose: true
+        pollingTimeoutSec: 600
+      env:
+       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   win:
     runs-on: ubuntu-latest
     strategy:
@@ -58,7 +63,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry
         poetry install
-        echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
     - name: Linting
       run: |
         poetry run ruff check .
