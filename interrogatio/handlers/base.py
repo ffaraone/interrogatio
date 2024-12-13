@@ -7,7 +7,7 @@ from prompt_toolkit.keys import Keys
 from interrogatio.core.exceptions import ValidationError
 
 __all__ = [
-    'QHandler',
+    "QHandler",
 ]
 
 
@@ -45,7 +45,7 @@ class QHandler(metaclass=ABCMeta):
         :rtype: :class:`~prompt_toolkit.layout.Layout`
         """
         raise NotImplementedError(
-            'Subclass must implements `get_layout` method.',
+            "Subclass must implements `get_layout` method.",
         )
 
     def get_question(self):
@@ -62,7 +62,7 @@ class QHandler(metaclass=ABCMeta):
         :rtype: str
         """
         raise NotImplementedError(
-            'Subclass must implements `get_value` method.',
+            "Subclass must implements `get_value` method.",
         )
 
     def get_formatted_value(self):
@@ -79,7 +79,7 @@ class QHandler(metaclass=ABCMeta):
         :rtype: dict
         """
         raise NotImplementedError(
-            'Subclass must implements `get_widget_init_kwargs` method.',
+            "Subclass must implements `get_widget_init_kwargs` method.",
         )
 
     def get_init_extra_args(self):
@@ -91,7 +91,7 @@ class QHandler(metaclass=ABCMeta):
         :return: a dictionary containing the initialization extra arguments.
         :rtype: dict
         """
-        return self.get_question().get('extra_args', dict())
+        return self.get_question().get("extra_args", {})
 
     @abstractmethod
     def get_widget_class(self):
@@ -102,7 +102,7 @@ class QHandler(metaclass=ABCMeta):
         :rtype: class
         """
         raise NotImplementedError(
-            'Subclass must implements `get_widget_class` method.',
+            "Subclass must implements `get_widget_class` method.",
         )
 
     def get_widget(self):
@@ -141,20 +141,21 @@ class QHandler(metaclass=ABCMeta):
         Returns dictionary with the question variable as key and the answer
         as the value.
         """
-        return {self.get_question()['name']: self.to_python()}
+        return {self.get_question()["name"]: self.to_python()}
 
     def get_variable_name(self):
         """
         Returns the name of the variable of this question.
         """
-        return self._question['name']
+        return self._question["name"]
 
     def get_label(self):
         """
         Returns the label of the variable of this question.
         """
         return self._question.get(
-            'label', self.get_variable_name().capitalize(),
+            "label",
+            self.get_variable_name().capitalize(),
         )
 
     def is_disabled(self, context=None):
@@ -162,7 +163,7 @@ class QHandler(metaclass=ABCMeta):
         If disabled flag specified, it is evaluated if needed and returned.
         By default, all questions are enabled.
         """
-        disabled = self._question.get('disabled', False)
+        disabled = self._question.get("disabled", False)
         if callable(disabled):
             return disabled(context)
         else:
@@ -175,7 +176,7 @@ class QHandler(metaclass=ABCMeta):
         If the answer isn't valid, it also set the errors property to a list
         of error messages.
         """
-        validators = self._question.get('validators', [])
+        validators = self._question.get("validators", [])
         self._errors = []
         for validator in validators:
             try:

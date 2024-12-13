@@ -1,7 +1,6 @@
 # interrogatio
 
-![Python versions](https://img.shields.io/pypi/pyversions/interrogatio.svg) [![PyPi Status](https://img.shields.io/pypi/v/interrogatio.svg)](https://pypi.org/project/interrogatio/) ![Read the Docs](https://img.shields.io/readthedocs/interrogatio) [![Build Status](https://img.shields.io/github/workflow/status/ffaraone/interrogatio/Build%20interrogatio)](https://github.com/ffaraone/interrogatio/actions) [![codecov](https://codecov.io/gh/ffaraone/interrogatio/branch/master/graph/badge.svg)](https://codecov.io/gh/ffaraone/interrogatio)
-
+![Python versions](https://img.shields.io/pypi/pyversions/interrogatio.svg) [![PyPi Status](https://img.shields.io/pypi/v/interrogatio.svg)](https://pypi.org/project/interrogatio/) ![Read the Docs](https://img.shields.io/readthedocs/interrogatio) [![Build Status](https://img.shields.io/github/workflow/status/ffaraone/interrogatio/Build%20interrogatio)](https://github.com/ffaraone/interrogatio/actions) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ffaraone_interrogatio&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ffaraone_interrogatio) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ffaraone_interrogatio&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ffaraone_interrogatio)
 
 A python library to prompt users for inputs in a terminal application.
 

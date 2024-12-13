@@ -14,8 +14,9 @@ class ValidationError(Exception):
     """
     Exception raised when validation fails.
     """
+
     def __init__(self, message):
-        super(ValidationError, self).__init__()
+        super().__init__()
         self._message = message
 
     def __str__(self):

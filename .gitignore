@@ -106,3 +106,4 @@ venv.bak/
 local
 
 .vscode/
+.ruff_cache

@@ -9,11 +9,10 @@ from interrogatio.core.utils import validate_questions
 from interrogatio.handlers import get_instance
 from interrogatio.themes import for_prompt, set_theme
 
+__all__ = ["interrogatio"]
 
-__all__ = ['interrogatio']
 
-
-def interrogatio(questions, theme='default'):
+def interrogatio(questions, theme="default"):
     """
     Prompts user for inputs as defined in the questions parameter and returns
     a dictionary with the answers.
@@ -83,7 +82,7 @@ def interrogatio(questions, theme='default'):
                 break
             else:
                 print_formatted_text(
-                    FormattedText([('class:error', handler.errors[0])]),
+                    FormattedText([("class:error", handler.errors[0])]),
                     style=for_prompt(),
                 )
     return answers

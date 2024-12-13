@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
-
 __all__ = [
-    'Validator',
+    "Validator",
 ]
 
 
@@ -10,7 +9,8 @@ class Validator(metaclass=ABCMeta):
     """
     Abstract class for validators.
     """
-    def __init__(self, message='invalid input'):
+
+    def __init__(self, message="invalid input"):
         self.message = message
 
     @abstractmethod

@@ -1,15 +1,12 @@
-from pkg_resources import DistributionNotFound, get_distribution
+from importlib_metadata import version
 
 from interrogatio.core.dialog import dialogus
 from interrogatio.core.prompt import interrogatio
 
-__all__ = ('dialogus', 'interrogatio')
+__all__ = ("dialogus", "interrogatio")
 
 
-try:
-    __version__ = get_distribution('interrogatio').version
-except DistributionNotFound:  # pragma: no cover
-    __version__ = '0.0.0'
+__version__ = version("interrogatio")
 
 
 def get_version():
