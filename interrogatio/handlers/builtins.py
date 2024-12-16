@@ -405,7 +405,7 @@ class DateHandler(QHandler):
         }
         default = self.get_question().get("default")
         if default and not callable(default):
-            if isinstance(default, (date, datetime)):
+            if isinstance(default, date | datetime):
                 kwargs["default"] = default.strftime("%Y-%m-%d")
             else:
                 kwargs["default"] = default
@@ -416,7 +416,7 @@ class DateHandler(QHandler):
         default = self.get_question().get("default")
         if default and callable(default):
             value = default(context)
-            if isinstance(value, (date, datetime)):
+            if isinstance(value, date | datetime):
                 widget.value = value.strftime("%Y-%m-%d")
             else:
                 widget.value = value
@@ -492,7 +492,7 @@ class DateRangeHandler(QHandler):
             kwargs["default"] = {}
             default_from = default.get("from")
             if default_from:
-                if isinstance(default_from, (date, datetime)):
+                if isinstance(default_from, date | datetime):
                     kwargs["default"]["from"] = default_from.strftime(
                         "%Y-%m-%d",
                     )
@@ -500,7 +500,7 @@ class DateRangeHandler(QHandler):
                     kwargs["default"]["from"] = default_from
             default_to = default.get("to")
             if default_to:
-                if isinstance(default_to, (date, datetime)):
+                if isinstance(default_to, date | datetime):
                     kwargs["default"]["to"] = default_to.strftime("%Y-%m-%d")
                 else:
                     kwargs["default"]["to"] = default_to
@@ -514,7 +514,7 @@ class DateRangeHandler(QHandler):
             default_value = {}
             default_from = value.get("from")
             if default_from:
-                if isinstance(default_from, (date, datetime)):
+                if isinstance(default_from, date | datetime):
                     default_value["from"] = default_from.strftime(
                         "%Y-%m-%d",
                     )
@@ -522,7 +522,7 @@ class DateRangeHandler(QHandler):
                     default_value["from"] = default_from
             default_to = value.get("to")
             if default_to:
-                if isinstance(default_to, (date, datetime)):
+                if isinstance(default_to, date | datetime):
                     default_value["to"] = default_to.strftime("%Y-%m-%d")
                 else:
                     default_value["to"] = default_to

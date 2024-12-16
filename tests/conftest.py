@@ -12,7 +12,7 @@ from interrogatio.handlers.registry import (
 from interrogatio.validators.registry import _registry as v_registry
 
 
-@pytest.fixture()
+@pytest.fixture
 def handlers_registry(mocker):
     registry_copy = copy.deepcopy(h_registry)
     registry_copy.clear()
@@ -24,7 +24,7 @@ def handlers_registry(mocker):
     registry_copy.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def validators_registry(mocker):
     registry_copy = copy.deepcopy(v_registry)
     registry_copy.clear()
@@ -36,7 +36,7 @@ def validators_registry(mocker):
     registry_copy.clear()
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_handler():
     class TestHandler(QHandler):
         def get_layout(self):
@@ -57,7 +57,7 @@ def test_handler():
     return TestHandler
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_input():
     with create_pipe_input() as pipe_input:
         try:

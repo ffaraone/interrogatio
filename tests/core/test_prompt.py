@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pytest
 
@@ -576,7 +576,7 @@ def test_date_handler(mock_input):
         2020,
         1,
         1,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 
@@ -600,7 +600,7 @@ def test_date_handler_go_previous(mock_input):
         2020,
         2,
         1,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 
@@ -624,7 +624,7 @@ def test_date_handler_go_previous_beginning(mock_input):
         2022,
         7,
         6,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 
@@ -681,7 +681,7 @@ def test_date_handler_exceed_length(mock_input):
         2020,
         1,
         1,
-        tzinfo=timezone.utc,
+        tzinfo=UTC,
     )
 
 
@@ -699,8 +699,8 @@ def test_daterange_handler(mock_input):
     answers = interrogatio(questions)
     assert "question" in answers
     assert answers["question"] == {
-        "from": datetime(2020, 1, 1, tzinfo=timezone.utc),
-        "to": datetime(2021, 1, 1, tzinfo=timezone.utc),
+        "from": datetime(2020, 1, 1, tzinfo=UTC),
+        "to": datetime(2021, 1, 1, tzinfo=UTC),
     }
 
 

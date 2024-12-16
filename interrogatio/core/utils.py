@@ -35,14 +35,14 @@ def _validate_question(q):  # noqa: CCR001
             )
         values = q["values"]
         if values:
-            if not isinstance(values, (list, tuple)):
+            if not isinstance(values, list | tuple):
                 if not callable(values):
                     raise InvalidQuestionError(
                         "Choices must be a list, tuple of tuples or callable.",
                     )
             else:
                 first_value = values[0]
-                if not isinstance(first_value, (list, tuple)):
+                if not isinstance(first_value, list | tuple):
                     raise InvalidQuestionError(
                         "Choices must be a list or tuple of tuples.",
                     )
@@ -52,12 +52,12 @@ def _validate_question(q):  # noqa: CCR001
                     )
 
     if "validators" in q:
-        if not isinstance(q["validators"], (list, tuple)):
+        if not isinstance(q["validators"], list | tuple):
             raise InvalidQuestionError("Validators must be a list or tuple.")
 
         validator_instances = []
         for v in q["validators"]:
-            if not isinstance(v, (validators.Validator, dict)):
+            if not isinstance(v, validators.Validator | dict):
                 raise InvalidQuestionError(
                     "Validators must be a list of  "
                     "interrogatio.validators.Validator"

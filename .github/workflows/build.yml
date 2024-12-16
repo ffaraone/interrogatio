@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['3.12', '3.13']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -25,19 +25,19 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        pip install uv
+        uv sync
     - name: Linting
       run: |
-        poetry run ruff check .
+        uv run ruff check .
     - name: Testing
       run: |
-        poetry run pytest
+        uv run pytest
   win:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
+         python-version: ['3.12', '3.13']
     steps:
     - uses: actions/checkout@v3
       with:
@@ -49,15 +49,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
-        echo "CODEQL_PYTHON=$(which python)" >> $GITHUB_ENV
+        pip install uv
+        uv sync
     - name: Linting
       run: |
-        poetry run ruff check .
+        uv run ruff check .
     - name: Testing
       run: |
-        poetry run pytest
+        uv run pytest
 
   quality:
     runs-on: ubuntu-latest
@@ -73,14 +72,14 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install poetry
-        poetry install
+        pip install uv
+        uv sync
     - name: Linting
       run: |
-        poetry run ruff check .
+        uv run ruff check .
     - name: Testing
       run: |
-        poetry run pytest
+        uv run pytest
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@v4
       env:
